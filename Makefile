@@ -27,8 +27,8 @@ NAME	=	arcade
 
 ROOT	=	$(abspath $(lastword $(MAKEFILE_LIST)))
 
-GAMES	=	make -C games
-GRAPHICALS	=	make -C lib
+GAMES	=	@make --no-print-directory -C games
+GRAPHICALS	=	@make --no-print-directory -C lib
 
 all: games graphicals core
 
