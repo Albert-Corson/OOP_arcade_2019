@@ -12,12 +12,13 @@ SRC	=
 OBJ	=	$(SRC:.cpp=.o)
 
 CXXFLAGS	=	$(COMMON_CXXFLAGS)
-CXXFLAGS	+=
+CXXFLAGS	+=	-fPIC	\
+				-I../
 
-NAME	=	
+NAME	=	lib_arcade_nCurses.so
 
 $(NAME): $(OBJ)
-	g++ -shared -o $(NAME) $(OBJ)
+	$(CC) -shared -o $(NAME) $(OBJ)
 
 all: $(NAME)
 

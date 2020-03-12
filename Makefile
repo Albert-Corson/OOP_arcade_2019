@@ -5,6 +5,8 @@
 ## Makefile
 ##
 
+CC	=	g++
+
 SRC	=	core/main.cpp
 
 OBJ	=	$(SRC:.cpp=.o)
@@ -31,7 +33,7 @@ GRAPHICALS	=	make -C lib
 all: games graphicals core
 
 $(NAME): $(OBJ)
-	g++ -o $(NAME) $(OBJ)
+	$(CC) -o $(NAME) $(OBJ)
 
 core: $(NAME)
 
@@ -56,4 +58,4 @@ re: fclean all
 debug:
 	make all COMMON_CXXFLAGS="$(COMMON_CXXFLAGS) $(DEBUG)"
 
-.PHONY: all clean fclean re core graphicals games
+.PHONY: all clean fclean re core graphicals games debug

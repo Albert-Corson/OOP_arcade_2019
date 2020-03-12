@@ -5,7 +5,7 @@
 ## Makefile
 ##
 
-LIBSDIR	=	Ncurses	\
+LIBSDIR	=	nCurses	\
 			SFML
 
 all: $(LIBSDIR)
