@@ -7,15 +7,15 @@
 
 CC	=	g++
 
-SRC	=	
+SRC	=	main.cpp
 
 OBJ	=	$(SRC:.cpp=.o)
 
 CXXFLAGS	=	$(COMMON_CXXFLAGS)
 CXXFLAGS	+=	-fPIC	\
-				-I../
+				-I../ -I../../
 
-NAME	=	lib_arcade_Nibbler.so
+NAME	=	../lib_arcade_Nibbler.so
 
 $(NAME): $(OBJ)
 	$(CC) -shared -o $(NAME) $(OBJ)
@@ -23,10 +23,10 @@ $(NAME): $(OBJ)
 all: $(NAME)
 
 clean:
-	rm -rf $(OBJ)
+	rm -f $(OBJ)
 
 fclean: clean
-	rm -rf $(NAME)
+	rm -f $(NAME)
 
 re: fclean all
 

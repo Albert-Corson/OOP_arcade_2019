@@ -7,7 +7,7 @@
 
 CC	=	g++
 
-SRC	=	
+SRC	=	LibGraphSFML.cpp
 
 OBJ	=	$(SRC:.cpp=.o)
 
@@ -15,7 +15,7 @@ CXXFLAGS	=	$(COMMON_CXXFLAGS)
 CXXFLAGS	+=	-fPIC	\
 				-I../
 
-NAME	=	lib_arcade_SFML.so
+NAME	=	../lib_arcade_SFML.so
 
 $(NAME): $(OBJ)
 	$(CC) -shared -o $(NAME) $(OBJ)
@@ -23,10 +23,10 @@ $(NAME): $(OBJ)
 all: $(NAME)
 
 clean:
-	rm -rf $(OBJ)
+	rm -f $(OBJ)
 
 fclean: clean
-	rm -rf $(NAME)
+	rm -f $(NAME)
 
 re: fclean all
 

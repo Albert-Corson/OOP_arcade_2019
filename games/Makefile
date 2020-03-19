@@ -11,14 +11,14 @@ GAMESDIR	=	Centipede	\
 				Qix			\
 				Solarfox
 
-all: $(GAMESDIR)
-	make -C $< COMMON_CXXFLAGS="$(COMMON_CXXFLAGS)"
+all:
+	$(foreach gamedir,$(GAMESDIR),make -C $(gamedir) COMMON_CXXFLAGS="$(COMMON_CXXFLAGS)";)
 
-clean: $(GAMESDIR)
-	make -C $< clean
+clean:
+	$(foreach gamedir,$(GAMESDIR),make clean -C $(gamedir) COMMON_CXXFLAGS="$(COMMON_CXXFLAGS)";)
 
-fclean: $(GAMESDIR)
-	make -C $< fclean
+fclean:
+	$(foreach gamedir,$(GAMESDIR),make fclean -C $(gamedir) COMMON_CXXFLAGS="$(COMMON_CXXFLAGS)";)
 
 re: fclean all
 

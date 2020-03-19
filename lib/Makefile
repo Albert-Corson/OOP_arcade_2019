@@ -5,11 +5,11 @@
 ## Makefile
 ##
 
-LIBSDIR	=	nCurses	\
-			SFML
+LIBSDIR	=	SFML	\
+			Ncurses
 
 all: $(LIBSDIR)
-	make -C $< COMMON_CXXFLAGS="$(COMMON_CXXFLAGS)"
+	make -C $< COMMON_CXXFLAGS="$(COMMON_CXXFLAGS) -fPIC -I../"
 
 clean: $(LIBSDIR)
 	make -C $< clean

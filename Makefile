@@ -5,11 +5,7 @@
 ## Makefile
 ##
 
-CC	=	g++
-
-SRC	=	core/main.cpp
-
-OBJ	=	$(SRC:.cpp=.o)
+CC				=	g++
 
 COMMON_CXXFLAGS	+=	-std=c++14				\
 					-Wall					\
@@ -17,25 +13,20 @@ COMMON_CXXFLAGS	+=	-std=c++14				\
 					-Wshadow				\
 					-Wsign-compare			\
 					-Wno-unused-parameter	\
-					-Wno-unused-variable
+					-Wno-unused-variable	\
 
-DEBUG	=	-g
+DEBUG			=	-g
 
-CXXFLAGS	=	$(COMMON_CXXFLAGS)
+CXXFLAGS		=	$(COMMON_CXXFLAGS)
 
-NAME	=	arcade
-
-ROOT	=	$(abspath $(lastword $(MAKEFILE_LIST)))
-
-GAMES	=	@make --no-print-directory -C games
-GRAPHICALS	=	@make --no-print-directory -C lib
+CORE			=	@make --no-print-directory -C core
+GAMES			=	@make --no-print-directory -C games
+GRAPHICALS		=	@make --no-print-directory -C lib
 
 all: games graphicals core
 
-$(NAME): $(OBJ)
-	$(CC) -o $(NAME) $(OBJ)
-
-core: $(NAME)
+core:
+	$(CORE) COMMON_CXXFLAGS="$(COMMON_CXXFLAGS)"
 
 games:
 	$(GAMES) COMMON_CXXFLAGS="$(COMMON_CXXFLAGS)"
@@ -46,12 +37,12 @@ graphicals:
 clean:
 	$(GAMES) clean
 	$(GRAPHICALS) clean
-	rm -rf $(OBJ)
+	$(CORE) clean
 
 fclean: clean
 	$(GAMES) fclean
 	$(GRAPHICALS) fclean
-	rm -rf $(NAME)
+	$(CORE) fclean
 
 re: fclean all
 
