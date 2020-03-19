@@ -13,21 +13,16 @@
 class Exception : public std::exception
 {
     public:
-        Exception(std::string const &message)
-            : _message(message)
+        Exception(const std::string &message)
+            : _msg(message)
         {
-        }
-
-        ~Exception()
-        {
-
         }
 
         const char *what() const throw()
         {
-            return (_message.c_str());
+            return (_msg.c_str());
         }
 
     protected:
-        const std::string &_message;
+        const std::string _msg;
 };

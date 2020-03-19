@@ -5,17 +5,17 @@
 ## Makefile
 ##
 
-CC	=	g++
+CC			=	g++
 
-SRC	=	LibGraphSFML.cpp
+SRC			=	LibGraphSFML.cpp
 
-OBJ	=	$(SRC:.cpp=.o)
+OBJ			=	$(SRC:.cpp=.o)
 
 CXXFLAGS	=	$(COMMON_CXXFLAGS)
 CXXFLAGS	+=	-fPIC	\
 				-I../
 
-NAME	=	../lib_arcade_SFML.so
+NAME		=	../lib_arcade_SFML.so
 
 $(NAME): $(OBJ)
 	$(CC) -shared -o $(NAME) $(OBJ)

@@ -5,6 +5,7 @@
 ** Core
 */
 
+#include "Exception.hpp"
 #include "Core.hpp"
 #include "DirIterator.hpp"
 #include "DLLoader.hpp"
@@ -24,13 +25,13 @@ Core::Core()
 
     while (*libsIt != NULL) {
         if (ends_with((*libsIt)->d_name, ".so")) {
-            _libs[(*libsIt)->d_name] = NULL;
+            _libs[std::string(LIBS_PATH) + (*libsIt)->d_name] = NULL;
         }
         ++libsIt;
     }
     while (*gamesIt != NULL) {
         if (ends_with((*gamesIt)->d_name, ".so")) {
-            _games[(*gamesIt)->d_name] = NULL;
+            _games[std::string(GAMES_PATH) + (*gamesIt)->d_name] = NULL;
         }
         ++gamesIt;
     }
@@ -60,32 +61,38 @@ const std::vector<std::string> Core::getGamesList() const
     return (keys);
 }
 
-ILibGraph *Core::loadLib(const std::string name)
+ILibGraph *Core::loadLib(const std::string path)
 {
-    if (_libs.at(name) != NULL) {
-        return (_libs.at(name));
+    if (_libs.find(path) != _libs.end()) {
+        return (_libs[path]);
     }
-    DLLoader lib(name);
+    if (!ends_with(path, ".so")) {
+        throw Exception(path + ": invalid file format");
+    }
+    DLLoader lib(path);
     libLoader getInstance = lib.getsym<libLoader>("getInstance");
 
     if (getInstance != NULL) {
-        _libs[name] = getInstance();
-        return (_libs[name]);
+        _libs[path] = getInstance();
+        return (_libs[path]);
     }
     return (NULL);
 }
 
-IGame *Core::loadGame(const std::string name)
+IGame *Core::loadGame(const std::string path)
 {
-    if (_games.at(name) != NULL) {
-        return (_games.at(name));
+    if (_games.find(path) != _games.end()) {
+        return (_games[path]);
     }
-    DLLoader game(GAMES_PATH + name);
+    if (!ends_with(path, ".so")) {
+        throw Exception(path + ": invalid file format");
+    }
+    DLLoader game(path);
     gameLoader getInstance = game.getsym<gameLoader>("getInstance");
 
     if (getInstance != NULL) {
-        _games[name] = getInstance();
-        return (_games[name]);
+        _games[path] = getInstance();
+        return (_games[path]);
     }
     return (NULL);
 }

@@ -20,22 +20,22 @@ CXXFLAGS	=	$(COMMON_CXXFLAGS)
 CXXFLAGS	+=	-I../ -I./
 CXXFLAGS	+=	-ldl
 
-NAME		=	arcade
+NAME		=	../arcade
 
 all: $(NAME)
 
 $(NAME): $(OBJ)
-	$(CC) -o ../$(NAME) $(OBJ) $(CXXFLAGS)
+	$(CC) -o $(NAME) $(OBJ) $(CXXFLAGS)
 
 clean:
 	rm -f $(OBJ)
 
 fclean: clean
-	rm -f ../$(NAME)
+	rm -f $(NAME)
 
 re: fclean all
 
 debug:
-	make all COMMON_CXXFLAGS="$(COMMON_CXXFLAGS) $(DEBUG)"
+	@make all COMMON_CXXFLAGS="$(COMMON_CXXFLAGS) $(DEBUG)"
 
 .PHONY: all clean fclean re

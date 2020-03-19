@@ -5,17 +5,17 @@
 ## Makefile
 ##
 
-CC	=	g++
+CC			=	g++
 
-SRC	=	
+SRC			=	LibGraphNcurses.cpp
 
-OBJ	=	$(SRC:.cpp=.o)
+OBJ			=	$(SRC:.cpp=.o)
 
 CXXFLAGS	=	$(COMMON_CXXFLAGS)
 CXXFLAGS	+=	-fPIC	\
 				-I../
 
-NAME	=	../lib_arcade_nCurses.so
+NAME		=	../lib_arcade_nCurses.so
 
 $(NAME): $(OBJ)
 	$(CC) -shared -o $(NAME) $(OBJ)

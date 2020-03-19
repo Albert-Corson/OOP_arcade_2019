@@ -5,8 +5,6 @@
 ## Makefile
 ##
 
-CC				=	g++
-
 COMMON_CXXFLAGS	+=	-std=c++14				\
 					-Wall					\
 					-Wextra					\
@@ -17,36 +15,35 @@ COMMON_CXXFLAGS	+=	-std=c++14				\
 
 DEBUG			=	-g
 
-CXXFLAGS		=	$(COMMON_CXXFLAGS)
-
-CORE			=	@make --no-print-directory -C core
-GAMES			=	@make --no-print-directory -C games
-GRAPHICALS		=	@make --no-print-directory -C lib
+MAKE			=	@make --no-print-directory
+COREDIR			=	core
+GAMESDIR		=	games
+LIBSDIR			=	lib
 
 all: games graphicals core
 
 core:
-	$(CORE) COMMON_CXXFLAGS="$(COMMON_CXXFLAGS)"
+	$(MAKE) -C $(COREDIR) COMMON_CXXFLAGS="$(COMMON_CXXFLAGS)"
 
 games:
-	$(GAMES) COMMON_CXXFLAGS="$(COMMON_CXXFLAGS)"
+	$(MAKE) -C $(GAMESDIR) COMMON_CXXFLAGS="$(COMMON_CXXFLAGS)"
 
 graphicals:
-	$(GRAPHICALS) COMMON_CXXFLAGS="$(COMMON_CXXFLAGS)"
+	$(MAKE) -C $(LIBSDIR) COMMON_CXXFLAGS="$(COMMON_CXXFLAGS)"
 
 clean:
-	$(GAMES) clean
-	$(GRAPHICALS) clean
-	$(CORE) clean
+	$(MAKE) clean -C $(COREDIR)
+	$(MAKE) clean -C $(GAMESDIR)
+	$(MAKE) clean -C $(LIBSDIR)
 
 fclean: clean
-	$(GAMES) fclean
-	$(GRAPHICALS) fclean
-	$(CORE) fclean
+	$(MAKE) fclean -C $(COREDIR)
+	$(MAKE) fclean -C $(GAMESDIR)
+	$(MAKE) fclean -C $(LIBSDIR)
 
 re: fclean all
 
 debug:
-	make all COMMON_CXXFLAGS="$(COMMON_CXXFLAGS) $(DEBUG)"
+	$(MAKE) all COMMON_CXXFLAGS="$(COMMON_CXXFLAGS) $(DEBUG)"
 
 .PHONY: all clean fclean re core graphicals games debug

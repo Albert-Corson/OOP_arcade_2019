@@ -6,6 +6,7 @@
 */
 
 #include <iostream>
+#include "DLLoader.hpp"
 #include "Exception.hpp"
 #include "Core.hpp"
 
@@ -25,19 +26,29 @@ int main(int argc, const char *argv[])
         return (84);
     }
     Core core;
-    // try {
-    //     core.loadLib(argv[1]);
-    // } catch(...) {
-    //     std::cerr << "Invalid library path: " << argv[1] << "." << std::endl;
-    //     return (84);
-    // }
+    try {
+        core.loadLib(argv[1]);
+    } catch (const Exception &e) {
+        std::cerr << e.what() << std::endl;
+        return (84);
+    }
     std::cout << "Libs:" << std::endl;
     for (auto it: core.getLibsList()) {
-        std::cout << it << std::endl;
+        try {
+            core.loadLib(it);
+            std::cout << it << std::endl;
+        } catch(const Exception &e) {
+            std::cerr << e.what() << std::endl;
+        }
     }
     std::cout << "Games:" << std::endl;
     for (auto it: core.getGamesList()) {
-        std::cout << it << std::endl;
+        try {
+            core.loadGame(it);
+            std::cout << it << std::endl;
+        } catch(const Exception &e) {
+            std::cerr << e.what() << std::endl;
+        }
     }
     return (0);
 }
