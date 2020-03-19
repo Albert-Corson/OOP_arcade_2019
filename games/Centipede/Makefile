@@ -15,7 +15,7 @@ CXXFLAGS	=	$(COMMON_CXXFLAGS)
 CXXFLAGS	+=	-fPIC	\
 				-I../ -I../../
 
-NAME	=	../lib_arcade_Centipede.so
+NAME	=	../lib_arcade_centipede.so
 
 $(NAME): $(OBJ)
 	$(CC) -shared -o $(NAME) $(OBJ)

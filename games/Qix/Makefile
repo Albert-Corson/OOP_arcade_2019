@@ -15,7 +15,7 @@ CXXFLAGS	=	$(COMMON_CXXFLAGS)
 CXXFLAGS	+=	-fPIC	\
 				-I../ -I../../
 
-NAME	=	../lib_arcade_Qix.so
+NAME	=	../lib_arcade_qix.so
 
 $(NAME): $(OBJ)
 	$(CC) -shared -o $(NAME) $(OBJ)

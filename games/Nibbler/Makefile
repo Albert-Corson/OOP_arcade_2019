@@ -15,7 +15,7 @@ CXXFLAGS	=	$(COMMON_CXXFLAGS)
 CXXFLAGS	+=	-fPIC	\
 				-I../ -I../../
 
-NAME	=	../lib_arcade_Nibbler.so
+NAME	=	../lib_arcade_nibbler.so
 
 $(NAME): $(OBJ)
 	$(CC) -shared -o $(NAME) $(OBJ)
