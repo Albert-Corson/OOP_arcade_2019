@@ -12,13 +12,16 @@ SRC			=	LibGraphSFML.cpp
 OBJ			=	$(SRC:.cpp=.o)
 
 CXXFLAGS	=	$(COMMON_CXXFLAGS)
-CXXFLAGS	+=	-fPIC	\
+CXXFLAGS	+=	-fPIC			\
 				-I../
+
+LDLIBS		=	-lsfml-graphics	\
+				-lsfml-window
 
 NAME		=	../lib_arcade_sfml.so
 
 $(NAME): $(OBJ)
-	$(CC) -shared -o $(NAME) $(OBJ)
+	$(CC) -shared -o $(NAME) $(OBJ) $(LDLIBS)
 
 all: $(NAME)
 

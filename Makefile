@@ -5,7 +5,7 @@
 ## Makefile
 ##
 
-COMMON_CXXFLAGS	+=	-std=c++14				\
+COMMON_CXXFLAGS	+=	-std=c++17				\
 					-Wall					\
 					-Wextra					\
 					-Wshadow				\

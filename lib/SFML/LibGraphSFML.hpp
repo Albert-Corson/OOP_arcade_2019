@@ -15,11 +15,5 @@ extern "C" {
         public:
             LibGraphSFML();
             ~LibGraphSFML();
-
-            virtual void createWindow(std::size_t width, std::size_t height);
-            virtual void render() const;
-
-        protected:
-            std::unique_ptr<sf::RenderWindow> _window;
     };
 }

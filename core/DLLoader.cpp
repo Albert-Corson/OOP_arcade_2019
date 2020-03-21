@@ -18,9 +18,7 @@ DLLoader::DLLoader(const std::string &path)
     }
 }
 
-DLLoader::~DLLoader() throw()
+DLLoader::~DLLoader()
 {
-    if (dlclose(_handle) != 0) {
-        throw Exception(dlerror());
-    }
+    dlclose(_handle);
 }

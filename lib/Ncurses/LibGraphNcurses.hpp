@@ -14,10 +14,5 @@ extern "C" {
         public:
             LibGraphNcurses();
             ~LibGraphNcurses();
-
-            virtual void createWindow(std::size_t width, std::size_t height);
-            virtual void render() const;
-
-        protected:
     };
 }

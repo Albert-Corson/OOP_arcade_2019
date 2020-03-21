@@ -9,6 +9,7 @@
 #include "Core.hpp"
 #include "DirIterator.hpp"
 #include "DLLoader.hpp"
+#include "deps/Path.hpp"
 
 inline bool ends_with(const std::string &str, const std::string &end)
 {
@@ -45,7 +46,7 @@ const std::vector<std::string> Core::getLibsList() const
 {
     std::vector<std::string> keys;
 
-    for (auto it: _libs) {
+    for (const auto &it: _libs) {
         keys.push_back(it.first);
     }
     return (keys);
@@ -55,44 +56,46 @@ const std::vector<std::string> Core::getGamesList() const
 {
     std::vector<std::string> keys;
 
-    for (auto it: _games) {
+    for (const auto &it: _games) {
         keys.push_back(it.first);
     }
     return (keys);
 }
 
-ILibGraph *Core::loadLib(const std::string path)
+std::unique_ptr<ILibGraph> &Core::loadLib(const std::string path)
 {
-    if (_libs.find(path) != _libs.end()) {
-        return (_libs[path]);
+    std::string rel_path = fs::Path(path).lexically_normal().c_str();
+
+    if (_libs.find(rel_path) != _libs.end() && _libs[rel_path] != nullptr) {
+        return (_libs[rel_path]);
     }
-    if (!ends_with(path, ".so")) {
-        throw Exception(path + ": invalid file format");
+    if (!ends_with(rel_path, ".so")) {
+        throw Exception(rel_path + ": invalid file format");
     }
-    DLLoader lib(path);
+    DLLoader lib(rel_path);
     libLoader getInstance = lib.getsym<libLoader>("getInstance");
 
     if (getInstance != NULL) {
-        _libs[path] = getInstance();
-        return (_libs[path]);
+        _libs[rel_path] = getInstance();
     }
-    return (NULL);
+    return (_libs[rel_path]);
 }
 
-IGame *Core::loadGame(const std::string path)
+std::unique_ptr<IGame> &Core::loadGame(const std::string path)
 {
-    if (_games.find(path) != _games.end()) {
-        return (_games[path]);
+    std::string rel_path = fs::Path(path).lexically_normal().c_str();
+
+    if (_games.find(rel_path) != _games.end() && _games[rel_path] != nullptr) {
+        return (_games[rel_path]);
     }
-    if (!ends_with(path, ".so")) {
-        throw Exception(path + ": invalid file format");
+    if (!ends_with(rel_path, ".so")) {
+        throw Exception(rel_path + ": invalid file format");
     }
-    DLLoader game(path);
+    DLLoader game(rel_path);
     gameLoader getInstance = game.getsym<gameLoader>("getInstance");
 
     if (getInstance != NULL) {
-        _games[path] = getInstance();
-        return (_games[path]);
+        _games[rel_path] = getInstance();
     }
-    return (NULL);
+    return (_games[rel_path]);
 }

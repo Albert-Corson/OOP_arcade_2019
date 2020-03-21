@@ -10,10 +10,6 @@
 extern "C" {
     class IGame {
         public:
-            IGame();
-            ~IGame();
-
-        protected:
-        private:
+            virtual ~IGame() = default;
     };
 }

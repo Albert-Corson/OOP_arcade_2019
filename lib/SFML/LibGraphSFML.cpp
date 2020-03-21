@@ -5,26 +5,22 @@
 ** LibGraphSFML
 */
 
+#include <memory>
+#include <iostream>
+#include <SFML/Graphics.hpp>
 #include "LibGraphSFML.hpp"
-#include "SFML/Window/Window.hpp"
 
 LibGraphSFML::LibGraphSFML()
-    : _window(nullptr)
 {
+    std::cout << "New instance of LibGraphSFML" << std::endl;
 }
 
 LibGraphSFML::~LibGraphSFML()
 {
+    std::cout << "Destroyed instance of LigGraphSFML" << std::endl;
 }
 
-void LibGraphSFML::createWindow(std::size_t width, std::size_t height)
+std::unique_ptr<ILibGraph> getInstance()
 {
-    _winWidth = width;
-    _winHeight = height;
-    _window = std::make_unique<sf::RenderWindow>(sf::VideoMode(width, height, 4), "Arcade");
-}
-
-void LibGraphSFML::render() const
-{
-    _window->display();
+    return (std::make_unique<LibGraphSFML>());
 }

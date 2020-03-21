@@ -43,4 +43,3 @@ bool DirIterator::operator!=(const DirIterator &other) const
 {
     return (!(*this == other));
 }
-

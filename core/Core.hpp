@@ -10,25 +10,26 @@
 #include <string>
 #include <vector>
 #include <unordered_map>
+#include <memory>
 #include "ICore.hpp"
 #include "games/IGame.hpp"
 
-#define LIBS_PATH   "./lib/"
-#define GAMES_PATH  "./games/"
+#define LIBS_PATH   "lib/"
+#define GAMES_PATH  "games/"
 
-typedef ILibGraph *(*libLoader)();
-typedef IGame *(*gameLoader)();
+typedef std::unique_ptr<ILibGraph> (*libLoader)();
+typedef std::unique_ptr<IGame> (*gameLoader)();
 
 class Core : public ICore {
     public:
         Core();
         ~Core();
-        ILibGraph *loadLib(const std::string name);
-        IGame *loadGame(const std::string name);
+        std::unique_ptr<ILibGraph> &loadLib(const std::string name);
+        std::unique_ptr<IGame> &loadGame(const std::string name);
         const std::vector<std::string> getLibsList() const;
         const std::vector<std::string> getGamesList() const;
 
     protected:
-        std::unordered_map<std::string, ILibGraph *> _libs;
-        std::unordered_map<std::string, IGame *> _games;
+        std::unordered_map<std::string, std::unique_ptr<ILibGraph>> _libs;
+        std::unordered_map<std::string, std::unique_ptr<IGame>> _games;
 };

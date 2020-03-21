@@ -14,7 +14,7 @@ class DLLoader
 {
     public:
         DLLoader(const std::string &path);
-        ~DLLoader() throw();
+        ~DLLoader();
         DLLoader(const DLLoader &copy) = delete;
 
         DLLoader &operator=(DLLoader const &copy) = delete;
