@@ -8,8 +8,6 @@
 LIBSDIR			=	SFML	\
 					Ncurses
 
-COMMON_CXXFLAGS	+= -fPIC -I../
-
 MAKE			= make --no-print-directory
 
 all: $(LIBSDIR)

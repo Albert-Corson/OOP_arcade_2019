@@ -10,19 +10,20 @@
 #include <string>
 #include <exception>
 
-class Exception : public std::exception
-{
-    public:
-        Exception(const std::string &message)
-            : _msg(message)
-        {
-        }
+namespace arcade {
+    class Exception : public std::exception {
+        public:
+            Exception(const std::string &message)
+                : _msg(message)
+            {
+            }
 
-        const char *what() const throw()
-        {
-            return (_msg.c_str());
-        }
+            const char *what() const throw()
+            {
+                return (_msg.c_str());
+            }
 
-    protected:
-        const std::string _msg;
-};
+        protected:
+            const std::string _msg;
+    };
+}

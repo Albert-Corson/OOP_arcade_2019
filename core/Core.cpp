@@ -9,9 +9,12 @@
 #include "Core.hpp"
 #include "DirIterator.hpp"
 #include "DLLoader.hpp"
-#include "deps/Path.hpp"
+#include "Path.hpp"
+#include "Clock.hpp"
 
-inline bool ends_with(const std::string &str, const std::string &end)
+using namespace arcade;
+
+static inline bool ends_with(const std::string &str, const std::string &end)
 {
     if (end.size() > str.size()) {
         return (false);
@@ -98,4 +101,39 @@ std::unique_ptr<IGame> &Core::loadGame(const std::string path)
         _games[rel_path] = getInstance();
     }
     return (_games[rel_path]);
+}
+
+std::unique_ptr<IClock> Core::createClock()
+{
+    return (std::make_unique<Clock>());
+}
+
+void Core::loadResourceAudio(int id, std::string filepath)
+{
+    throw "TO DO";
+}
+
+void Core::loadResourceFont(int id, std::string filepath)
+{
+    throw "TO DO";
+}
+
+void Core::loadResourceImage(int id, std::string filepathGraph, std::string filepathAscii)
+{
+    throw "TO DO";
+}
+
+void Core::resetResource()
+{
+    throw "TO DO";
+}
+
+void Core::displayImage(int id, size_t posX, size_t posY)
+{
+    throw "TO DO";
+}
+
+void Core::getKeyboardEvents(std::vector<KeyState> &keys)
+{
+    throw "TO DO";
 }

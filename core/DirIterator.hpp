@@ -10,17 +10,19 @@
 #include <string>
 #include <dirent.h>
 
-class DirIterator : public std::iterator<std::input_iterator_tag, dirent *> {
-    public:
-        DirIterator(const std::string &path);
-        ~DirIterator();
+namespace arcade {
+    class DirIterator : public std::iterator<std::input_iterator_tag, dirent *> {
+        public:
+            DirIterator(const std::string &path);
+            ~DirIterator();
 
-        const dirent *operator*() const;
-        DirIterator &operator++();
-        bool operator==(const DirIterator &other) const;
-        bool operator!=(const DirIterator &other) const;
+            const dirent *operator*() const;
+            DirIterator &operator++();
+            bool operator==(const DirIterator &other) const;
+            bool operator!=(const DirIterator &other) const;
 
-    private:
-        DIR *_dir;
-        dirent *_file;
-};
+        private:
+            DIR *_dir;
+            dirent *_file;
+    };
+}

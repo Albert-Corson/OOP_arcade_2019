@@ -10,6 +10,8 @@
 #include "DLLoader.hpp"
 #include "Exception.hpp"
 
+using namespace arcade;
+
 DLLoader::DLLoader(const std::string &path)
 {
     _handle = dlopen(path.c_str(), RTLD_NOW | RTLD_NODELETE);

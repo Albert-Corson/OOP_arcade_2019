@@ -10,21 +10,22 @@
 #include <dlfcn.h>
 #include <string>
 
-class DLLoader
-{
-    public:
-        DLLoader(const std::string &path);
-        ~DLLoader();
-        DLLoader(const DLLoader &copy) = delete;
+namespace arcade {
+    class DLLoader {
+        public:
+            DLLoader(const std::string &path);
+            ~DLLoader();
+            DLLoader(const DLLoader &copy) = delete;
 
-        DLLoader &operator=(DLLoader const &copy) = delete;
+            DLLoader &operator=(DLLoader const &copy) = delete;
 
-        template <typename T>
-        T getsym(const std::string &name) const
-        {
-            return (reinterpret_cast<T>(dlsym(_handle, name.c_str())));
-        }
+            template <typename T>
+            T getsym(const std::string &name) const
+            {
+                return (reinterpret_cast<T>(dlsym(_handle, name.c_str())));
+            }
 
-    private:
-        void *_handle;
-};
+        private:
+            void *_handle;
+    };
+}

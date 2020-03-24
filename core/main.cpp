@@ -25,10 +25,10 @@ int main(int argc, const char *argv[])
         print_usage(argv[0]);
         return (84);
     }
-    Core core;
+    arcade::Core core;
     try {
         core.loadLib(argv[1]);
-    } catch (const Exception &e) {
+    } catch (const arcade::Exception &e) {
         std::cerr << e.what() << std::endl;
         return (84);
     }
@@ -37,7 +37,7 @@ int main(int argc, const char *argv[])
         try {
             core.loadLib(it);
             std::cout << it << std::endl;
-        } catch(const Exception &e) {
+        } catch(const arcade::Exception &e) {
             std::cerr << e.what() << std::endl;
         }
     }
@@ -46,7 +46,7 @@ int main(int argc, const char *argv[])
         try {
             core.loadGame(it);
             std::cout << it << std::endl;
-        } catch(const Exception &e) {
+        } catch(const arcade::Exception &e) {
             std::cerr << e.what() << std::endl;
         }
     }

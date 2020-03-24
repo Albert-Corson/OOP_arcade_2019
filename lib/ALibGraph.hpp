@@ -7,13 +7,14 @@
 
 #pragma once
 
-#include <cstddef>
-
 #include "ILibGraph.hpp"
 
-extern "C" {
+namespace arcade {
     class ALibGraph : public ILibGraph {
         public:
             virtual ~ALibGraph() = default;
+
+        protected:
+            ALibGraph() = default;
     };
 }

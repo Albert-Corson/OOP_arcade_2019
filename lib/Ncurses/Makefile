@@ -12,13 +12,15 @@ SRC			=	LibGraphNcurses.cpp
 OBJ			=	$(SRC:.cpp=.o)
 
 CXXFLAGS	=	$(COMMON_CXXFLAGS)
-CXXFLAGS	+=	-fPIC	\
+CXXFLAGS	+=	-fPIC			\
 				-I../
+
+LDLIBS		=	-lncurses
 
 NAME		=	../lib_arcade_ncurses.so
 
 $(NAME): $(OBJ)
-	$(CC) -shared -o $(NAME) $(OBJ)
+	$(CC) -shared -o $(NAME) $(OBJ) $(LDLIBS)
 
 all: $(NAME)
 

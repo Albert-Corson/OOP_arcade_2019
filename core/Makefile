@@ -8,6 +8,7 @@
 CC			=	g++
 
 SRC			=	main.cpp			\
+				Clock.cpp			\
 				DLLoader.cpp		\
 				DirIterator.cpp		\
 				Core.cpp
@@ -36,6 +37,6 @@ fclean: clean
 re: fclean all
 
 debug:
-	@make all COMMON_CXXFLAGS="$(COMMON_CXXFLAGS) $(DEBUG)"
+	make all COMMON_CXXFLAGS="$(COMMON_CXXFLAGS) $(DEBUG)"
 
 .PHONY: all clean fclean re

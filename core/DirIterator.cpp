@@ -8,6 +8,8 @@
 #include "DirIterator.hpp"
 #include "Exception.hpp"
 
+using namespace arcade;
+
 DirIterator::DirIterator(const std::string &path)
     : _dir(opendir(path.c_str()))
 {

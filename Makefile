@@ -5,13 +5,16 @@
 ## Makefile
 ##
 
-COMMON_CXXFLAGS	+=	-std=c++17				\
+ROOT	:=	$(shell dirname $(realpath $(firstword $(MAKEFILE_LIST))))
+
+COMMON_CXXFLAGS	=	-std=c++17				\
 					-Wall					\
 					-Wextra					\
 					-Wshadow				\
 					-Wsign-compare			\
 					-Wno-unused-parameter	\
 					-Wno-unused-variable	\
+					-I$(ROOT)/deps
 
 DEBUG			=	-g
 
