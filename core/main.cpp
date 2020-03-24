@@ -6,7 +6,6 @@
 */
 
 #include <iostream>
-#include "DLLoader.hpp"
 #include "Exception.hpp"
 #include "Core.hpp"
 

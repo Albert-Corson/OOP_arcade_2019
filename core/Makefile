@@ -9,8 +9,6 @@ CC			=	g++
 
 SRC			=	main.cpp			\
 				Clock.cpp			\
-				DLLoader.cpp		\
-				DirIterator.cpp		\
 				Core.cpp
 
 OBJ			=	$(SRC:.cpp=.o)

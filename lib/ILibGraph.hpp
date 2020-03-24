@@ -7,9 +7,9 @@
 
 #pragma once
 
-#include "keys.hpp"
 #include <memory>
 #include <vector>
+#include "deps/keys.hpp"
 
 namespace arcade {
     class ILibGraph {

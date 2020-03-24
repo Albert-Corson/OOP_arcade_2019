@@ -11,8 +11,8 @@
 #include <memory>
 #include <vector>
 
-#include <IClock.hpp>
-#include <keys.hpp>
+#include "IClock.hpp"
+#include "deps/keys.hpp"
 
 namespace arcade {
     // The arcade core interface

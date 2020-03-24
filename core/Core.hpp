@@ -7,12 +7,12 @@
 
 #pragma once
 
-#include "ICore.hpp"
-#include "games/IGame.hpp"
 #include <string>
 #include <vector>
 #include <unordered_map>
 #include <memory>
+#include "ICore.hpp"
+#include "games/IGame.hpp"
 #include "lib/ILibGraph.hpp"
 
 #define LIBS_PATH   "lib/"

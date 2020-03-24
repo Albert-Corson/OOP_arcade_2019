@@ -14,7 +14,7 @@ COMMON_CXXFLAGS	=	-std=c++17				\
 					-Wsign-compare			\
 					-Wno-unused-parameter	\
 					-Wno-unused-variable	\
-					-I$(ROOT)/deps
+					-I$(ROOT)
 
 DEBUG			=	-g
 

@@ -7,10 +7,10 @@
 
 #include "Exception.hpp"
 #include "Core.hpp"
-#include "DirIterator.hpp"
-#include "DLLoader.hpp"
-#include "Path.hpp"
 #include "Clock.hpp"
+#include "deps/DirIterator.hpp"
+#include "deps/DLLoader.hpp"
+#include "deps/Path.hpp"
 
 using namespace arcade;
 
