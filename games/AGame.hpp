@@ -2,26 +2,26 @@
 ** EPITECH PROJECT, 2020
 ** OOP_arcade_2019
 ** File description:
-** ALibGraph
+** AGame
 */
 
 #pragma once
 
-#include "ILibGraph.hpp"
+#include "IGame.hpp"
 #include "deps/Exception.hpp"
 
 namespace arcade {
-    class ALibGraph : public ILibGraph {
+    class AGame : public IGame {
         public:
             class Exception;
 
-            virtual ~ALibGraph() = default;
+            virtual ~AGame() = default;
 
         protected:
-            ALibGraph() = default;
+            AGame() = default;
     };
 
-    class ALibGraph::Exception : public arcade::Exception {
+    class AGame::Exception : public arcade::Exception {
         public:
             Exception(const std::string &message)
                 : arcade::Exception(message)
@@ -30,7 +30,7 @@ namespace arcade {
 
             const char *what() const throw() override
             {
-                return (("ALibGraph::Exception " + _msg).c_str());
+                return (("AGame::Exception " + _msg).c_str());
             };
     };
 }

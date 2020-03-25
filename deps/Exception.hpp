@@ -18,7 +18,7 @@ namespace arcade {
             {
             }
 
-            const char *what() const throw()
+            virtual const char *what() const throw()
             {
                 return (_msg.c_str());
             }

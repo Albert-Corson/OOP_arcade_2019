@@ -6,7 +6,6 @@
 */
 
 #include <filesystem>
-#include "Exception.hpp"
 #include "Core.hpp"
 #include "Clock.hpp"
 #include "deps/DLLoader.hpp"
@@ -67,7 +66,7 @@ std::unique_ptr<ILibGraph> &Core::loadLib(const std::string path)
         return (_libs[rel_path]);
     }
     if (!ends_with(rel_path, ".so")) {
-        throw Exception(rel_path + ": invalid file format");
+        throw Core::Exception(rel_path + ": invalid file format");
     }
     DLLoader lib(rel_path);
     libLoader getInstance = lib.getsym<libLoader>("getInstance");
@@ -86,7 +85,7 @@ std::unique_ptr<IGame> &Core::loadGame(const std::string path)
         return (_games[rel_path]);
     }
     if (!ends_with(rel_path, ".so")) {
-        throw Exception(rel_path + ": invalid file format");
+        throw Core::Exception(rel_path + ": invalid file format");
     }
     DLLoader game(rel_path);
     gameLoader getInstance = game.getsym<gameLoader>("getInstance");

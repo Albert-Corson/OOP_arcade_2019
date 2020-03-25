@@ -11,7 +11,7 @@
 #include <iostream>
 #include <dlfcn.h>
 #include <string>
-#include "core/Exception.hpp"
+#include "deps/Exception.hpp"
 
 class DLLoader
 {

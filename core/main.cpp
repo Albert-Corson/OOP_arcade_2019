@@ -6,7 +6,6 @@
 */
 
 #include <iostream>
-#include "Exception.hpp"
 #include "Core.hpp"
 
 void print_usage(const char *bin)

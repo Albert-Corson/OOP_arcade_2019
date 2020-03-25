@@ -14,6 +14,7 @@
 #include "ICore.hpp"
 #include "games/IGame.hpp"
 #include "lib/ILibGraph.hpp"
+#include "deps/Exception.hpp"
 
 #define LIBS_PATH   "lib/"
 #define GAMES_PATH  "games/"
@@ -24,6 +25,8 @@ namespace arcade {
 
     class Core : public ICore {
         public:
+            class Exception;
+
             Core();
             ~Core();
 
@@ -43,5 +46,18 @@ namespace arcade {
         protected:
             std::unordered_map<std::string, std::unique_ptr<ILibGraph>> _libs;
             std::unordered_map<std::string, std::unique_ptr<IGame>> _games;
+    };
+
+    class Core::Exception : public arcade::Exception {
+        public:
+            Exception(const std::string &message)
+                : arcade::Exception(message)
+            {
+            };
+
+            const char *what() const throw() override
+            {
+                return (("Core::Exception " + _msg).c_str());
+            };
     };
 }
