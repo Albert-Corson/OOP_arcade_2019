@@ -5,19 +5,19 @@
 ## Makefile
 ##
 
-LIBSDIR			=	SFML	\
-					Ncurses
+LIBSDIR	=	SFML	\
+			Ncurses
 
-MAKE			= make --no-print-directory
+MAKE	= make --no-print-directory
 
 all: $(LIBSDIR)
-	@$(foreach lib,$(LIBSDIR),$(MAKE) -C $(lib) COMMON_CXXFLAGS="$(COMMON_CXXFLAGS)";)
+	@$(foreach lib,$(LIBSDIR),$(MAKE) -C $(lib) COMMON_CXXFLAGS="$(COMMON_CXXFLAGS)" || exit;)
 
 clean: $(LIBSDIR)
-	@$(foreach lib,$(LIBSDIR),$(MAKE) clean -C $(lib);)
+	@$(foreach lib,$(LIBSDIR),$(MAKE) clean -C $(lib) || exit;)
 
 fclean: $(LIBSDIR)
-	@$(foreach lib,$(LIBSDIR),$(MAKE) fclean -C $(lib);)
+	@$(foreach lib,$(LIBSDIR),$(MAKE) fclean -C $(lib) || exit;)
 
 re: fclean all
 
