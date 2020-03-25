@@ -65,15 +65,14 @@ std::unique_ptr<ILibGraph> &Core::loadLib(const std::string path)
     if (_libs.find(rel_path) != _libs.end() && _libs[rel_path] != nullptr) {
         return (_libs[rel_path]);
     }
-    if (!ends_with(rel_path, ".so")) {
-        throw Core::Exception(rel_path + ": invalid file format");
-    }
     DLLoader lib(rel_path);
-    libLoader getInstance = lib.getsym<libLoader>("getInstance");
+    libLoader init_graph_lib = lib.getsym<libLoader>("init_graph_lib");
 
-    if (getInstance != NULL) {
-        _libs[rel_path] = getInstance();
+    if (init_graph_lib == NULL) {
+        throw Exception(rel_path + ": cannot find symbol `init_game_lib`");
+        return (_libs[rel_path]);
     }
+    _libs[rel_path] = init_graph_lib();
     return (_libs[rel_path]);
 }
 
@@ -84,16 +83,33 @@ std::unique_ptr<IGame> &Core::loadGame(const std::string path)
     if (_games.find(rel_path) != _games.end() && _games[rel_path] != nullptr) {
         return (_games[rel_path]);
     }
-    if (!ends_with(rel_path, ".so")) {
-        throw Core::Exception(rel_path + ": invalid file format");
-    }
     DLLoader game(rel_path);
-    gameLoader getInstance = game.getsym<gameLoader>("getInstance");
+    gameLoader init_game_lib = game.getsym<gameLoader>("init_game_lib");
 
-    if (getInstance != NULL) {
-        _games[rel_path] = getInstance();
+    if (init_game_lib == NULL) {
+        throw Exception(rel_path + ": cannot find symbol `init_game_lib`");
+        return (_games[rel_path]);
     }
+    _games[rel_path] = init_game_lib();
     return (_games[rel_path]);
+}
+
+std::unique_ptr<IGame> &Core::loadMenu(const std::string path)
+{
+    std::string rel_path = std::filesystem::path(path).lexically_normal().c_str();
+
+    if (_menu != nullptr) {
+        return (_menu);
+    }
+    DLLoader menu(rel_path);
+    gameLoader init_menu_lib = menu.getsym<menuLoader>("init_menu_lib");
+
+    if (init_menu_lib == NULL) {
+        throw Exception(rel_path + ": cannot find symbol `init_menu_lib`");
+        return (_menu);
+    }
+    _menu = init_menu_lib();
+    return (_menu);
 }
 
 std::unique_ptr<IClock> Core::createClock()

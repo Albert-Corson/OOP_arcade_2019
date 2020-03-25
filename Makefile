@@ -20,6 +20,7 @@ DEBUG			=	-g
 
 MAKE			=	@make --no-print-directory
 COREDIR			=	core
+MENUDIR			=	menu
 GAMESDIR		=	games
 LIBSDIR			=	lib
 
@@ -27,6 +28,7 @@ all: games graphicals core
 
 core:
 	$(MAKE) -C $(COREDIR) COMMON_CXXFLAGS="$(COMMON_CXXFLAGS)"
+	$(MAKE) -C $(MENUDIR) COMMON_CXXFLAGS="$(COMMON_CXXFLAGS)"
 
 games:
 	$(MAKE) -C $(GAMESDIR) COMMON_CXXFLAGS="$(COMMON_CXXFLAGS)"
@@ -38,11 +40,13 @@ clean:
 	$(MAKE) clean -C $(COREDIR)
 	$(MAKE) clean -C $(GAMESDIR)
 	$(MAKE) clean -C $(LIBSDIR)
+	$(MAKE) clean -C $(MENUDIR)
 
 fclean: clean
 	$(MAKE) fclean -C $(COREDIR)
 	$(MAKE) fclean -C $(GAMESDIR)
 	$(MAKE) fclean -C $(LIBSDIR)
+	$(MAKE) fclean -C $(MENUDIR)
 
 re: fclean all
 

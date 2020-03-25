@@ -17,16 +17,6 @@ std::unique_ptr<ILibGraph> init_graph_lib()
     return (std::make_unique<LibGraphSFML>());
 }
 
-LibGraphSFML::LibGraphSFML()
-{
-    std::cout << "New instance of LibGraphSFML" << std::endl;
-}
-
-LibGraphSFML::~LibGraphSFML()
-{
-    std::cout << "Destroyed instance of LigGraphSFML" << std::endl;
-}
-
 void LibGraphSFML::getKeyboardEvents(std::vector<KeyState> &keysGame, std::vector<KeyState> &keysCore)
 {
     for (size_t i = 0; i < keysGame.size(); i++) {

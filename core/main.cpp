@@ -6,6 +6,7 @@
 */
 
 #include <iostream>
+#include <filesystem>
 #include "Core.hpp"
 
 void print_usage(const char *bin)
@@ -26,27 +27,10 @@ int main(int argc, const char *argv[])
     arcade::Core core;
     try {
         core.loadLib(argv[1]);
+        core.loadMenu(std::filesystem::path(MENU_PATH) / "lib_arcade_menu.so");
     } catch (const arcade::Exception &e) {
         std::cerr << e.what() << std::endl;
         return (84);
-    }
-    std::cout << "Libs:" << std::endl;
-    for (auto it: core.getLibsList()) {
-        try {
-            core.loadLib(it);
-            std::cout << it << std::endl;
-        } catch(const arcade::Exception &e) {
-            std::cerr << e.what() << std::endl;
-        }
-    }
-    std::cout << "Games:" << std::endl;
-    for (auto it: core.getGamesList()) {
-        try {
-            core.loadGame(it);
-            std::cout << it << std::endl;
-        } catch(const arcade::Exception &e) {
-            std::cerr << e.what() << std::endl;
-        }
     }
     return (0);
 }

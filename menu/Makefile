@@ -5,22 +5,20 @@
 ## Makefile
 ##
 
-CC			=	g++
+CC	=	g++
 
-SRC			=	LibGraphNcurses.cpp
+SRC	=	main.cpp
 
-OBJ			=	$(SRC:.cpp=.o)
+OBJ	=	$(SRC:.cpp=.o)
 
 CXXFLAGS	=	$(COMMON_CXXFLAGS)
-CXXFLAGS	+=	-fPIC			\
-				-I../ -I../../
+CXXFLAGS	+=	-fPIC	\
+				-I../
 
-LDLIBS		=	-lncurses
-
-NAME		=	../lib_arcade_ncurses.so
+NAME	=	lib_arcade_menu.so
 
 $(NAME): $(OBJ)
-	$(CC) -shared -o $(NAME) $(OBJ) $(LDLIBS)
+	$(CC) -shared -o $(NAME) $(OBJ)
 
 all: $(NAME)
 

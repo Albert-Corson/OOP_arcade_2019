@@ -7,17 +7,17 @@
 
 #pragma once
 
-#include "ALibGraph.hpp"
-#include "init_graph_lib.hpp"
 #include <SFML/Graphics.hpp>
 #include <SFML/Audio.hpp>
+#include "ALibGraph.hpp"
+#include "init_graph_lib.hpp"
 
 extern "C" {
     namespace arcade {
         class LibGraphSFML: public ALibGraph {
             public:
-                LibGraphSFML();
-                ~LibGraphSFML();
+                LibGraphSFML() = default;
+                ~LibGraphSFML() = default;
 
                 void getKeyboardEvents(std::vector<KeyState> &keysGame, std::vector<KeyState> &keysCore) override final;
                 void displayImage(int id, size_t posX, size_t posY) override final;

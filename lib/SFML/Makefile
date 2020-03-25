@@ -13,10 +13,12 @@ OBJ			=	$(SRC:.cpp=.o)
 
 CXXFLAGS	=	$(COMMON_CXXFLAGS)
 CXXFLAGS	+=	-fPIC			\
-				-I../
+				-I../ -I../../
 
 LDLIBS		=	-lsfml-graphics	\
-				-lsfml-window
+				-lsfml-window	\
+				-lsfml-system	\
+				-lsfml-audio
 
 NAME		=	../lib_arcade_sfml.so
 

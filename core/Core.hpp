@@ -18,10 +18,12 @@
 
 #define LIBS_PATH   "lib/"
 #define GAMES_PATH  "games/"
+#define MENU_PATH   "menu/"
 
 namespace arcade {
     typedef std::unique_ptr<ILibGraph> (*libLoader)();
     typedef std::unique_ptr<IGame> (*gameLoader)();
+    typedef std::unique_ptr<IGame> (*menuLoader)();
 
     class Core : public ICore {
         public:
@@ -32,6 +34,7 @@ namespace arcade {
 
             std::unique_ptr<ILibGraph> &loadLib(const std::string name);
             std::unique_ptr<IGame> &loadGame(const std::string name);
+            std::unique_ptr<IGame> &loadMenu(const std::string name);
             const std::vector<std::string> getLibsList() const;
             const std::vector<std::string> getGamesList() const;
 
@@ -46,6 +49,7 @@ namespace arcade {
         protected:
             std::unordered_map<std::string, std::unique_ptr<ILibGraph>> _libs;
             std::unordered_map<std::string, std::unique_ptr<IGame>> _games;
+            std::unique_ptr<IGame> _menu;
     };
 
     class Core::Exception : public arcade::Exception {
