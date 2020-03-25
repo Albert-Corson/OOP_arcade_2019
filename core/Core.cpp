@@ -5,12 +5,11 @@
 ** Core
 */
 
+#include <filesystem>
 #include "Exception.hpp"
 #include "Core.hpp"
 #include "Clock.hpp"
-#include "deps/DirIterator.hpp"
 #include "deps/DLLoader.hpp"
-#include "deps/Path.hpp"
 
 using namespace arcade;
 
@@ -24,20 +23,15 @@ static inline bool ends_with(const std::string &str, const std::string &end)
 
 Core::Core()
 {
-    DirIterator libsIt(LIBS_PATH);
-    DirIterator gamesIt(GAMES_PATH);
-
-    while (*libsIt != NULL) {
-        if (ends_with((*libsIt)->d_name, ".so")) {
-            _libs[std::string(LIBS_PATH) + (*libsIt)->d_name] = NULL;
+    for (auto it: std::filesystem::directory_iterator(LIBS_PATH)) {
+        if (ends_with(it.path().c_str(), ".so")) {
+            _libs[it.path().c_str()] = NULL;
         }
-        ++libsIt;
     }
-    while (*gamesIt != NULL) {
-        if (ends_with((*gamesIt)->d_name, ".so")) {
-            _games[std::string(GAMES_PATH) + (*gamesIt)->d_name] = NULL;
+    for (auto it: std::filesystem::directory_iterator(GAMES_PATH)) {
+        if (ends_with(it.path().c_str(), ".so")) {
+            _games[it.path().c_str()] = NULL;
         }
-        ++gamesIt;
     }
 }
 
@@ -67,7 +61,7 @@ const std::vector<std::string> Core::getGamesList() const
 
 std::unique_ptr<ILibGraph> &Core::loadLib(const std::string path)
 {
-    std::string rel_path = fs::Path(path).lexically_normal().c_str();
+    std::string rel_path = std::filesystem::path(path).lexically_normal().c_str();
 
     if (_libs.find(rel_path) != _libs.end() && _libs[rel_path] != nullptr) {
         return (_libs[rel_path]);
@@ -86,7 +80,7 @@ std::unique_ptr<ILibGraph> &Core::loadLib(const std::string path)
 
 std::unique_ptr<IGame> &Core::loadGame(const std::string path)
 {
-    std::string rel_path = fs::Path(path).lexically_normal().c_str();
+    std::string rel_path = std::filesystem::path(path).lexically_normal().c_str();
 
     if (_games.find(rel_path) != _games.end() && _games[rel_path] != nullptr) {
         return (_games[rel_path]);

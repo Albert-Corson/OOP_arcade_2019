@@ -17,7 +17,7 @@ DEBUG		=	-g
 
 CXXFLAGS	=	$(COMMON_CXXFLAGS)
 CXXFLAGS	+=	-I../ -I./
-CXXFLAGS	+=	-ldl
+CXXFLAGS	+=	-ldl -lstdc++fs
 
 NAME		=	../arcade
 
