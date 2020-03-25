@@ -10,6 +10,7 @@
 #include "ALibGraph.hpp"
 #include "init_graph_lib.hpp"
 #include <SFML/Graphics.hpp>
+#include <SFML/Audio.hpp>
 
 extern "C" {
     namespace arcade {
@@ -30,6 +31,14 @@ extern "C" {
                 void loadResourceFont(int id, std::string const &filepath) override final;
                 void loadResourceImage(int id, std::string const &filepathGraph, std::string const &filepathAscii) override final;
                 void resetResource() override final;
+
+            private:
+                sf::Keyboard::Key convertKey(const arcade::Key key);
+
+                sf::RenderWindow _window;
+                std::unordered_map<int, sf::Sprite> _sprites;
+                std::unordered_map<int, sf::Font> _fonts;
+                std::unordered_map<int, sf::Music> _musics;
         };
     }
 }
