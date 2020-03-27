@@ -5,10 +5,10 @@
 ** Core
 */
 
-#include <filesystem>
 #include "Core.hpp"
 #include "Clock.hpp"
 #include "deps/DLLoader.hpp"
+#include <filesystem>
 
 using namespace arcade;
 
@@ -22,12 +22,12 @@ static inline bool ends_with(const std::string &str, const std::string &end)
 
 Core::Core()
 {
-    for (auto it: std::filesystem::directory_iterator(LIBS_PATH)) {
+    for (auto it : std::filesystem::directory_iterator(LIBS_PATH)) {
         if (ends_with(it.path().c_str(), ".so")) {
             _libs[it.path().c_str()] = NULL;
         }
     }
-    for (auto it: std::filesystem::directory_iterator(GAMES_PATH)) {
+    for (auto it : std::filesystem::directory_iterator(GAMES_PATH)) {
         if (ends_with(it.path().c_str(), ".so")) {
             _games[it.path().c_str()] = NULL;
         }
@@ -42,7 +42,7 @@ const std::vector<std::string> Core::getLibsList() const
 {
     std::vector<std::string> keys;
 
-    for (const auto &it: _libs) {
+    for (const auto &it : _libs) {
         keys.push_back(it.first);
     }
     return (keys);
@@ -52,7 +52,7 @@ const std::vector<std::string> Core::getGamesList() const
 {
     std::vector<std::string> keys;
 
-    for (const auto &it: _games) {
+    for (const auto &it : _games) {
         keys.push_back(it.first);
     }
     return (keys);
@@ -142,32 +142,32 @@ void Core::displayImage(int id, size_t posX, size_t posY)
     throw "TO DO";
 }
 
-void displayImage(int id, double posX, double posY)
+void Core::displayImage(int id, double posX, double posY)
 {
     throw "TO DO";
 }
 
-void displayText(int id, size_t posX, size_t posY, std::string const &text)
+void Core::displayText(int id, size_t posX, size_t posY, std::string const &text)
 {
     throw "TO DO";
 }
 
-void playAudio(int id, bool repeat = false)
+void Core::playAudio(int id, bool repeat)
 {
     throw "TO DO";
 }
 
-void stopAudio(int id)
+void Core::stopAudio(int id)
 {
     throw "TO DO";
 }
 
-void clear()
+void Core::clear()
 {
     throw "TO DO";
 }
 
-void render()
+void Core::render()
 {
     throw "TO DO";
 }
