@@ -142,6 +142,36 @@ void Core::displayImage(int id, size_t posX, size_t posY)
     throw "TO DO";
 }
 
+void displayImage(int id, double posX, double posY)
+{
+    throw "TO DO";
+}
+
+void displayText(int id, size_t posX, size_t posY, std::string const &text)
+{
+    throw "TO DO";
+}
+
+void playAudio(int id, bool repeat = false)
+{
+    throw "TO DO";
+}
+
+void stopAudio(int id)
+{
+    throw "TO DO";
+}
+
+void clear()
+{
+    throw "TO DO";
+}
+
+void render()
+{
+    throw "TO DO";
+}
+
 void Core::getKeyboardEvents(std::vector<KeyState> &keys)
 {
     throw "TO DO";

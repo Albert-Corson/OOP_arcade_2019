@@ -7,18 +7,14 @@
 
 #pragma once
 
-#include <memory>
-#include <unordered_map>
-#include <vector>
 #include "deps/keys.hpp"
+#include <memory>
+#include <vector>
 
 namespace arcade {
     class ILibGraph {
         public:
             virtual ~ILibGraph() = default;
-            ILibGraph() = default;
-            ILibGraph(const ILibGraph &) = delete;
-            virtual ILibGraph &operator=(const ILibGraph &) = delete;
 
             // Returns the keyboard events
             virtual void getKeyboardEvents(std::vector<KeyState> &keysGame, std::vector<KeyState> &keysCore) = 0;
@@ -52,7 +48,7 @@ namespace arcade {
 
             // Loads a new image
             // Throws an exception in case of failure
-            virtual void loadResourceImage(int id, std::string const &filepathGraph, std::string const &filepathAscii) = 0;
+        virtual void loadResourceImage(int id, std::string const &filepathGraph, std::string const &filepathAscii) = 0;
 
             // erases all content of resources
             virtual void resetResource() = 0;

@@ -8,11 +8,10 @@
 #ifndef ICORE_HPP_
 #define ICORE_HPP_
 
-#include <memory>
-#include <vector>
-
 #include "IClock.hpp"
 #include "deps/keys.hpp"
+#include <memory>
+#include <vector>
 
 namespace arcade {
     // The arcade core interface
@@ -43,6 +42,22 @@ namespace arcade {
 
             // Draws an image at a given position
             virtual void displayImage(int id, size_t posX, size_t posY) = 0;
+            virtual void displayImage(int id, double posX, double posY) = 0;
+
+            // Draws text at a given position
+            virtual void displayText(int id, size_t posX, size_t posY, std::string const &text) = 0;
+
+            // Plays an audio resource
+            virtual void playAudio(int id, bool repeat = false) = 0;
+
+            // Stops playing an audio resource
+            virtual void stopAudio(int id) = 0;
+
+            // Clears the window
+            virtual void clear() = 0;
+
+            // Renders the window
+            virtual void render() = 0;
 
             // Returns the latest keyboard events
             virtual void getKeyboardEvents(std::vector<KeyState> &keys) = 0;

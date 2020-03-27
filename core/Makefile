@@ -9,6 +9,7 @@ CC			=	g++
 
 SRC			=	main.cpp			\
 				Clock.cpp			\
+				Resource.cpp		\
 				Core.cpp
 
 OBJ			=	$(SRC:.cpp=.o)
