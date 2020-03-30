@@ -21,6 +21,7 @@ static inline bool ends_with(const std::string &str, const std::string &end)
 }
 
 Core::Core()
+    : _menuLoader(nullptr)
 {
     for (auto it : std::filesystem::directory_iterator(LIBS_PATH)) {
         if (ends_with(it.path().c_str(), ".so")) {
@@ -70,8 +71,7 @@ void Core::loadLib(const std::string path)
     _libsLoaders[rel_path] = lib.getsym<libLoader>("init_graph_lib");
 
     if (_libsLoaders[rel_path] == NULL) {
-        throw Exception(rel_path + ": cannot find symbol `init_game_lib`");
-        return;
+        throw Exception(rel_path + ": cannot find symbol `init_graph_lib`");
     }
     _currLib = _libsLoaders[rel_path]();
 }
@@ -81,7 +81,8 @@ void Core::loadGame(const std::string path)
     std::string rel_path = std::filesystem::path(path).lexically_normal().c_str();
 
     if (_gamesLoaders.find(rel_path) != _gamesLoaders.end() && _gamesLoaders[rel_path] != nullptr) {
-        _currGame = _gamesLoaders[rel_path]();
+        _currGame = _gamesLoaders[rel_path](*this);
+        _currGame->launch();
         return;
     }
     DLLoader game(rel_path);
@@ -89,16 +90,18 @@ void Core::loadGame(const std::string path)
 
     if (_gamesLoaders[rel_path] == NULL) {
         throw Exception(rel_path + ": cannot find symbol `init_game_lib`");
-        return;
     }
-    _currGame = _gamesLoaders[rel_path]();
+    _currGame = _gamesLoaders[rel_path](*this);
+    _currGame->launch();
 }
 
 void Core::loadMenu(const std::string path)
 {
     std::string rel_path = std::filesystem::path(path).lexically_normal().c_str();
 
-    if (_currMenu != nullptr) {
+    if (_menuLoader != nullptr) {
+        _currMenu = _menuLoader(*this);
+        _currMenu->launch();
         return;
     }
     DLLoader menu(rel_path);
@@ -106,9 +109,9 @@ void Core::loadMenu(const std::string path)
 
     if (_menuLoader == NULL) {
         throw Exception(rel_path + ": cannot find symbol `init_menu_lib`");
-        return;
     }
-    _currMenu = _menuLoader();
+    _currMenu = _menuLoader(*this);
+    _currMenu->launch();
 }
 
 std::unique_ptr<IClock> Core::createClock()
@@ -148,7 +151,7 @@ void Core::displayImage(int id, double posX, double posY)
 
 void Core::displayText(int id, size_t posX, size_t posY, std::string const &text)
 {
-    throw "TO DO";
+    _currLib->displayText(id, posX, posY, text);
 }
 
 void Core::playAudio(int id, bool repeat)
@@ -163,12 +166,12 @@ void Core::stopAudio(int id)
 
 void Core::clear()
 {
-    throw "TO DO";
+    _currLib->clear();
 }
 
 void Core::render()
 {
-    throw "TO DO";
+    _currLib->render();
 }
 
 void Core::getKeyboardEvents(std::vector<KeyState> &keys)

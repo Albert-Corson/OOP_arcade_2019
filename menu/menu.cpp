@@ -6,9 +6,10 @@
 */
 
 #include <memory>
+#include "core/ICore.hpp"
 #include "GameMenu.hpp"
 
-extern "C" std::unique_ptr<arcade::IGame> init_menu_lib(void)
+extern "C" std::unique_ptr<arcade::IGame> init_menu_lib(arcade::ICore &core)
 {
-    return (std::make_unique<arcade::GameMenu>());
+    return (std::make_unique<arcade::GameMenu>(core));
 }

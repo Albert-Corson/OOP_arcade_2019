@@ -5,11 +5,15 @@
 ** GameMenu
 */
 
+#include <string>
+#include "core/ICore.hpp"
 #include "GameMenu.hpp"
 
 using namespace arcade;
 
-GameMenu::GameMenu()
+GameMenu::GameMenu(ICore &core)
+    : AGame(core)
+    , _running(false)
 {
 }
 
@@ -19,10 +23,18 @@ GameMenu::~GameMenu()
 
 void GameMenu::launch()
 {
-    throw "TO DO";
+    _running = true;
+    int count = 0;
+
+    while (_running) {
+        _core.clear();
+        _core.displayText(0, 0, 0, "Hello world");
+        _core.render();
+        this->stop();
+    }
 }
 
 void GameMenu::stop()
 {
-    throw "TO DO";
+    _running = false;
 }

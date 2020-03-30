@@ -22,8 +22,8 @@
 
 namespace arcade {
     typedef std::unique_ptr<ILibGraph> (*libLoader)();
-    typedef std::unique_ptr<IGame> (*gameLoader)();
-    typedef std::unique_ptr<IGame> (*menuLoader)();
+    typedef std::unique_ptr<IGame> (*gameLoader)(ICore &);
+    typedef std::unique_ptr<IGame> (*menuLoader)(ICore &);
 
     class Core : public ICore {
         public:

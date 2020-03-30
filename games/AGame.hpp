@@ -14,11 +14,13 @@ namespace arcade {
     class AGame : public IGame {
         public:
             class Exception;
-
             virtual ~AGame() = default;
 
         protected:
-            AGame() = default;
+            AGame(ICore &core)
+                : _core(core)
+            {}
+            ICore &_core;
     };
 
     class AGame::Exception : public arcade::Exception {

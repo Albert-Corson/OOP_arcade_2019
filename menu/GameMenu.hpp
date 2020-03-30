@@ -10,15 +10,17 @@
 #include "AGame.hpp"
 
 namespace arcade {
+    class ICore;
+
     class GameMenu: public AGame {
         public:
-            GameMenu();
+            GameMenu(ICore &core);
             ~GameMenu();
 
             void launch();
             void stop();
-
-        private:
-            
+        
+        protected:
+            bool _running;
     };
 }
