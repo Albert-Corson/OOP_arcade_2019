@@ -185,13 +185,13 @@ void Core::getKeyboardEvents(std::vector<KeyState> &keys)
         { Key::F4, &arcade::Core::_keyExit }
     };
     std::vector<KeyState> coreKeys = {
-        KeyState(Key::F9), // Previous game
+        KeyState(Key::F9),  // Previous game
         KeyState(Key::F10), // Next game
         KeyState(Key::F11), // Previous library
         KeyState(Key::F12), // Next library
-        KeyState(Key::F5), // Restart game
-        KeyState(Key::F1), // Go back to the menu
-        KeyState(Key::F4) // Exit
+        KeyState(Key::F5),  // Restart game
+        KeyState(Key::F1),  // Go back to the menu
+        KeyState(Key::F4)   // Exit
     };
 
     _currLib.second->getKeyboardEvents(keys, coreKeys);
@@ -294,5 +294,5 @@ void Core::_keyMenu()
 
 void Core::_keyExit()
 {
-    std::exit(0);
+    _currGame.second->stop();
 }
