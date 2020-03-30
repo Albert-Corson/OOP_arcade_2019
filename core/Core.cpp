@@ -24,12 +24,12 @@ Core::Core()
 {
     for (auto it : std::filesystem::directory_iterator(LIBS_PATH)) {
         if (ends_with(it.path().c_str(), ".so")) {
-            _libs[it.path().c_str()] = NULL;
+            _libsLoaders[it.path().c_str()] = NULL;
         }
     }
     for (auto it : std::filesystem::directory_iterator(GAMES_PATH)) {
         if (ends_with(it.path().c_str(), ".so")) {
-            _games[it.path().c_str()] = NULL;
+            _gamesLoaders[it.path().c_str()] = NULL;
         }
     }
 }
@@ -42,7 +42,7 @@ const std::vector<std::string> Core::getLibsList() const
 {
     std::vector<std::string> keys;
 
-    for (const auto &it : _libs) {
+    for (const auto &it : _libsLoaders) {
         keys.push_back(it.first);
     }
     return (keys);
@@ -52,64 +52,63 @@ const std::vector<std::string> Core::getGamesList() const
 {
     std::vector<std::string> keys;
 
-    for (const auto &it : _games) {
+    for (const auto &it : _gamesLoaders) {
         keys.push_back(it.first);
     }
     return (keys);
 }
 
-std::unique_ptr<ILibGraph> &Core::loadLib(const std::string path)
+void Core::loadLib(const std::string path)
 {
     std::string rel_path = std::filesystem::path(path).lexically_normal().c_str();
 
-    if (_libs.find(rel_path) != _libs.end() && _libs[rel_path] != nullptr) {
-        return (_libs[rel_path]);
+    if (_libsLoaders.find(rel_path) != _libsLoaders.end() && _libsLoaders[rel_path] != nullptr) {
+        _currLib = _libsLoaders[rel_path]();
+        return;
     }
     DLLoader lib(rel_path);
-    libLoader init_graph_lib = lib.getsym<libLoader>("init_graph_lib");
+    _libsLoaders[rel_path] = lib.getsym<libLoader>("init_graph_lib");
 
-    if (init_graph_lib == NULL) {
+    if (_libsLoaders[rel_path] == NULL) {
         throw Exception(rel_path + ": cannot find symbol `init_game_lib`");
-        return (_libs[rel_path]);
+        return;
     }
-    _libs[rel_path] = init_graph_lib();
-    return (_libs[rel_path]);
+    _currLib = _libsLoaders[rel_path]();
 }
 
-std::unique_ptr<IGame> &Core::loadGame(const std::string path)
+void Core::loadGame(const std::string path)
 {
     std::string rel_path = std::filesystem::path(path).lexically_normal().c_str();
 
-    if (_games.find(rel_path) != _games.end() && _games[rel_path] != nullptr) {
-        return (_games[rel_path]);
+    if (_gamesLoaders.find(rel_path) != _gamesLoaders.end() && _gamesLoaders[rel_path] != nullptr) {
+        _currGame = _gamesLoaders[rel_path]();
+        return;
     }
     DLLoader game(rel_path);
-    gameLoader init_game_lib = game.getsym<gameLoader>("init_game_lib");
+    _gamesLoaders[rel_path] = game.getsym<gameLoader>("init_game_lib");
 
-    if (init_game_lib == NULL) {
+    if (_gamesLoaders[rel_path] == NULL) {
         throw Exception(rel_path + ": cannot find symbol `init_game_lib`");
-        return (_games[rel_path]);
+        return;
     }
-    _games[rel_path] = init_game_lib();
-    return (_games[rel_path]);
+    _currGame = _gamesLoaders[rel_path]();
 }
 
-std::unique_ptr<IGame> &Core::loadMenu(const std::string path)
+void Core::loadMenu(const std::string path)
 {
     std::string rel_path = std::filesystem::path(path).lexically_normal().c_str();
 
-    if (_menu != nullptr) {
-        return (_menu);
+    if (_currMenu != nullptr) {
+        return;
     }
     DLLoader menu(rel_path);
-    gameLoader init_menu_lib = menu.getsym<menuLoader>("init_menu_lib");
+    _menuLoader = menu.getsym<menuLoader>("init_menu_lib");
 
-    if (init_menu_lib == NULL) {
+    if (_menuLoader == NULL) {
         throw Exception(rel_path + ": cannot find symbol `init_menu_lib`");
-        return (_menu);
+        return;
     }
-    _menu = init_menu_lib();
-    return (_menu);
+    _currMenu = _menuLoader();
 }
 
 std::unique_ptr<IClock> Core::createClock()

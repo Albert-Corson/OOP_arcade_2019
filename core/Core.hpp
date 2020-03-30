@@ -32,9 +32,9 @@ namespace arcade {
             Core();
             ~Core();
 
-            std::unique_ptr<ILibGraph> &loadLib(const std::string name);
-            std::unique_ptr<IGame> &loadGame(const std::string name);
-            std::unique_ptr<IGame> &loadMenu(const std::string name);
+            void loadLib(const std::string name);
+            void loadGame(const std::string name);
+            void loadMenu(const std::string name);
             const std::vector<std::string> getLibsList() const;
             const std::vector<std::string> getGamesList() const;
 
@@ -53,9 +53,12 @@ namespace arcade {
             void getKeyboardEvents(std::vector<KeyState> &keys) override final;
 
         protected:
-            std::unordered_map<std::string, std::unique_ptr<ILibGraph>> _libs;
-            std::unordered_map<std::string, std::unique_ptr<IGame>> _games;
-            std::unique_ptr<IGame> _menu;
+            std::unique_ptr<ILibGraph> _currLib;
+            std::unique_ptr<IGame> _currGame;
+            std::unique_ptr<IGame> _currMenu;
+            std::unordered_map<std::string, libLoader> _libsLoaders;
+            std::unordered_map<std::string, gameLoader> _gamesLoaders;
+            gameLoader _menuLoader;
     };
 
     class Core::Exception : public arcade::Exception {

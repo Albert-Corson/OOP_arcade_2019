@@ -7,13 +7,14 @@
 
 CC	=	g++
 
-SRC	=	main.cpp
+SRC	=	menu.cpp			\
+		GameMenu.cpp
 
 OBJ	=	$(SRC:.cpp=.o)
 
 CXXFLAGS	=	$(COMMON_CXXFLAGS)
 CXXFLAGS	+=	-fPIC	\
-				-I../
+				-I../ -I../games/
 
 NAME	=	lib_arcade_menu.so
 

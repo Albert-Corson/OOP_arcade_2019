@@ -9,6 +9,7 @@
 
 #include <SFML/Graphics.hpp>
 #include <SFML/Audio.hpp>
+#include <unordered_map>
 #include "ALibGraph.hpp"
 #include "init_graph_lib.hpp"
 
