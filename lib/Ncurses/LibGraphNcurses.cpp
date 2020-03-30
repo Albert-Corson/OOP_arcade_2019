@@ -14,6 +14,11 @@
 
 using namespace arcade;
 
+std::string get_lib_name()
+{
+    return ("NCurses");
+}
+
 std::unique_ptr<ILibGraph> init_graph_lib()
 {
     return (std::make_unique<LibGraphNcurses>());
@@ -79,7 +84,7 @@ void LibGraphNcurses::getKeyboardEvents(std::vector<KeyState> &keysGame, std::ve
     }
 }
 
-void LibGraphNcurses::displayImage(int id, size_t posX, size_t posY)
+void LibGraphNcurses::displayImage(int id, int posX, int posY)
 {
     displayImage(id, static_cast<double>(posX), static_cast<double>(posY));
 }
@@ -95,7 +100,7 @@ void LibGraphNcurses::displayImage(int id, double posX, double posY)
     }
 }
 
-void LibGraphNcurses::displayText(int fontID, size_t posX, size_t posY, std::string const &text)
+void LibGraphNcurses::displayText(int fontID, int posX, int posY, std::string const &text)
 {
     int x = getcurx(stdscr);
     int y = getcury(stdscr);

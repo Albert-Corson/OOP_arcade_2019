@@ -18,5 +18,8 @@ namespace arcade {
 
             // Stops the game loop if it was running
             virtual void stop() = 0;
+
+            // Returns the current game score
+            virtual unsigned long getScore() const = 0;
     };
 }

@@ -45,9 +45,9 @@ namespace arcade {
             void loadResourceFont(int id, std::string filepath) override final;
             void loadResourceImage(int id, std::string filepathGraph, std::string filepathAscii) override final;
             void resetResource() override final;
-            void displayImage(int id, size_t posX, size_t posY) override final;
+            void displayImage(int id, int posX, int posY) override final;
             void displayImage(int id, double posX, double posY) override final;
-            void displayText(int id, size_t posX, size_t posY, std::string const &text) override final;
+            void displayText(int id, int posX, int posY, std::string const &text) override final;
             void playAudio(int id, bool repeat = false) override final;
             void stopAudio(int id) override final;
             void clear() override final;

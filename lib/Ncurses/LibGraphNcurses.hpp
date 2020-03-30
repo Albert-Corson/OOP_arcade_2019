@@ -20,9 +20,9 @@ extern "C" {
                 ~LibGraphNcurses();
 
                 void getKeyboardEvents(std::vector<KeyState> &keysGame, std::vector<KeyState> &keysCore) override final;
-                void displayImage(int id, size_t posX, size_t posY) override final;
+                void displayImage(int id, int posX, int posY) override final;
                 void displayImage(int id, double posX, double posY) override final;
-                void displayText(int fontID, size_t posX, size_t posY, std::string const &text) override final;
+                void displayText(int fontID, int posX, int posY, std::string const &text) override final;
                 void playAudio(int id, bool repeat = false) override final {};
                 void stopAudio(int id) override final {};
                 void clear() override final;

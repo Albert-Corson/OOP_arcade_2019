@@ -41,11 +41,11 @@ namespace arcade {
             virtual void resetResource() = 0;
 
             // Draws an image at a given position
-            virtual void displayImage(int id, size_t posX, size_t posY) = 0;
+            virtual void displayImage(int id, int posX, int posY) = 0;
             virtual void displayImage(int id, double posX, double posY) = 0;
 
             // Draws text at a given position
-            virtual void displayText(int id, size_t posX, size_t posY, std::string const &text) = 0;
+            virtual void displayText(int id, int posX, int posY, std::string const &text) = 0;
 
             // Plays an audio resource
             virtual void playAudio(int id, bool repeat = false) = 0;

@@ -9,6 +9,8 @@
 
 #include "ILibGraph.hpp"
 #include "deps/Exception.hpp"
+#include "init_graph_lib.hpp"
+#include "get_lib_name.hpp"
 
 namespace arcade {
     class ALibGraph : public ILibGraph {

@@ -138,7 +138,7 @@ void Core::resetResource()
     _resources.clear();
 }
 
-void Core::displayImage(int id, size_t posX, size_t posY)
+void Core::displayImage(int id, int posX, int posY)
 {
     _currLib.second->displayImage(id, posX, posY);
 }
@@ -148,7 +148,7 @@ void Core::displayImage(int id, double posX, double posY)
     _currLib.second->displayImage(id, posX, posY);
 }
 
-void Core::displayText(int id, size_t posX, size_t posY, std::string const &text)
+void Core::displayText(int id, int posX, int posY, std::string const &text)
 {
     _currLib.second->displayText(id, posX, posY, text);
 }

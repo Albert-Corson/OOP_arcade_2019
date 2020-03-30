@@ -12,6 +12,11 @@
 
 using namespace arcade;
 
+std::string get_lib_name()
+{
+    return ("SFML");
+}
+
 std::unique_ptr<ILibGraph> init_graph_lib()
 {
     return (std::make_unique<LibGraphSFML>());
@@ -31,7 +36,7 @@ void LibGraphSFML::getKeyboardEvents(std::vector<KeyState> &keysGame, std::vecto
     }
 }
 
-void LibGraphSFML::displayImage(int id, size_t posX, size_t posY)
+void LibGraphSFML::displayImage(int id, int posX, int posY)
 {
     displayImage(id, (double)posX, (double)posY);
 }
@@ -40,18 +45,18 @@ void LibGraphSFML::displayImage(int id, double posX, double posY)
 {
     auto search = _sprites.find(id);
     if (search == _sprites.end())
-        throw ("Bad id in displayImage");
+        throw ALibGraph::Exception("Bad id in displayImage");
     _sprites[id].setPosition(posX, posY);
     _window.draw(_sprites[id]);
 }
 
-void LibGraphSFML::displayText(int id, size_t posX, size_t posY, std::string const &text)
+void LibGraphSFML::displayText(int id, int posX, int posY, std::string const &text)
 {
     sf::Text newText;
 
     auto search = _fonts.find(id);
     if (search == _fonts.end())
-        throw ("Bad id in displayText");
+        throw ALibGraph::Exception("Bad id in displayText");
     newText.setString(text);
     newText.setFont(_fonts[id]);
     newText.setPosition(posX, posY);
@@ -62,7 +67,7 @@ void LibGraphSFML::playAudio(int id, bool repeat)
 {
     auto search = _musics.find(id);
     if (search == _musics.end())
-        throw ("Bad id in playAudio");
+        throw ALibGraph::Exception("Bad id in playAudio");
     if (_musics[id].getLoop() != repeat)
         _musics[id].setLoop(repeat);
     if (_musics[id].getStatus() != sf::SoundSource::Playing)
@@ -73,7 +78,7 @@ void LibGraphSFML::stopAudio(int id)
 {
     auto search = _musics.find(id);
     if (search == _musics.end())
-        throw ("Bad id in stopAudio");
+        throw ALibGraph::Exception("Bad id in stopAudio");
     if (_musics[id].getStatus() != sf::SoundSource::Stopped)
         _musics[id].stop();
 }
@@ -92,18 +97,18 @@ void LibGraphSFML::loadResourceAudio(int id, std::string const &filepath)
 {
     auto search = _musics.find(id);
     if (search != _musics.end())
-        throw ("Bad id with file " + filepath);
+        throw ALibGraph::Exception("Bad id with file " + filepath);
     if (!_musics[id].openFromFile(filepath))
-        throw ("Load " + filepath + ": Failure");
+        throw ALibGraph::Exception("Load " + filepath + ": Failure");
 }
 
 void LibGraphSFML::loadResourceFont(int id, std::string const &filepath)
 {
     auto search = _fonts.find(id);
     if (search != _fonts.end())
-        throw ("Bad id with file " + filepath);
+        throw ALibGraph::Exception("Bad id with file " + filepath);
     if (!_fonts[id].loadFromFile(filepath))
-        throw ("Load " + filepath + ": Failure");
+        throw ALibGraph::Exception("Load " + filepath + ": Failure");
 }
 
 void LibGraphSFML::loadResourceImage(int id, std::string const &filepathGraph, std::string const &filepathAscii)
@@ -112,9 +117,9 @@ void LibGraphSFML::loadResourceImage(int id, std::string const &filepathGraph, s
 
     auto search = _sprites.find(id);
     if (search != _sprites.end())
-        throw ("Bad id with file " + filepathGraph);
+        throw ALibGraph::Exception("Bad id with file " + filepathGraph);
     if (!texture.loadFromFile(filepathGraph))
-        throw ("Load " + filepathGraph + ": Failure");
+        throw ALibGraph::Exception("Load " + filepathGraph + ": Failure");
     _sprites[id].setTexture(texture);
 }
 

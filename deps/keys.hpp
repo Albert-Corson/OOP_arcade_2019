@@ -54,6 +54,7 @@ namespace arcade {
         LSHIFT,
         LALT,
         LSYSTEM,
+        RCONTROL,
         RSHIFT,
         RALT,
         RSYSTEM,

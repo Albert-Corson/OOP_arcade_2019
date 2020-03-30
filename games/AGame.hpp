@@ -16,11 +16,26 @@ namespace arcade {
             class Exception;
             virtual ~AGame() = default;
 
+            unsigned long getScore() const override
+            {
+                return (_score);
+            };
+            void setScore(unsigned long val)
+            {
+                _score = val;
+            };
+            unsigned long addScore(unsigned long val)
+            {
+                _score += val;
+                return (_score);
+            };
+
         protected:
             AGame(ICore &core)
                 : _core(core)
             {}
             ICore &_core;
+            unsigned long _score;
     };
 
     class AGame::Exception : public arcade::Exception {
