@@ -10,34 +10,34 @@
 
 using namespace arcade;
 
-Resource::Resource(ResourceType rsrcType, std::string &filepathGraph, std::string &filepathAscii)
-    : type { rsrcType }
-    , filepath_graph { std::move(filepathGraph) }
-    , filepath_ascii { std::move(filepathAscii) }
+Resource::Resource(ResourceType rsrcType, const std::string &filepathGraph, const std::string &filepathAscii)
+    : _type { rsrcType }
+    , _filepathGraph { std::move(filepathGraph) }
+    , _filepathAscii { std::move(filepathAscii) }
 {
 }
 
-bool Resource::isType(ResourceType ofType) const
+bool Resource::isType(ResourceType type) const
 {
-    return this->type & type;
+    return _type & type;
 }
 
 bool Resource::isTypeAudio() const
 {
-    return this->type & ResourceType::AUDIO;
+    return _type & ResourceType::AUDIO;
 }
 
 bool Resource::isTypeImg() const
 {
-    return this->type & ResourceType::IMG;
+    return _type & ResourceType::IMG;
 }
 
 std::string const &Resource::getFilepathGraph() const
 {
-    return this->filepath_graph;
+    return _filepathGraph;
 }
 
 std::string const &Resource::getFilepathAscii() const
 {
-    return this->filepath_ascii;
+    return _filepathAscii;
 }

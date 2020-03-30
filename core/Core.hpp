@@ -10,8 +10,10 @@
 #include <string>
 #include <vector>
 #include <unordered_map>
+#include <map>
 #include <memory>
 #include "ICore.hpp"
+#include "Resource.hpp"
 #include "games/IGame.hpp"
 #include "lib/ILibGraph.hpp"
 #include "deps/Exception.hpp"
@@ -52,14 +54,25 @@ namespace arcade {
             void render() override final;
             void getKeyboardEvents(std::vector<KeyState> &keys) override final;
 
-        protected:
-            std::unique_ptr<ILibGraph> _currLib;
-            std::unique_ptr<IGame> _currGame;
-            std::unique_ptr<IGame> _currMenu;
-            std::unordered_map<std::string, libLoader> _libsLoaders;
-            std::unordered_map<std::string, gameLoader> _gamesLoaders;
+        private:
+            void _startMenu();
+            void _keyPrevGame();
+            void _keyNextGame();
+            void _keyPrevLib();
+            void _keyNextLib();
+            void _keyRestartGame();
+            void _keyMenu();
+            void _keyExit();
+
+            std::pair<std::string, std::unique_ptr<ILibGraph>> _currLib;
+            std::pair<std::string, std::unique_ptr<IGame>> _currGame;
+            std::map<std::string, libLoader> _libsLoaders;
+            std::map<std::string, gameLoader> _gamesLoaders;
             gameLoader _menuLoader;
+            std::unordered_map<int, Resource> _resources;
     };
+
+    typedef void (Core::*keyAction)();
 
     class Core::Exception : public arcade::Exception {
         public:

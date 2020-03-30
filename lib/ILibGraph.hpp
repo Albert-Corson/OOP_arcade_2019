@@ -48,7 +48,7 @@ namespace arcade {
 
             // Loads a new image
             // Throws an exception in case of failure
-        virtual void loadResourceImage(int id, std::string const &filepathGraph, std::string const &filepathAscii) = 0;
+            virtual void loadResourceImage(int id, std::string const &filepathGraph, std::string const &filepathAscii) = 0;
 
             // erases all content of resources
             virtual void resetResource() = 0;

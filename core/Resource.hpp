@@ -13,24 +13,25 @@
 namespace arcade {
     enum ResourceType {
         AUDIO = 1,
-        IMG = 1 << 1
+        IMG = 1 << 1,
+        FONT
     };
 
     class Resource {
         public:
-        Resource(ResourceType rsrcType, std::string &filepathGraph, std::string &filepathAscii);
+            Resource(ResourceType type, const std::string &filepathGraph, const std::string &filepathAscii);
 
-        bool isType(ResourceType ofType) const;
-        bool isTypeAudio() const;
-        bool isTypeImg() const;
+            bool isType(ResourceType type) const;
+            bool isTypeAudio() const;
+            bool isTypeImg() const;
 
-        std::string const &getFilepathGraph() const;
-        std::string const &getFilepathAscii() const;
+            std::string const &getFilepathGraph() const;
+            std::string const &getFilepathAscii() const;
 
         private:
-            ResourceType type;
-            std::string filepath_graph;
-            std::string filepath_ascii;
+            ResourceType _type;
+            std::string _filepathGraph;
+            std::string _filepathAscii;
     };
 
 }

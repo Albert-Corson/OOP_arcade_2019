@@ -95,7 +95,7 @@ void LibGraphNcurses::displayImage(int id, double posX, double posY)
     }
 }
 
-void LibGraphNcurses::displayText(int id, size_t posX, size_t posY, std::string const &text)
+void LibGraphNcurses::displayText(int fontID, size_t posX, size_t posY, std::string const &text)
 {
     int x = getcurx(stdscr);
     int y = getcury(stdscr);
@@ -111,12 +111,7 @@ void LibGraphNcurses::clear()
 
 void LibGraphNcurses::render()
 {
-    int x = getcurx(stdscr);
-    int y = getcury(stdscr);
-
-    for (const auto &it : _images)
-        mvaddstr(it.second.posY, it.second.posX, it.second.image.c_str());
-    move(y, x);
+    refresh();
 }
 
 void LibGraphNcurses::loadResourceImage(int id, std::string const &filepathGraph, std::string const &filepathAscii)
