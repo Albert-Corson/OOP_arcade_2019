@@ -19,8 +19,26 @@ namespace arcade {
 
             void launch();
             void stop();
-        
-        protected:
-            bool _running;
+
+        private:
+            enum RFont {
+                F_MENUS
+            };
+            enum RImage {
+                I_ARROW
+            };
+
+            typedef void (GameMenu::*keyAction)();
+            bool _running{false};
+            int _currTab{0};
+            int _currItem{0};
+
+            void _drawMenu();
+            void _handleEvents();
+            void _keyNextTab();
+            void _keyPrevTab();
+            void _keyNextItem();
+            void _keyPrevItem();
+            void _keySelect();
     };
 }

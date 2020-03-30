@@ -33,8 +33,6 @@ extern "C" {
                 void resetResource() override final;
 
             private:
-                sf::Keyboard::Key convertKey(const arcade::Key key);
-
                 sf::RenderWindow _window;
                 std::unordered_map<int, sf::Sprite> _sprites;
                 std::unordered_map<int, sf::Font> _fonts;

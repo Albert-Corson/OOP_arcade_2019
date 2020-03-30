@@ -65,6 +65,10 @@ void LibGraphNcurses::getKeyboardEvents(std::vector<KeyState> &keysGame, std::ve
 {
     Key current;
 
+    for (auto &it: keysCore)
+        it.is_pressed = false;
+    for (auto &it: keysGame)
+        it.is_pressed = false;
     for (int key = getch(); key != NO_KEY; key = getch()) {
         if (NCURSES_KEYMAP.find(key) == NCURSES_KEYMAP.end())
             continue;
@@ -116,6 +120,8 @@ void LibGraphNcurses::clear()
 
 void LibGraphNcurses::render()
 {
+    for (const auto &it: _images)
+        mvaddstr(it.second.posY, it.second.posX, it.second.image.c_str());
     refresh();
 }
 

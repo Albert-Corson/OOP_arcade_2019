@@ -120,16 +120,19 @@ std::unique_ptr<IClock> Core::createClock()
 void Core::loadResourceAudio(int id, std::string filepath)
 {
     _resources.insert_or_assign(id, Resource(ResourceType::AUDIO, filepath, filepath));
+    _currLib.second->loadResourceAudio(id, filepath);
 }
 
 void Core::loadResourceFont(int id, std::string filepath)
 {
     _resources.insert_or_assign(id, Resource(ResourceType::FONT, filepath, filepath));
+    _currLib.second->loadResourceFont(id, filepath);
 }
 
 void Core::loadResourceImage(int id, std::string filepathGraph, std::string filepathAscii)
 {
     _resources.insert_or_assign(id, Resource(ResourceType::IMG, filepathGraph, filepathAscii));
+    _currLib.second->loadResourceImage(id, filepathGraph, filepathAscii);
 }
 
 void Core::resetResource()

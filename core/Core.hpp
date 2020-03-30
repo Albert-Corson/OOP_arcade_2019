@@ -55,6 +55,7 @@ namespace arcade {
             void getKeyboardEvents(std::vector<KeyState> &keys) override final;
 
         private:
+            typedef void (Core::*keyAction)();
             void _startMenu();
             void _keyPrevGame();
             void _keyNextGame();
@@ -72,18 +73,16 @@ namespace arcade {
             std::unordered_map<int, Resource> _resources;
     };
 
-    typedef void (Core::*keyAction)();
-
     class Core::Exception : public arcade::Exception {
         public:
             Exception(const std::string &message)
-                : arcade::Exception(message)
+                : arcade::Exception("Core::Exception " + message)
             {
             };
 
             const char *what() const throw() override
             {
-                return (("Core::Exception " + _msg).c_str());
+                return (_msg.c_str());
             };
     };
 }

@@ -26,13 +26,13 @@ namespace arcade {
     class ALibGraph::Exception : public arcade::Exception {
         public:
             Exception(const std::string &message)
-                : arcade::Exception(message)
+                : arcade::Exception("ALibGraph::Exception " + message)
             {
             };
 
             const char *what() const throw() override
             {
-                return (("ALibGraph::Exception " + _msg).c_str());
+                return (_msg.c_str());
             };
     };
 }

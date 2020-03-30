@@ -41,13 +41,13 @@ namespace arcade {
     class AGame::Exception : public arcade::Exception {
         public:
             Exception(const std::string &message)
-                : arcade::Exception(message)
+                : arcade::Exception("AGame::Exception " + message)
             {
             };
 
             const char *what() const throw() override
             {
-                return (("AGame::Exception " + _msg).c_str());
+                return (_msg.c_str());
             };
     };
 }
