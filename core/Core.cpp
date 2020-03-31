@@ -169,7 +169,7 @@ void Core::render()
 
 void Core::getKeyboardEvents(std::vector<KeyState> &keys)
 {
-    static std::unordered_map<Key, keyAction> actions = {
+    static std::unordered_map<Key, keyAction_t> actions = {
         { Key::F9, &arcade::Core::_keyPrevGame },
         { Key::F10, &arcade::Core::_keyNextGame },
         { Key::F11, &arcade::Core::_keyPrevLib },
@@ -198,12 +198,12 @@ void Core::getKeyboardEvents(std::vector<KeyState> &keys)
 void Core::_loadLibGraph(const std::string path)
 {
     std::string rel_path = std::filesystem::path(path).lexically_normal().c_str();
-    libNameGetter nameGetter = nullptr;
-    libGraphLoader loader = nullptr;
+    libNameGetter_t nameGetter = nullptr;
+    libGraphLoader_t loader = nullptr;
 
     DLLoader lib(rel_path);
-    loader = lib.getsym<libGraphLoader>("init_graph_lib");
-    nameGetter = lib.getsym<libNameGetter>("get_lib_name");
+    loader = lib.getsym<libGraphLoader_t>("init_graph_lib");
+    nameGetter = lib.getsym<libNameGetter_t>("get_lib_name");
     if (!loader || !nameGetter)
         throw Exception(rel_path + " isn't valid");
     _libGraphsInfos.push_back(LibGraphInfo(rel_path, nameGetter(), loader));
@@ -212,12 +212,12 @@ void Core::_loadLibGraph(const std::string path)
 void Core::_loadGame(const std::string path)
 {
     std::string rel_path = std::filesystem::path(path).lexically_normal().c_str();
-    libNameGetter nameGetter = nullptr;
-    gameLoader loader = nullptr;
+    libNameGetter_t nameGetter = nullptr;
+    gameLoader_t loader = nullptr;
 
     DLLoader lib(rel_path);
-    loader = lib.getsym<gameLoader>("init_game_lib");
-    nameGetter = lib.getsym<libNameGetter>("get_lib_name");
+    loader = lib.getsym<gameLoader_t>("init_game_lib");
+    nameGetter = lib.getsym<libNameGetter_t>("get_lib_name");
     if (!loader || !nameGetter)
         throw Exception(rel_path + " isn't valid");
     _gamesInfos.push_back(GameInfo(rel_path, nameGetter(), loader));
@@ -228,7 +228,7 @@ void Core::_loadMenu(const std::string path)
     std::string rel_path = std::filesystem::path(path).lexically_normal().c_str();
     DLLoader menu(rel_path);
 
-    _menuLoader = menu.getsym<menuLoader>("init_menu_lib");
+    _menuLoader = menu.getsym<menuLoader_t>("init_menu_lib");
     if (_menuLoader == NULL)
         throw Exception(rel_path + ": cannot find symbol `init_menu_lib`");
 }

@@ -13,7 +13,7 @@
 namespace arcade {
     class Game : public AGame {
         public:
-            typedef void (Game::*keyAction)(Key);
+            typedef void (Game::*keyAction_t)(Key);
 
             Game(ICore &core);
             ~Game() = default;
@@ -28,7 +28,7 @@ namespace arcade {
 
             bool _paused;
             std::vector<KeyState> _actionKeys;
-            std::unordered_map<Key, keyAction> _keyActions;
+            std::unordered_map<Key, keyAction_t> _keyActions;
     };
 
 }

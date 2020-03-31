@@ -23,28 +23,28 @@
 #define MENU_PATH   "menu/"
 
 namespace arcade {
-    typedef std::unique_ptr<ILibGraph> (*libGraphLoader)();
-    typedef std::unique_ptr<IGame> (*gameLoader)(ICore &);
-    typedef std::unique_ptr<IGame> (*menuLoader)(ICore &);
+    typedef std::unique_ptr<ILibGraph> (*libGraphLoader_t)();
+    typedef std::unique_ptr<IGame> (*gameLoader_t)(ICore &);
+    typedef std::unique_ptr<IGame> (*menuLoader_t)(ICore &);
 
     class Core : public ICore {
         public:
             class Exception;
 
             struct GameInfo : public LibInfo {
-                GameInfo(const std::string &libPath, const std::string &libName, const gameLoader &libLoader)
+                GameInfo(const std::string &libPath, const std::string &libName, const gameLoader_t &libLoader)
                     : LibInfo(libPath, libName)
                     , loader(libLoader)
                 {}
-                const gameLoader loader;
+                const gameLoader_t loader;
             };
 
             struct LibGraphInfo : public LibInfo {
-                LibGraphInfo(const std::string &libPath, const std::string &libName, const libGraphLoader &libLoader)
+                LibGraphInfo(const std::string &libPath, const std::string &libName, const libGraphLoader_t &libLoader)
                     : LibInfo(libPath, libName)
                     , loader(libLoader)
                 {}
-                const libGraphLoader loader;
+                const libGraphLoader_t loader;
             };
 
             Core(const std::string &menuToLoad);
@@ -71,8 +71,8 @@ namespace arcade {
             void getKeyboardEvents(std::vector<KeyState> &keys) override final;
 
         private:
-            typedef std::string (*libNameGetter)();
-            typedef void (Core::*keyAction)();
+            typedef std::string (*libNameGetter_t)();
+            typedef void (Core::*keyAction_t)();
 
             void _loadLibGraph(const std::string name);
             void _loadGame(const std::string name);
@@ -91,7 +91,7 @@ namespace arcade {
             std::vector<LibGraphInfo> _libGraphsInfos;
             std::vector<GameInfo> _gamesInfos;
 
-            gameLoader _menuLoader;
+            gameLoader_t _menuLoader;
 
             std::unordered_map<int, Resource> _resources;
     };
