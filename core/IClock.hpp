@@ -13,11 +13,8 @@ namespace arcade {
         public:
             virtual ~IClock() = default;
 
+            virtual long getElapsedTime() = 0;
             virtual void reset() = 0;
-            virtual long getElapsedNanoseconds() const noexcept = 0;
-            virtual long getElapsedMicroseconds() const noexcept = 0;
-            virtual long getElapsedMilliseconds() const noexcept = 0;
-            virtual long getElapsedSeconds() const noexcept = 0;
 
         protected:
             IClock() = default;
