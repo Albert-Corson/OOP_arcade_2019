@@ -12,6 +12,16 @@
 
 using namespace arcade;
 
+LibGraphSFML::LibGraphSFML()
+{
+    _window.create(sf::VideoMode(800, 600), "SFML Window");
+}
+
+LibGraphSFML::~LibGraphSFML()
+{
+    _window.close();
+}
+
 std::string get_lib_name()
 {
     return ("SFML");

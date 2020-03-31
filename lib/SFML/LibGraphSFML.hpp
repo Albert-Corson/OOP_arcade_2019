@@ -16,8 +16,8 @@ extern "C" {
     namespace arcade {
         class LibGraphSFML: public ALibGraph {
             public:
-                LibGraphSFML() = default;
-                ~LibGraphSFML() = default;
+                LibGraphSFML();
+                ~LibGraphSFML();
 
                 void getKeyboardEvents(std::vector<KeyState> &keysGame, std::vector<KeyState> &keysCore) override final;
                 void displayImage(int id, int posX, int posY) override final;
