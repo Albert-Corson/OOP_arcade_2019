@@ -20,6 +20,15 @@ namespace arcade {
     // graphical libraries
     class ICore {
         public:
+            struct LibInfo {
+                LibInfo(const std::string &libPath, const std::string &libName)
+                    : path(libPath)
+                    , name(libName)
+                {}
+                const std::string path;
+                const std::string name;
+            };
+
             virtual ~ICore() = default;
 
             // Creates a new clock object

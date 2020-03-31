@@ -9,6 +9,8 @@
 
 #include "IGame.hpp"
 #include "deps/Exception.hpp"
+#include "init_game_lib.hpp"
+#include "deps/get_lib_name.hpp"
 
 namespace arcade {
     class AGame : public IGame {
@@ -16,6 +18,10 @@ namespace arcade {
             class Exception;
             virtual ~AGame() = default;
 
+            void stop() override
+            {
+                _running = false;
+            };
             unsigned long getScore() const override
             {
                 return (_score);
@@ -33,9 +39,12 @@ namespace arcade {
         protected:
             AGame(ICore &core)
                 : _core(core)
+                , _score(0)
+                , _running(false)
             {}
             ICore &_core;
             unsigned long _score;
+            bool _running;
     };
 
     class AGame::Exception : public arcade::Exception {

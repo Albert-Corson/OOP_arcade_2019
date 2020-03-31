@@ -18,12 +18,12 @@
 #include "lib/ILibGraph.hpp"
 #include "deps/Exception.hpp"
 
-#define LIBS_PATH   "lib/"
+#define LIBGRAPHS_PATH   "lib/"
 #define GAMES_PATH  "games/"
 #define MENU_PATH   "menu/"
 
 namespace arcade {
-    typedef std::unique_ptr<ILibGraph> (*libLoader)();
+    typedef std::unique_ptr<ILibGraph> (*libGraphLoader)();
     typedef std::unique_ptr<IGame> (*gameLoader)(ICore &);
     typedef std::unique_ptr<IGame> (*menuLoader)(ICore &);
 
@@ -31,14 +31,30 @@ namespace arcade {
         public:
             class Exception;
 
-            Core();
+            struct GameInfo : public LibInfo {
+                GameInfo(const std::string &libPath, const std::string &libName, const gameLoader &libLoader)
+                    : LibInfo(libPath, libName)
+                    , loader(libLoader)
+                {}
+                const gameLoader loader;
+            };
+
+            struct LibGraphInfo : public LibInfo {
+                LibGraphInfo(const std::string &libPath, const std::string &libName, const libGraphLoader &libLoader)
+                    : LibInfo(libPath, libName)
+                    , loader(libLoader)
+                {}
+                const libGraphLoader loader;
+            };
+
+            Core(const std::string &menuToLoad);
             ~Core();
 
-            void loadLib(const std::string name);
-            void loadGame(const std::string name);
-            void loadMenu(const std::string name);
-            const std::vector<std::string> getLibsList() const;
-            const std::vector<std::string> getGamesList() const;
+            void setLibGraph(const std::string path);
+            void setGame(const std::string path);
+            void startMenu();
+            const std::vector<LibInfo> getLibGraphsList() const;
+            const std::vector<LibInfo> getGamesList() const;
 
             std::unique_ptr<IClock> createClock() override final;
             void loadResourceAudio(int id, std::string filepath) override final;
@@ -55,8 +71,12 @@ namespace arcade {
             void getKeyboardEvents(std::vector<KeyState> &keys) override final;
 
         private:
+            typedef std::string (*libNameGetter)();
             typedef void (Core::*keyAction)();
-            void _startMenu();
+
+            void _loadLibGraph(const std::string name);
+            void _loadGame(const std::string name);
+            void _loadMenu(const std::string name);
             void _keyPrevGame();
             void _keyNextGame();
             void _keyPrevLib();
@@ -67,9 +87,12 @@ namespace arcade {
 
             std::pair<std::string, std::unique_ptr<ILibGraph>> _currLib;
             std::pair<std::string, std::unique_ptr<IGame>> _currGame;
-            std::map<std::string, libLoader> _libsLoaders;
-            std::map<std::string, gameLoader> _gamesLoaders;
+
+            std::vector<LibGraphInfo> _libGraphsInfos;
+            std::vector<GameInfo> _gamesInfos;
+
             gameLoader _menuLoader;
+
             std::unordered_map<int, Resource> _resources;
     };
 

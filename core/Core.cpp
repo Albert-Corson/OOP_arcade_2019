@@ -20,18 +20,20 @@ static inline bool ends_with(const std::string &str, const std::string &end)
     return (std::equal(end.rbegin(), end.rend(), str.rbegin()));
 }
 
-Core::Core()
+Core::Core(const std::string &menuToLoad)
     : _menuLoader(nullptr)
 {
-    for (auto it : std::filesystem::directory_iterator(LIBS_PATH)) {
-        if (ends_with(it.path().c_str(), ".so")) {
-            _libsLoaders[it.path().c_str()] = NULL;
-        }
+    std::string path;
+    std::string name;
+
+    _loadMenu(menuToLoad);
+    for (auto it : std::filesystem::directory_iterator(LIBGRAPHS_PATH)) {
+        if (ends_with(it.path().c_str(), ".so"))
+            _loadLibGraph(it.path().c_str());
     }
     for (auto it : std::filesystem::directory_iterator(GAMES_PATH)) {
-        if (ends_with(it.path().c_str(), ".so")) {
-            _gamesLoaders[it.path().c_str()] = NULL;
-        }
+        if (ends_with(it.path().c_str(), ".so"))
+            _loadGame(it.path().c_str());
     }
 }
 
@@ -39,77 +41,66 @@ Core::~Core()
 {
 }
 
-const std::vector<std::string> Core::getLibsList() const
+const std::vector<ICore::LibInfo> Core::getLibGraphsList() const
 {
-    std::vector<std::string> keys;
+    std::vector<LibInfo> keys;
 
-    for (const auto &it : _libsLoaders) {
-        keys.push_back(it.first);
+    for (const auto &it : _libGraphsInfos) {
+        keys.push_back(LibInfo(it.path, it.name));
     }
     return (keys);
 }
 
-const std::vector<std::string> Core::getGamesList() const
+const std::vector<ICore::LibInfo> Core::getGamesList() const
 {
-    std::vector<std::string> keys;
+    std::vector<LibInfo> keys;
 
-    for (const auto &it : _gamesLoaders) {
-        keys.push_back(it.first);
+    for (const auto &it : _gamesInfos) {
+        keys.push_back(LibInfo(it.path, it.name));
     }
     return (keys);
 }
 
-void Core::loadLib(const std::string path)
+void Core::setLibGraph(const std::string path)
 {
-    std::string rel_path = std::filesystem::path(path).lexically_normal().c_str();
+    bool find = false;
 
-    if (_libsLoaders.find(rel_path) != _libsLoaders.end() && _libsLoaders[rel_path] != nullptr) {
-        _currLib.first = rel_path;
-        _currLib.second = _libsLoaders[rel_path]();
-        return;
+    for (const auto &it : _libGraphsInfos) {
+        if (it.path == path) {
+            find = true;
+            _currLib.first = path;
+            _currLib.second = it.loader();
+            break;
+        }
     }
-    DLLoader lib(rel_path);
-    _libsLoaders[rel_path] = lib.getsym<libLoader>("init_graph_lib");
-
-    if (_libsLoaders[rel_path] == NULL)
-        throw Exception(rel_path + ": cannot find symbol `init_game_lib`");
-    _currLib.first = rel_path;
-    _currLib.second = _libsLoaders[rel_path]();
+    if (!find)
+        throw Core::Exception("setLibGraph: no such lib: " + path);
 }
 
-void Core::loadGame(const std::string path)
+void Core::setGame(const std::string path)
 {
-    std::string rel_path = std::filesystem::path(path).lexically_normal().c_str();
+    bool find = false;
 
-    if (_gamesLoaders.find(rel_path) != _gamesLoaders.end() && _gamesLoaders[rel_path] != nullptr) {
-        _currGame.first = rel_path;
-        _currGame.second = _gamesLoaders[rel_path](*this);
-        return;
+    for (const auto &it : _gamesInfos) {
+        if (it.path == path) {
+            find = true;
+            _currGame.first = path;
+            _currGame.second = it.loader(*this);
+            break;
+        }
     }
-    DLLoader game(rel_path);
-    _gamesLoaders[rel_path] = game.getsym<gameLoader>("init_game_lib");
-
-    if (_gamesLoaders[rel_path] == NULL)
-        throw Exception(rel_path + ": cannot find symbol `init_game_lib`");
-    _currGame.first = rel_path;
-    _currGame.second = _gamesLoaders[rel_path](*this);
+    if (!find)
+        throw Core::Exception("setGame: no such lib: " + path);
 }
 
-void Core::loadMenu(const std::string path)
+void Core::startMenu()
 {
-    std::string rel_path = std::filesystem::path(path).lexically_normal().c_str();
-
-    if (_menuLoader != nullptr) {
-        _startMenu();
-        return;
-    }
-    DLLoader menu(rel_path);
-    _menuLoader = menu.getsym<menuLoader>("init_menu_lib");
-
-    if (_menuLoader == NULL) {
-        throw Exception(rel_path + ": cannot find symbol `init_menu_lib`");
-    }
-    _startMenu();
+    if (!_menuLoader)
+        throw Exception("_keyMenu: `_menuLoader` is no set");
+    resetResource();
+    _currGame.first = "__MENU__";
+    _currGame.second = _menuLoader(*this);
+    _currGame.second->launch();
 }
 
 std::unique_ptr<IClock> Core::createClock()
@@ -204,95 +195,134 @@ void Core::getKeyboardEvents(std::vector<KeyState> &keys)
     }
 }
 
-void Core::_startMenu()
+void Core::_loadLibGraph(const std::string path)
 {
-    if (!_menuLoader)
-        throw Exception("_keyMenu: `_menuLoader` is no set");
-    _currGame.first = "__MENU__";
-    _currGame.second = _menuLoader(*this);
-    _currGame.second->launch();
+    std::string rel_path = std::filesystem::path(path).lexically_normal().c_str();
+    libNameGetter nameGetter = nullptr;
+    libGraphLoader loader = nullptr;
+
+    DLLoader lib(rel_path);
+    loader = lib.getsym<libGraphLoader>("init_graph_lib");
+    nameGetter = lib.getsym<libNameGetter>("get_lib_name");
+    if (!loader || !nameGetter)
+        throw Exception(rel_path + " isn't valid");
+    _libGraphsInfos.push_back(LibGraphInfo(rel_path, nameGetter(), loader));
+}
+
+void Core::_loadGame(const std::string path)
+{
+    std::string rel_path = std::filesystem::path(path).lexically_normal().c_str();
+    libNameGetter nameGetter = nullptr;
+    gameLoader loader = nullptr;
+
+    DLLoader lib(rel_path);
+    loader = lib.getsym<gameLoader>("init_game_lib");
+    nameGetter = lib.getsym<libNameGetter>("get_lib_name");
+    if (!loader || !nameGetter)
+        throw Exception(rel_path + " isn't valid");
+    _gamesInfos.push_back(GameInfo(rel_path, nameGetter(), loader));
+}
+
+void Core::_loadMenu(const std::string path)
+{
+    std::string rel_path = std::filesystem::path(path).lexically_normal().c_str();
+    DLLoader menu(rel_path);
+
+    _menuLoader = menu.getsym<menuLoader>("init_menu_lib");
+    if (_menuLoader == NULL)
+        throw Exception(rel_path + ": cannot find symbol `init_menu_lib`");
 }
 
 void Core::_keyPrevGame()
 {
-    bool find = false;
-    auto it = _gamesLoaders.rbegin();
+    auto it = _gamesInfos.rbegin();
 
-    for (; !find && it != _gamesLoaders.rend(); ++it) {
-        if (it->first == _currGame.first)
-            find = true;
+    for (; it != _gamesInfos.rend(); ++it) {
+        if (it->path == _currGame.first)
+            break;
     }
-    if (it == _gamesLoaders.rend())
-        it = _gamesLoaders.rbegin();
+    if (it == _gamesInfos.rend())
+        it = _gamesInfos.rbegin();
     else
         ++it;
-    if (it == _gamesLoaders.rend())
-        it = _gamesLoaders.rbegin();
-    _currGame.first = it->first;
-    _currGame.second = it->second(*this);
+    if (it == _gamesInfos.rend())
+        it = _gamesInfos.rbegin();
+    _currGame.first = it->path;
+    _currGame.second = it->loader(*this);
 }
 
 void Core::_keyNextGame()
 {
-    auto it = _gamesLoaders.find(_currGame.first);
+    auto it = _gamesInfos.begin();
 
-    if (it == _gamesLoaders.end())
-        it = _gamesLoaders.begin();
+    for (; it != _gamesInfos.end(); ++it) {
+        if (it->path == _currGame.first)
+            break;
+    }
+    if (it == _gamesInfos.end())
+        it = _gamesInfos.begin();
     else
         ++it;
-    if (it == _gamesLoaders.end())
-        it = _gamesLoaders.begin();
-    _currGame.first = it->first;
-    _currGame.second = it->second(*this);
+    if (it == _gamesInfos.end())
+        it = _gamesInfos.begin();
+    _currGame.first = it->path;
+    _currGame.second = it->loader(*this);
 }
 
 void Core::_keyPrevLib()
 {
-    bool find = false;
-    auto it = _libsLoaders.rbegin();
+    auto it = _libGraphsInfos.rbegin();
 
-    for (; !find && it != _libsLoaders.rend(); ++it) {
-        if (it->first == _currLib.first)
-            find = true;
+    for (; it != _libGraphsInfos.rend(); ++it) {
+        if (it->path == _currLib.first)
+            break;
     }
-    if (it == _libsLoaders.rend())
-        it = _libsLoaders.rbegin();
+    if (it == _libGraphsInfos.rend())
+        it = _libGraphsInfos.rbegin();
     else
         ++it;
-    if (it == _libsLoaders.rend())
-        it = _libsLoaders.rbegin();
-    _currLib.first = it->first;
-    _currLib.second = it->second();
+    if (it == _libGraphsInfos.rend())
+        it = _libGraphsInfos.rbegin();
+    _currLib.first = it->path;
+    _currLib.second = it->loader();
 }
 
 void Core::_keyNextLib()
 {
-    auto it = _libsLoaders.find(_currLib.first);
+    auto it = _libGraphsInfos.begin();
 
-    if (it == _libsLoaders.end())
-        it = _libsLoaders.begin();
+    for (; it != _libGraphsInfos.end(); ++it) {
+        if (it->path == _currLib.first)
+            break;
+    }
+    if (it == _libGraphsInfos.end())
+        it = _libGraphsInfos.begin();
     else
         ++it;
-    if (it == _libsLoaders.end())
-        it = _libsLoaders.begin();
-    _currLib.first = it->first;
-    _currLib.second = it->second();
+    if (it == _libGraphsInfos.end())
+        it = _libGraphsInfos.begin();
+    _currLib.first = it->path;
+    _currLib.second = it->loader();
 }
 
 void Core::_keyRestartGame()
 {
-    if (!_currGame.second)
-        throw Exception("_keyRestartGame: an error occurred");
-    _currLib.second->resetResource();
-    _currGame.second = _gamesLoaders[_currGame.first](*this);
+    for (const auto &it : _gamesInfos) {
+        if (it.path == _currGame.first) {
+            resetResource();
+            _currGame.second = it.loader(*this);
+            return;
+        }
+    }
+    throw Exception("_keyRestartGame: no game loaded");
 }
 
 void Core::_keyMenu()
 {
     if (!_menuLoader)
-        throw Exception("_keyMenu: `_menuLoader` is no set");
-    _currLib.second->resetResource();
-    _startMenu();
+        throw Exception("_keyMenu: no menu loaded");
+    resetResource();
+    startMenu();
 }
 
 void Core::_keyExit()

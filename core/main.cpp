@@ -24,10 +24,10 @@ int main(int argc, const char *argv[])
         print_usage(argv[0]);
         return (84);
     }
-    arcade::Core core;
+    arcade::Core core(std::filesystem::path(MENU_PATH) / "lib_arcade_menu.so");
     try {
-        core.loadLib(argv[1]);
-        core.loadMenu(std::filesystem::path(MENU_PATH) / "lib_arcade_menu.so");
+        core.setLibGraph(argv[1]);
+        core.startMenu();
     } catch (const arcade::Exception &e) {
         std::cerr << e.what() << std::endl;
         return (84);
