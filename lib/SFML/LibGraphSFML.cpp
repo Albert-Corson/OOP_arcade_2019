@@ -34,17 +34,23 @@ std::unique_ptr<ILibGraph> init_graph_lib()
 
 void LibGraphSFML::getKeyboardEvents(std::vector<KeyState> &keysGame, std::vector<KeyState> &keysCore)
 {
-    for (auto &it: keysGame) {
-        if (sf::Keyboard::isKeyPressed(static_cast<sf::Keyboard::Key>(it.key)))
-            it.is_pressed = true;
-        else
-            it.is_pressed = false;
-    }
-    for (auto &it: keysCore) {
-        if (sf::Keyboard::isKeyPressed(static_cast<sf::Keyboard::Key>(it.key)))
-            it.is_pressed = true;
-        else
-            it.is_pressed = false;
+    sf::Event evt;
+
+    for (auto &it: keysGame)
+        it.is_pressed = false;
+    for (auto &it: keysCore)
+        it.is_pressed = false;
+    while (_window.pollEvent(evt)) {
+        if (evt.type != sf::Event::KeyPressed)
+            continue;
+        for (auto &it: keysGame) {
+            if (evt.key.code == static_cast<sf::Keyboard::Key>(it.key))
+                it.is_pressed = true;
+        }
+        for (auto &it: keysCore) {
+            if (evt.key.code == static_cast<sf::Keyboard::Key>(it.key))
+                it.is_pressed = true;
+        }
     }
 }
 
@@ -55,11 +61,11 @@ void LibGraphSFML::displayImage(int id, int posX, int posY)
 
 void LibGraphSFML::displayImage(int id, double posX, double posY)
 {
-    auto search = _sprites.find(id);
-    if (search == _sprites.end())
+    auto search = _images.find(id);
+    if (search == _images.end())
         throw ALibGraph::Exception("Bad id in displayImage");
-    _sprites[id].setPosition(posX, posY);
-    _window.draw(_sprites[id]);
+    _images[id].sprite.setPosition(posX * cell_size_x, posY * cell_size_y);
+    _window.draw(_images[id].sprite);
 }
 
 void LibGraphSFML::displayText(int id, int posX, int posY, std::string const &text)
@@ -71,7 +77,8 @@ void LibGraphSFML::displayText(int id, int posX, int posY, std::string const &te
         throw ALibGraph::Exception("Bad id in displayText");
     newText.setString(text);
     newText.setFont(_fonts[id]);
-    newText.setPosition(posX, posY);
+    newText.setPosition(posX * cell_size_x, posY * cell_size_y);
+    newText.setCharacterSize(cell_size_y);
     _window.draw(newText);
 }
 
@@ -125,19 +132,19 @@ void LibGraphSFML::loadResourceFont(int id, std::string const &filepath)
 
 void LibGraphSFML::loadResourceImage(int id, std::string const &filepathGraph, std::string const &filepathAscii)
 {
-    sf::Texture texture;
-
-    auto search = _sprites.find(id);
-    if (search != _sprites.end())
+    auto search = _images.find(id);
+    if (search != _images.end())
         throw ALibGraph::Exception("Bad id with file " + filepathGraph);
-    if (!texture.loadFromFile(filepathGraph))
+    if (!_images[id].texture.loadFromFile(filepathGraph))
         throw ALibGraph::Exception("Load " + filepathGraph + ": Failure");
-    _sprites[id].setTexture(texture);
+    _images[id].sprite.setTexture(_images[id].texture);
+    sf::Vector2u size = _images[id].texture.getSize();
+    _images[id].sprite.setScale(cell_size_x / (float)(size.x), cell_size_y / (float)size.y);
 }
 
 void LibGraphSFML::resetResource()
 {
-    _sprites.clear();
+    _images.clear();
     _fonts.clear();
     _musics.clear();
 }

@@ -33,8 +33,13 @@ extern "C" {
                 void resetResource() override final;
 
             private:
+                struct Image {
+                    sf::Sprite sprite;
+                    sf::Texture texture;
+                };
+
                 sf::RenderWindow _window;
-                std::unordered_map<int, sf::Sprite> _sprites;
+                std::unordered_map<int, Image> _images;
                 std::unordered_map<int, sf::Font> _fonts;
                 std::unordered_map<int, sf::Music> _musics;
         };
