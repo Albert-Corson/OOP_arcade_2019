@@ -181,24 +181,20 @@ void Core::render()
 void Core::getKeyboardEvents(std::vector<KeyState> &keys)
 {
     static std::unordered_map<Key, keyAction_t> actions = {
-        { Key::F9, &arcade::Core::_keyPrevGame },
-        { Key::F10, &arcade::Core::_keyNextGame },
-        { Key::F11, &arcade::Core::_keyPrevLib },
-        { Key::F12, &arcade::Core::_keyNextLib },
-        { Key::F5, &arcade::Core::_keyRestartGame },
-        { Key::F1, &arcade::Core::_keyMenu },
-        { Key::F4, &arcade::Core::_keyExit }
+        { Key::HYPHEN, &arcade::Core::_keyPrevGame }, // Previous game
+        { Key::EQUAL, &arcade::Core::_keyNextGame }, // Next game
+        { Key::PAGEDOWN, &arcade::Core::_keyPrevLib }, // Previous library
+        { Key::PAGEUP, &arcade::Core::_keyNextLib }, // Next library
+        { Key::R, &arcade::Core::_keyRestartGame }, // Restart game
+        { Key::HOME, &arcade::Core::_keyMenu }, // Go back to the menu
+        { Key::END, &arcade::Core::_keyExit } // Exit
     };
-    static std::vector<KeyState> coreKeys = {
-        KeyState(Key::F9), // Previous game
-        KeyState(Key::F10), // Next game
-        KeyState(Key::F11), // Previous library
-        KeyState(Key::F12), // Next library
-        KeyState(Key::F5), // Restart game
-        KeyState(Key::F1), // Go back to the menu
-        KeyState(Key::F4) // Exit
-    };
+    static std::vector<KeyState> coreKeys;
 
+    if (!coreKeys.size()) {
+        for (const auto &it : actions)
+            coreKeys.push_back(KeyState(it.first));
+    }
     _currLibGraph.lock()->instance->getKeyboardEvents(keys, coreKeys);
     for (const auto &it : coreKeys) {
         if (it.is_pressed)
@@ -334,6 +330,10 @@ void Core::_keyRestartGame()
 
 void Core::_keyMenu()
 {
+    const auto &game = _currGame.lock();
+
+    if (game != nullptr && game->path == __menu__)
+        return;
     setGame(__menu__);
 }
 
