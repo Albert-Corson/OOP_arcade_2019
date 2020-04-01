@@ -7,94 +7,46 @@
 
 #pragma once
 
-#include <string>
-#include <vector>
-#include <unordered_map>
-#include <map>
-#include <memory>
 #include "ICore.hpp"
 #include "Resource.hpp"
+#include "deps/Exception.hpp"
 #include "games/IGame.hpp"
 #include "lib/ILibGraph.hpp"
-#include "deps/Exception.hpp"
 
-#define LIBGRAPHS_PATH   "lib/"
-#define GAMES_PATH  "games/"
-#define MENU_PATH   "menu/"
+#include <functional>
+#include <map>
+#include <memory>
+#include <queue>
+#include <string>
+#include <unordered_map>
+#include <vector>
+
+#define LIBGRAPHS_PATH  "lib/"
+#define GAMES_PATH      "games/"
+#define MENU_PATH       "menu/"
 
 namespace arcade {
     typedef std::unique_ptr<ILibGraph> (*libGraphLoader_t)();
     typedef std::unique_ptr<IGame> (*gameLoader_t)(ICore &);
-    typedef std::unique_ptr<IGame> (*menuLoader_t)(ICore &);
+    typedef std::string (*libNameGetter_t)();
+
+    const std::string libGraphLoaderFnName = "init_graph_lib";
+    const std::string gameLoaderFnName = "init_game_lib";
+    const std::string libNameGetterFnName = "get_lib_name";
 
     class Core : public ICore {
         public:
             class Exception;
 
-            struct GameStorage : public LibInfo {
-                GameStorage()
-                    : LibInfo()
-                    , loader(nullptr)
-                    , instance(nullptr)
-                {}
-                GameStorage(const std::string &libPath, const std::string &libName, const gameLoader_t &libLoader)
-                    : LibInfo(libPath, libName)
-                    , loader(libLoader)
-                    , instance(nullptr)
-                {}
-                GameStorage(const GameStorage &other)
-                    : LibInfo(other)
-                    , loader(other.loader)
-                    , instance(nullptr)
-                {}
-                GameStorage &operator=(const GameStorage &other)
-                {
-                    LibInfo::operator=(other);
-                    this->loader = other.loader;
-                    this->instance = nullptr;
-                    return (*this);
-                }
+            struct GameStorage;
+            struct LibGraphStorage;
 
-                gameLoader_t loader;
-                std::unique_ptr<IGame> instance;
-            };
+            Core(const std::string &menuToLoad, const std::string &libGraph = "");
+            ~Core() = default;
 
-            struct LibGraphStorage : public LibInfo {
-                LibGraphStorage()
-                    : LibInfo()
-                    , loader(nullptr)
-                    , instance(nullptr)
-                {}
-                LibGraphStorage(const std::string &libPath, const std::string &libName, const libGraphLoader_t &libLoader)
-                    : LibInfo(libPath, libName)
-                    , loader(libLoader)
-                    , instance(nullptr)
-                {}
-                LibGraphStorage(const LibGraphStorage &other)
-                    : LibInfo(other)
-                    , loader(other.loader)
-                    , instance(nullptr)
-                {}
-                LibGraphStorage &operator=(const LibGraphStorage &other)
-                {
-                    LibInfo::operator=(other);
-                    this->loader = other.loader;
-                    this->instance = nullptr;
-                    return (*this);
-                }
-
-                libGraphLoader_t loader;
-                std::unique_ptr<ILibGraph> instance;
-            };
-
-            Core(const std::string &menuToLoad);
-            ~Core();
-
-            void changeLibGraph(const std::string path);
-            void changeGame(const std::string path);
-            void setLibGraph(const std::string path);
-            void setGame(const std::string path);
-            void startMenu();
+            void start();
+            void setLibGraph(const std::string &path);
+            void setGame(const std::string &path);
             const std::vector<LibInfo> getLibGraphsList() const;
             const std::vector<LibInfo> getGamesList() const;
 
@@ -113,12 +65,12 @@ namespace arcade {
             void getKeyboardEvents(std::vector<KeyState> &keys) override final;
 
         private:
-            typedef std::string (*libNameGetter_t)();
             typedef void (Core::*keyAction_t)();
+            const std::string __menu__ = "__MENU__";
 
-            void _loadLibGraph(const std::string name);
-            void _loadGame(const std::string name);
-            void _loadMenu(const std::string name);
+            void _loadLibGraph(const std::string &name);
+            void _loadGame(const std::string &name, bool isMenu = false);
+            void _pushRsrcToLibGraph();
             void _keyPrevGame();
             void _keyNextGame();
             void _keyPrevLib();
@@ -127,27 +79,85 @@ namespace arcade {
             void _keyMenu();
             void _keyExit();
 
-            LibGraphStorage _currLib;
-            GameStorage _currGame;
+            std::queue<std::function<void()>> _actionQueue;
 
-            std::vector<LibGraphStorage> _libGraphsInfos;
-            std::vector<GameStorage> _gamesInfos;
+            std::weak_ptr<LibGraphStorage> _currLibGraph;
+            std::weak_ptr<GameStorage> _currGame;
 
-            gameLoader_t _menuLoader;
+            std::vector<std::shared_ptr<LibGraphStorage>> _libGraphs;
+            std::vector<std::shared_ptr<GameStorage>> _games;
 
-            std::unordered_map<int, Resource> _resources;
-    };
-
-    class Core::Exception : public arcade::Exception {
-        public:
-            Exception(const std::string &message)
-                : arcade::Exception("Core::Exception " + message)
-            {
-            };
-
-            const char *what() const throw() override
-            {
-                return (_msg.c_str());
-            };
+            std::unordered_map<int, Resource> _imageRsrcs;
+            std::unordered_map<int, Resource> _audioRsrcs;
+            std::unordered_map<int, Resource> _fontRsrcs;
     };
 }
+
+class arcade::Core::Exception : public arcade::Exception {
+    public:
+        Exception(const std::string &message)
+            : arcade::Exception("Core::Exception " + message)
+        {
+        };
+
+        const char *what() const throw() override
+        {
+            return (_msg.c_str());
+        };
+};
+
+struct arcade::Core::GameStorage : public arcade::ICore::LibInfo {
+    GameStorage()
+        : LibInfo()
+        , loader(nullptr)
+        , instance(nullptr)
+    {}
+    GameStorage(const std::string &libPath, const std::string &libName, const arcade::gameLoader_t &libLoader)
+        : LibInfo(libPath, libName)
+        , loader(libLoader)
+        , instance(nullptr)
+    {}
+    GameStorage(const GameStorage &other)
+        : LibInfo(other)
+        , loader(other.loader)
+        , instance(nullptr)
+    {}
+    GameStorage &operator=(const GameStorage &other)
+    {
+        LibInfo::operator=(other);
+        this->loader = other.loader;
+        this->instance = nullptr;
+        return (*this);
+    }
+
+    arcade::gameLoader_t loader;
+    std::unique_ptr<IGame> instance;
+};
+
+struct arcade::Core::LibGraphStorage : public arcade::ICore::LibInfo {
+    LibGraphStorage()
+        : LibInfo()
+        , loader(nullptr)
+        , instance(nullptr)
+    {}
+    LibGraphStorage(const std::string &libPath, const std::string &libName, const arcade::libGraphLoader_t &libLoader)
+        : LibInfo(libPath, libName)
+        , loader(libLoader)
+        , instance(nullptr)
+    {}
+    LibGraphStorage(const LibGraphStorage &other)
+        : LibInfo(other)
+        , loader(other.loader)
+        , instance(nullptr)
+    {}
+    LibGraphStorage &operator=(const LibGraphStorage &other)
+    {
+        LibInfo::operator=(other);
+        this->loader = other.loader;
+        this->instance = nullptr;
+        return (*this);
+    }
+
+    arcade::libGraphLoader_t loader;
+    std::unique_ptr<ILibGraph> instance;
+};

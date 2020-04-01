@@ -14,9 +14,14 @@
 
 using namespace arcade;
 
-extern "C" std::unique_ptr<IGame> init_menu_lib(ICore &core)
+std::unique_ptr<IGame> init_game_lib(ICore &core)
 {
     return (std::make_unique<GameMenu>(core));
+}
+
+std::string get_lib_name()
+{
+    return ("Menu");
 }
 
 GameMenu::GameMenu(ICore &core)
@@ -114,7 +119,7 @@ void GameMenu::_keyPrevTab()
 
 void GameMenu::_keySelect()
 {
-    static std::vector<void (ICore::*)(const std::string)> actions = {
+    static std::vector<void (ICore::*)(const std::string &)> actions = {
         &ICore::setLibGraph,  // "Graphics" tab
         &ICore::setGame       // "Games" tab
     };

@@ -131,7 +131,7 @@ void LibGraphNcurses::loadResourceImage(int id, std::string const &filepathGraph
     std::stringstream buffer;
 
     if (!file.good())
-        throw LibGraphNcurses::Exception("loadResourceImage: error opening file:" + filepathAscii);
+        throw LibGraphNcurses::Exception("loadResourceImage: couldn't load file: " + filepathAscii);
     buffer << file.rdbuf();
     _images[id] = Image(buffer.str());
 }

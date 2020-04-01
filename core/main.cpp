@@ -24,10 +24,9 @@ int main(int argc, const char *argv[])
         print_usage(argv[0]);
         return (84);
     }
-    arcade::Core core(std::filesystem::path(MENU_PATH) / "lib_arcade_menu.so");
     try {
-        core.setLibGraph(argv[1]);
-        core.startMenu();
+        arcade::Core core(std::filesystem::path(MENU_PATH) / "lib_arcade_menu.so", argv[1]);
+        core.start();
     } catch (const arcade::Exception &e) {
         std::cerr << e.what() << std::endl;
         return (84);

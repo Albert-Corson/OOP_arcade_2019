@@ -5,10 +5,10 @@
 ** LibGraphSFML
 */
 
-#include <memory>
-#include <iostream>
-#include <SFML/Graphics.hpp>
 #include "LibGraphSFML.hpp"
+#include <SFML/Graphics.hpp>
+#include <iostream>
+#include <memory>
 
 using namespace arcade;
 
@@ -36,18 +36,18 @@ void LibGraphSFML::getKeyboardEvents(std::vector<KeyState> &keysGame, std::vecto
 {
     sf::Event evt;
 
-    for (auto &it: keysGame)
+    for (auto &it : keysGame)
         it.is_pressed = false;
-    for (auto &it: keysCore)
+    for (auto &it : keysCore)
         it.is_pressed = false;
     while (_window.pollEvent(evt)) {
         if (evt.type != sf::Event::KeyPressed)
             continue;
-        for (auto &it: keysGame) {
+        for (auto &it : keysGame) {
             if (evt.key.code == static_cast<sf::Keyboard::Key>(it.key))
                 it.is_pressed = true;
         }
-        for (auto &it: keysCore) {
+        for (auto &it : keysCore) {
             if (evt.key.code == static_cast<sf::Keyboard::Key>(it.key))
                 it.is_pressed = true;
         }
@@ -62,8 +62,9 @@ void LibGraphSFML::displayImage(int id, int posX, int posY)
 void LibGraphSFML::displayImage(int id, double posX, double posY)
 {
     auto search = _images.find(id);
+
     if (search == _images.end())
-        throw ALibGraph::Exception("Bad id in displayImage");
+        throw ALibGraph::Exception("displayImage: invalid image id");
     _images[id].sprite.setPosition(posX * cell_size_x, posY * cell_size_y);
     _window.draw(_images[id].sprite);
 }
@@ -71,10 +72,10 @@ void LibGraphSFML::displayImage(int id, double posX, double posY)
 void LibGraphSFML::displayText(int id, int posX, int posY, std::string const &text)
 {
     sf::Text newText;
-
     auto search = _fonts.find(id);
+
     if (search == _fonts.end())
-        throw ALibGraph::Exception("Bad id in displayText");
+        throw ALibGraph::Exception("displayText: invalid fond id");
     newText.setString(text);
     newText.setFont(_fonts[id]);
     newText.setPosition(posX * cell_size_x, posY * cell_size_y);
@@ -85,8 +86,9 @@ void LibGraphSFML::displayText(int id, int posX, int posY, std::string const &te
 void LibGraphSFML::playAudio(int id, bool repeat)
 {
     auto search = _musics.find(id);
+
     if (search == _musics.end())
-        throw ALibGraph::Exception("Bad id in playAudio");
+        throw ALibGraph::Exception("playAudio: invalid audio id");
     if (_musics[id].getLoop() != repeat)
         _musics[id].setLoop(repeat);
     if (_musics[id].getStatus() != sf::SoundSource::Playing)
@@ -96,8 +98,9 @@ void LibGraphSFML::playAudio(int id, bool repeat)
 void LibGraphSFML::stopAudio(int id)
 {
     auto search = _musics.find(id);
+
     if (search == _musics.end())
-        throw ALibGraph::Exception("Bad id in stopAudio");
+        throw ALibGraph::Exception("stopAudio: invalid audio id");
     if (_musics[id].getStatus() != sf::SoundSource::Stopped)
         _musics[id].stop();
 }
@@ -114,29 +117,20 @@ void LibGraphSFML::render()
 
 void LibGraphSFML::loadResourceAudio(int id, std::string const &filepath)
 {
-    auto search = _musics.find(id);
-    if (search != _musics.end())
-        throw ALibGraph::Exception("Bad id with file " + filepath);
     if (!_musics[id].openFromFile(filepath))
-        throw ALibGraph::Exception("Load " + filepath + ": Failure");
+        throw ALibGraph::Exception("loadResourceAudio: couldn't load file: " + filepath);
 }
 
 void LibGraphSFML::loadResourceFont(int id, std::string const &filepath)
 {
-    auto search = _fonts.find(id);
-    if (search != _fonts.end())
-        throw ALibGraph::Exception("Bad id with file " + filepath);
     if (!_fonts[id].loadFromFile(filepath))
-        throw ALibGraph::Exception("Load " + filepath + ": Failure");
+        throw ALibGraph::Exception("loadResourceFont: couldn't load file: " + filepath);
 }
 
 void LibGraphSFML::loadResourceImage(int id, std::string const &filepathGraph, std::string const &filepathAscii)
 {
-    auto search = _images.find(id);
-    if (search != _images.end())
-        throw ALibGraph::Exception("Bad id with file " + filepathGraph);
     if (!_images[id].texture.loadFromFile(filepathGraph))
-        throw ALibGraph::Exception("Load " + filepathGraph + ": Failure");
+        throw ALibGraph::Exception("loadResourceImage: couldn't load file: " + filepathGraph);
     _images[id].sprite.setTexture(_images[id].texture);
     sf::Vector2u size = _images[id].texture.getSize();
     _images[id].sprite.setScale(cell_size_x / (float)(size.x), cell_size_y / (float)size.y);

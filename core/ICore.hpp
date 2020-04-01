@@ -19,35 +19,12 @@ namespace arcade {
     // graphical libraries
     class ICore {
         public:
-            struct LibInfo {
-                LibInfo()
-                    : path("")
-                    , name("")
-                {}
-                LibInfo(const std::string &libPath, const std::string &libName)
-                    : path(libPath)
-                    , name(libName)
-                {}
-                LibInfo(const LibInfo &other)
-                    : path(other.path)
-                    , name(other.name)
-                {}
-                LibInfo &operator=(const LibInfo &other)
-                {
-                    this->name = other.name;
-                    this->path = other.path;
-                    return (*this);
-                }
-
-                std::string path;
-                std::string name;
-            };
+            struct LibInfo;
 
             virtual const std::vector<ICore::LibInfo> getLibGraphsList() const = 0;
             virtual const std::vector<ICore::LibInfo> getGamesList() const = 0;
-            virtual void setLibGraph(const std::string path) = 0;
-            virtual void setGame(const std::string path) = 0;
-            virtual void startMenu() = 0;
+            virtual void setLibGraph(const std::string &path) = 0;
+            virtual void setGame(const std::string &path) = 0;
 
             virtual ~ICore() = default;
 
@@ -92,3 +69,27 @@ namespace arcade {
             virtual void getKeyboardEvents(std::vector<KeyState> &keys) = 0;
     };
 }
+
+struct arcade::ICore::LibInfo {
+    LibInfo()
+        : path("")
+        , name("")
+    {}
+    LibInfo(const std::string &libPath, const std::string &libName)
+        : path(libPath)
+        , name(libName)
+    {}
+    LibInfo(const LibInfo &other)
+        : path(other.path)
+        , name(other.name)
+    {}
+    LibInfo &operator=(const LibInfo &other)
+    {
+        this->name = other.name;
+        this->path = other.path;
+        return (*this);
+    }
+
+    std::string path;
+    std::string name;
+};
