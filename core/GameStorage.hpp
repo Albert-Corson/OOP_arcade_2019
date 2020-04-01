@@ -18,6 +18,7 @@ namespace arcade {
         void loadScoreboard();
         void dumpScoreboard() const;
         void updateScoreboardEntry(const std::string &userName, unsigned long score);
+        const ICore::GameScoreboard getSortedScoreboard() const;
 
         gameLoader_t loader;
         std::unique_ptr<IGame> instance;

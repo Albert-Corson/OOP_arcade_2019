@@ -47,11 +47,6 @@ void Core::start()
     }
 }
 
-void Core::setUserName(const std::string &name) 
-{
-    _userName = name;
-}
-
 const std::vector<ICore::LibInfo> Core::getLibGraphsList() const
 {
     std::vector<LibInfo> keys;
@@ -71,6 +66,20 @@ const std::vector<ICore::LibInfo> Core::getGamesList() const
         keys.push_back(LibInfo(it->path, it->name));
     }
     return (keys);
+}
+
+const std::vector<ICore::GameScoreboard> Core::getScoreboards() const
+{
+    std::vector<ICore::GameScoreboard> scores;
+
+    for (const auto &it : _games)
+        scores.push_back(it->getSortedScoreboard());
+    return (scores);
+}
+
+void Core::setUserName(const std::string &name) 
+{
+    _userName = name;
 }
 
 void Core::setLibGraph(const std::string &path)

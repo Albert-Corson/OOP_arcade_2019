@@ -7,8 +7,11 @@
 
 #include "GameStorage.hpp"
 #include <fstream>
+#include <set>
 
 using namespace arcade;
+
+typedef std::function<bool(std::pair<std::string, int>, std::pair<std::string, int>)> comparator_t;
 
 Core::GameStorage::GameStorage(const std::string &libPath, const std::string &libName, const gameLoader_t &libLoader)
     : LibInfo(libPath, libName)
@@ -70,4 +73,17 @@ void Core::GameStorage::updateScoreboardEntry(const std::string &userName, unsig
 
     if (entry < score)
         entry = score;
+}
+
+const ICore::GameScoreboard Core::GameStorage::getSortedScoreboard() const
+{
+    GameScoreboard sorted(name);
+
+    std::set<std::pair<std::string, std::size_t>, comparator_t> sorter(scoreboard.begin(), scoreboard.end(),
+        [](std::pair<std::string, std::size_t> e1, std::pair<std::string, std::size_t> e2) {
+            return (e1.second > e2.second);
+        });
+    for (const auto &it : sorter)
+        sorted.scoreboard.push_back(it);
+    return (sorted);
 }

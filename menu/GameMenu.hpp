@@ -36,6 +36,7 @@ namespace arcade {
             std::size_t _currItem;
             const std::vector<std::string> _tabs;
             const std::vector<std::vector<ICore::LibInfo>> _items;
+            const std::vector<ICore::GameScoreboard> _gameScores;
 
             void _drawMenu();
             void _handleEvents();

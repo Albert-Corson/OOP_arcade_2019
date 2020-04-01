@@ -20,9 +20,11 @@ namespace arcade {
     class ICore {
         public:
             struct LibInfo;
+            struct GameScoreboard;
 
             virtual const std::vector<ICore::LibInfo> getLibGraphsList() const = 0;
             virtual const std::vector<ICore::LibInfo> getGamesList() const = 0;
+            virtual const std::vector<GameScoreboard> getScoreboards() const = 0;
             virtual void setUserName(const std::string &name) = 0;
             virtual void setLibGraph(const std::string &path) = 0;
             virtual void setGame(const std::string &path) = 0;
@@ -89,4 +91,24 @@ struct arcade::ICore::LibInfo {
 
     std::string path;
     std::string name;
+};
+
+struct arcade::ICore::GameScoreboard {
+    GameScoreboard(const std::string &name = "", const std::vector<std::pair<std::string, std::size_t>> &scores = {})
+        : gameName(name)
+        , scoreboard(scores)
+    {}
+    GameScoreboard(const GameScoreboard &other)
+        : gameName(other.gameName)
+        , scoreboard(other.scoreboard)
+    {}
+    GameScoreboard &operator=(const GameScoreboard &other)
+    {
+        gameName = other.gameName;
+        scoreboard = other.scoreboard;
+        return (*this);
+    }
+
+    std::string gameName;
+    std::vector<std::pair<std::string, std::size_t>> scoreboard;
 };

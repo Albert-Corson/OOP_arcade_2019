@@ -29,10 +29,8 @@ GameMenu::GameMenu(ICore &core)
     , _currTab(1)
     , _currItem(0)
     , _tabs({ "Graphics", "Games" })
-    , _items({
-        _core.getLibGraphsList(),
-        _core.getGamesList()
-    })
+    , _items({ _core.getLibGraphsList(), _core.getGamesList() })
+    , _gameScores(_core.getScoreboards())
 {
     _keyActions = {
         { Key::ENTER, &arcade::GameMenu::_keySelect },

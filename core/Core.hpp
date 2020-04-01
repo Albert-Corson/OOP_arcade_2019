@@ -45,11 +45,13 @@ namespace arcade {
             ~Core();
 
             void start();
+
+            const std::vector<LibInfo> getLibGraphsList() const;
+            const std::vector<LibInfo> getGamesList() const;
+            const std::vector<GameScoreboard> getScoreboards() const;
             void setUserName(const std::string &name);
             void setLibGraph(const std::string &path);
             void setGame(const std::string &path);
-            const std::vector<LibInfo> getLibGraphsList() const;
-            const std::vector<LibInfo> getGamesList() const;
 
             std::unique_ptr<IClock> createClock() override final;
             void loadResourceAudio(int id, std::string filepath) override final;
