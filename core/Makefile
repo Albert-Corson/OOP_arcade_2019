@@ -10,6 +10,8 @@ CC			=	g++
 SRC			=	main.cpp			\
 				Clock.cpp			\
 				Resource.cpp		\
+				GameStorage.cpp		\
+				LibGraphStorage.cpp	\
 				Core.cpp
 
 OBJ			=	$(SRC:.cpp=.o)

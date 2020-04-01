@@ -71,11 +71,7 @@ namespace arcade {
 }
 
 struct arcade::ICore::LibInfo {
-    LibInfo()
-        : path("")
-        , name("")
-    {}
-    LibInfo(const std::string &libPath, const std::string &libName)
+    LibInfo(const std::string &libPath = "", const std::string &libName = "")
         : path(libPath)
         , name(libName)
     {}

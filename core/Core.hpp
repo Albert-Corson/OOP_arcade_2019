@@ -42,9 +42,10 @@ namespace arcade {
             struct LibGraphStorage;
 
             Core(const std::string &menuToLoad, const std::string &libGraph = "");
-            ~Core() = default;
+            ~Core();
 
             void start();
+            void setUserName(const std::string &name);
             void setLibGraph(const std::string &path);
             void setGame(const std::string &path);
             const std::vector<LibInfo> getLibGraphsList() const;
@@ -71,6 +72,8 @@ namespace arcade {
             void _loadLibGraph(const std::string &name);
             void _loadGame(const std::string &name, bool isMenu = false);
             void _pushRsrcToLibGraph();
+            void _setGame(const std::shared_ptr<GameStorage> &game);
+
             void _keyPrevGame();
             void _keyNextGame();
             void _keyPrevLib();
@@ -78,6 +81,8 @@ namespace arcade {
             void _keyRestartGame();
             void _keyMenu();
             void _keyExit();
+
+            std::string _userName;
 
             std::queue<std::function<void()>> _actionQueue;
 
@@ -104,60 +109,4 @@ class arcade::Core::Exception : public arcade::Exception {
         {
             return (_msg.c_str());
         };
-};
-
-struct arcade::Core::GameStorage : public arcade::ICore::LibInfo {
-    GameStorage()
-        : LibInfo()
-        , loader(nullptr)
-        , instance(nullptr)
-    {}
-    GameStorage(const std::string &libPath, const std::string &libName, const arcade::gameLoader_t &libLoader)
-        : LibInfo(libPath, libName)
-        , loader(libLoader)
-        , instance(nullptr)
-    {}
-    GameStorage(const GameStorage &other)
-        : LibInfo(other)
-        , loader(other.loader)
-        , instance(nullptr)
-    {}
-    GameStorage &operator=(const GameStorage &other)
-    {
-        LibInfo::operator=(other);
-        this->loader = other.loader;
-        this->instance = nullptr;
-        return (*this);
-    }
-
-    arcade::gameLoader_t loader;
-    std::unique_ptr<IGame> instance;
-};
-
-struct arcade::Core::LibGraphStorage : public arcade::ICore::LibInfo {
-    LibGraphStorage()
-        : LibInfo()
-        , loader(nullptr)
-        , instance(nullptr)
-    {}
-    LibGraphStorage(const std::string &libPath, const std::string &libName, const arcade::libGraphLoader_t &libLoader)
-        : LibInfo(libPath, libName)
-        , loader(libLoader)
-        , instance(nullptr)
-    {}
-    LibGraphStorage(const LibGraphStorage &other)
-        : LibInfo(other)
-        , loader(other.loader)
-        , instance(nullptr)
-    {}
-    LibGraphStorage &operator=(const LibGraphStorage &other)
-    {
-        LibInfo::operator=(other);
-        this->loader = other.loader;
-        this->instance = nullptr;
-        return (*this);
-    }
-
-    arcade::libGraphLoader_t loader;
-    std::unique_ptr<ILibGraph> instance;
 };

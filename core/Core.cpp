@@ -7,6 +7,8 @@
 
 #include "Core.hpp"
 #include "Clock.hpp"
+#include "GameStorage.hpp"
+#include "LibGraphStorage.hpp"
 #include "deps/DLLoader.hpp"
 #include <filesystem>
 
@@ -28,12 +30,23 @@ Core::Core(const std::string &menuToLoad, const std::string &libGraph)
         setLibGraph(libGraph);
 }
 
+Core::~Core() 
+{
+    for (const auto &it : _games)
+        it->dumpScoreboard();
+}
+
 void Core::start()
 {
     while (_actionQueue.size()) {
         _actionQueue.front()();
         _actionQueue.pop();
     }
+}
+
+void Core::setUserName(const std::string &name) 
+{
+    _userName = name;
 }
 
 const std::vector<ICore::LibInfo> Core::getLibGraphsList() const
@@ -94,13 +107,7 @@ void Core::setGame(const std::string &path)
             if (currGame != nullptr)
                 currGame->instance->stop();
             _actionQueue.push([this, it]() {
-                if (_currLibGraph.lock() == nullptr)
-                    throw Exception("setGame<lamda>: no graphic library selected");
-                resetResource();
-                _currGame = it;
-                it->instance = it->loader(*this);
-                it->instance->launch();
-                it->instance = nullptr;
+                _setGame(it);
             });
             break;
         }
@@ -245,6 +252,19 @@ void Core::_pushRsrcToLibGraph()
         lib->instance->loadResourceFont(it.first, it.second.getFilepathGraph());
     for (const auto &it : _imageRsrcs)
         lib->instance->loadResourceImage(it.first, it.second.getFilepathGraph(), it.second.getFilepathAscii());
+}
+
+void Core::_setGame(const std::shared_ptr<GameStorage> &game) 
+{
+    if (_currLibGraph.lock() == nullptr)
+        throw Exception("setGame<lamda>: no graphic library selected");
+    resetResource();
+    _currGame = game;
+    game->instance = game->loader(*this);
+    game->instance->launch();
+    if (game->path != __menu__)
+        game->updateScoreboardEntry(_userName, game->instance->getScore());
+    game->instance = nullptr;
 }
 
 void Core::_keyPrevGame()
