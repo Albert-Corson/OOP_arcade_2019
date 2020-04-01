@@ -32,8 +32,11 @@ Core::Core(const std::string &menuToLoad, const std::string &libGraph)
 
 Core::~Core() 
 {
-    for (const auto &it : _games)
+    for (const auto &it : _games) {
+        if (it->path == __menu__)
+            continue;
         it->dumpScoreboard();
+    }
 }
 
 void Core::start()

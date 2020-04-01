@@ -41,7 +41,7 @@ void Core::GameStorage::loadScoreboard()
     std::size_t offset = 0;
 
     if (!file)
-        throw Core::Exception("GameStorage::loadScoreboard: couldn't open input file");
+        return;
     std::getline(file, line);
     while (!file.eof()) {
         offset = 0;
