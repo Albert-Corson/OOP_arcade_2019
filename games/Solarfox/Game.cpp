@@ -42,6 +42,7 @@ void Game::launch()
 
     while (_running) {
         _core.clear();
+        _core.render();
         _core.getKeyboardEvents(_actionKeys);
         processKeys();
     }

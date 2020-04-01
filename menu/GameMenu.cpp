@@ -114,10 +114,13 @@ void GameMenu::_keyPrevTab()
 
 void GameMenu::_keySelect()
 {
-    if (_tabs[_currTab] == "Graphics") {
-        _core.setLibGraph(_items[_currTab][_currItem].path);
-    } else if (_tabs[_currTab] == "Games") {
-        _core.setGame(_items[_currTab][_currItem].path);
+    static std::vector<void (ICore::*)(const std::string)> actions = {
+        &ICore::setLibGraph,  // "Graphics" tab
+        &ICore::setGame       // "Games" tab
+    };
+
+    if (_currTab <= actions.size() - 1) {
+        (_core.*actions[_currTab])(_items[_currTab][_currItem].path);
     }
 }
 

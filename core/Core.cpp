@@ -103,7 +103,7 @@ void Core::startMenu()
         throw Exception("_keyMenu: `_menuLoader` is no set");
     resetResource();
     _currGame.path = "__MENU__";
-    _currGame.name = "__MENU__";
+    _currGame.name = "Menu";
     _currGame.loader = _menuLoader;
     _currGame.instance = _menuLoader(*this);
     _currGame.instance->launch();
@@ -309,14 +309,12 @@ void Core::_keyNextLib()
 
 void Core::_keyRestartGame()
 {
-    for (const auto &it : _gamesInfos) {
-        if (it.path == _currGame.path) {
-            resetResource();
-            _currGame.instance = it.loader(*this);
-            return;
-        }
-    }
-    throw Exception("_keyRestartGame: no game loaded");
+    if (_currGame.instance == nullptr)
+        throw Exception("_keyRestartGame: no game loaded");
+    resetResource();
+    _currGame.instance->stop();
+    _currGame.instance = _currGame.loader(*this);
+    _currGame.instance->launch();
 }
 
 void Core::_keyMenu()
