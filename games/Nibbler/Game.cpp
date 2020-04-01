@@ -43,17 +43,11 @@ void Game::launch()
 {
     _running = true;
     while (_running) {
-        std::cout << "\n_core.clear: ";
         _core.clear();
-        std::cout << "\ndisplayAssets: ";
         displayAssets();
-        std::cout << "\n_core.render: ";
         _core.render();
-        std::cout << "\n_core.getKeyboardEvents: ";
         _core.getKeyboardEvents(_actionKeys);
-        std::cout << "\nprocessKeys: ";
         processKeys();
-        std::cout << "\ntour fini\n";
     }
     this->stop();
 }
@@ -77,14 +71,13 @@ void Game::displayAssets()
     for (auto &it : _snake) {
         _core.displayImage(atoi(&it.val), it.x, it.y);
     }
-
 }
 
 void Game::initMap(void)
 {
     int x = 0;
     int y = 0;
-    std::ifstream file("assets/map1");
+    std::ifstream file("games/Nibbler/assets/map1");
     char a;
 
     while (file.get(a)) {
@@ -131,16 +124,12 @@ Key Game::onlyOneKey()
     int count = 0;
     Key keyPress;
 
-    std::cout << "\nin onlyOneKey: size = " << _actionKeys.size();
     for (size_t i = 1; i < _actionKeys.size(); i++) {
-        std::cout << "\n    in boucle; i = " << _actionKeys[i].key << "; bool = " << _actionKeys[i].is_pressed;
         if (_actionKeys[i].is_pressed) {
             keyPress = _actionKeys[i].key;
             count++;
         }
-        std::cout << "\n        count = " << count;
     }
-    std::cout << "\nout onlyOneKey";
     if (count == 1)
         return keyPress;
     return _lastKey;
@@ -167,79 +156,37 @@ int Game::getPos(int x, int y)
 
 void Game::moveDown(Key key)
 {
-    int i = getPos(_snake[0].x, _snake[0].y + 1);
-    char c = _map[i].val;
-
-    if (key != _lastKey && (c == '2' || (_map[i].x == _snake[1].x &&
-                                        _map[i].y == _snake[1].y)))
-        return (this->*_keyActions[_lastKey])(_lastKey);
-    if (c != '2') {
-        _lastKey = key;
-        moveTail();
-        _snake[0].y += 1;
-        if (c == '6')
-            eatFruit();
-    }
-    else
-        _lastKey = UNKNOWN;
-    if (c == '1' || c == '4' || c == '5')
-        _gameState = 2;
+    moveSnake(0, 1, key);
 }
 
 void Game::moveUp(Key key)
 {
-    int i = getPos(_snake[0].x, _snake[0].y - 1);
-    char c = _map[i].val;
-
-    if (key != _lastKey && (c == '2' || (_map[i].x == _snake[1].x &&
-                                        _map[i].y == _snake[1].y)))
-        return (this->*_keyActions[_lastKey])(_lastKey);
-    if (c != '2') {
-        _lastKey = key;
-        moveTail();
-        _snake[0].y -= 1;
-        if (c == '6')
-            eatFruit();
-    }
-    else
-        _lastKey = UNKNOWN;
-    if (c == '1' || c == '4' || c == '5')
-        _gameState = -2;
+    moveSnake(0, -1, key);
 }
 
 void Game::moveRight(Key key)
 {
-    int i = getPos(_snake[0].x + 1, _snake[0].y);
-    char c = _map[i].val;
-
-    if (key != _lastKey && (c == '2' || (_map[i].x == _snake[1].x &&
-                                        _map[i].y == _snake[1].y)))
-        return (this->*_keyActions[_lastKey])(_lastKey);
-    if (c != '2') {
-        _lastKey = key;
-        moveTail();
-        _snake[0].x += 1;
-        if (c == '6')
-            eatFruit();
-    }
-    else
-        _lastKey = UNKNOWN;
-    if (c == '1' || c == '4' || c == '5')
-        _gameState = 2;
+    moveSnake(1, 0, key);
 }
 
 void Game::moveLeft(Key key)
 {
-    int i = getPos(_snake[0].x - 1, _snake[0].y);
-    char c = _map[i].val;
+    moveSnake(-1, 0, key);
+}
 
-    if (key != _lastKey && (c == '2' || (_map[i].x == _snake[1].x &&
-                                        _map[i].y == _snake[1].y)))
+void Game::moveSnake(const int x, const int y, const Key key)
+{
+    int i = getPos(_snake[0].x + x, _snake[0].y + y);
+    char c = _map[i].val;
+    bool inTail = (_map[i].x == _snake[1].x && _map[i].y == _snake[1].y);
+
+    if (_lastKey != UNKNOWN && key != _lastKey && (c == '2' || inTail))
         return (this->*_keyActions[_lastKey])(_lastKey);
-    if (c != '2') {
+    if (c != '2' && !inTail) {
         _lastKey = key;
         moveTail();
-        _snake[0].x -= 1;
+        _snake[0].x += x;
+        _snake[0].y += y;
         if (c == '6')
             eatFruit();
     }

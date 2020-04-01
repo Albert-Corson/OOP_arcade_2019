@@ -40,6 +40,7 @@ namespace arcade {
             void initMap(void);
             void initSnake(const char id);
             int getPos(int x, int y);
+            void moveSnake(const int x, const int y, const Key key);
             void moveDown(Key key = Key::UNKNOWN);
             void moveUp(Key key = Key::UNKNOWN);
             void moveRight(Key key = Key::UNKNOWN);
