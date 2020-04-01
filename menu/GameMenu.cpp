@@ -30,7 +30,7 @@ GameMenu::GameMenu(ICore &core)
     })
 {
     _keyActions = {
-        { Key::SPACE, &arcade::GameMenu::_keySelect },
+        { Key::ENTER, &arcade::GameMenu::_keySelect },
         { Key::LEFT, &arcade::GameMenu::_keyPrevTab },
         { Key::RIGHT, &arcade::GameMenu::_keyNextTab },
         { Key::DOWN, &arcade::GameMenu::_keyNextItem },

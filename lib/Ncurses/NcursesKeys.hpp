@@ -78,7 +78,8 @@ const std::unordered_map<int, Key> NCURSES_KEYMAP = {
     { '-', Key::HYPHEN },
     { ' ', Key::SPACE },
 
-    { KEY_ENTER, Key::ENTER },
+    { '\r', Key::ENTER },
+    { '\n', Key::ENTER },
     { KEY_BACKSPACE, Key::BACKSPACE },
     { '\t', Key::TAB },
     { KEY_PPAGE, Key::PAGEUP },
