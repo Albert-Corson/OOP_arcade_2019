@@ -5,8 +5,7 @@
 ** keys
 */
 
-#ifndef KEYS_HPP_
-#define KEYS_HPP_
+#pragma once
 
 namespace arcade {
     enum Key {
@@ -126,5 +125,3 @@ namespace arcade {
         bool is_pressed{false};
     };
 }
-
-#endif /* !KEYS_HPP_ */

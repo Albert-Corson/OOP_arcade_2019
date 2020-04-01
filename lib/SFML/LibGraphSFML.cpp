@@ -12,16 +12,6 @@
 
 using namespace arcade;
 
-LibGraphSFML::LibGraphSFML()
-{
-    _window.create(sf::VideoMode(800, 600), "SFML Window");
-}
-
-LibGraphSFML::~LibGraphSFML()
-{
-    _window.close();
-}
-
 std::string get_lib_name()
 {
     return ("SFML");
@@ -30,6 +20,16 @@ std::string get_lib_name()
 std::unique_ptr<ILibGraph> init_graph_lib()
 {
     return (std::make_unique<LibGraphSFML>());
+}
+
+LibGraphSFML::LibGraphSFML()
+{
+    _window.create(sf::VideoMode::getDesktopMode(), "Arcade", sf::Style::Fullscreen);
+}
+
+LibGraphSFML::~LibGraphSFML()
+{
+    _window.close();
 }
 
 void LibGraphSFML::getKeyboardEvents(std::vector<KeyState> &keysGame, std::vector<KeyState> &keysCore)

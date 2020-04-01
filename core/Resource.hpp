@@ -5,8 +5,7 @@
 ** resource class
 */
 
-#ifndef RESOURCE_HPP_
-#define RESOURCE_HPP_
+#pragma once
 
 #include <string>
 
@@ -35,5 +34,3 @@ namespace arcade {
     };
 
 }
-
-#endif /* !RESOURCE_HPP_ */

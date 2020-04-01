@@ -5,10 +5,7 @@
 ## Makefile
 ##
 
-GAMESDIR	=	Centipede	\
-				Nibbler		\
-				Pacman		\
-				Qix			\
+GAMESDIR	=	Nibbler		\
 				Solarfox
 
 all:

@@ -12,14 +12,6 @@
 
 using namespace arcade;
 
-static inline bool ends_with(const std::string &str, const std::string &end)
-{
-    if (end.size() > str.size()) {
-        return (false);
-    }
-    return (std::equal(end.rbegin(), end.rend(), str.rbegin()));
-}
-
 Core::Core(const std::string &menuToLoad)
     : _menuLoader(nullptr)
 {
@@ -28,11 +20,11 @@ Core::Core(const std::string &menuToLoad)
 
     _loadMenu(menuToLoad);
     for (auto it : std::filesystem::directory_iterator(LIBGRAPHS_PATH)) {
-        if (ends_with(it.path().c_str(), ".so"))
+        if (it.path().extension() == std::filesystem::path(".so"))
             _loadLibGraph(it.path().c_str());
     }
     for (auto it : std::filesystem::directory_iterator(GAMES_PATH)) {
-        if (ends_with(it.path().c_str(), ".so"))
+        if (it.path().extension() == std::filesystem::path(".so"))
             _loadGame(it.path().c_str());
     }
 }
@@ -63,34 +55,46 @@ const std::vector<ICore::LibInfo> Core::getGamesList() const
 
 void Core::setLibGraph(const std::string path)
 {
+    std::filesystem::path normal_path = std::filesystem::path(path).lexically_normal();
     bool find = false;
 
     for (const auto &it : _libGraphsInfos) {
-        if (it.path == path) {
+        if (it.path == normal_path.c_str()) {
             find = true;
-            _currLib.first = path;
-            _currLib.second = it.loader();
+            if (_currGame.instance != nullptr)
+                _currGame.instance->stop();
+            _currLib = it;
+            _currLib.instance = it.loader();
+            if (_currGame.instance != nullptr) {
+                _currGame.instance = _currGame.loader(*this);
+                _currGame.instance->launch();
+            }
             break;
         }
     }
     if (!find)
-        throw Core::Exception("setLibGraph: no such lib: " + path);
+        throw Core::Exception("setLibGraph: No such lib: " + path);
 }
 
 void Core::setGame(const std::string path)
 {
+    std::filesystem::path normal_path = std::filesystem::path(path).lexically_normal();
     bool find = false;
 
     for (const auto &it : _gamesInfos) {
-        if (it.path == path) {
+        if (it.path == normal_path.c_str()) {
             find = true;
-            _currGame.first = path;
-            _currGame.second = it.loader(*this);
+            if (_currGame.instance != nullptr)
+                _currGame.instance->stop();
+            resetResource();
+            _currGame = it;
+            _currGame.instance = it.loader(*this);
+            _currGame.instance->launch();
             break;
         }
     }
     if (!find)
-        throw Core::Exception("setGame: no such lib: " + path);
+        throw Core::Exception("setGame: No such lib: " + path);
 }
 
 void Core::startMenu()
@@ -98,9 +102,11 @@ void Core::startMenu()
     if (!_menuLoader)
         throw Exception("_keyMenu: `_menuLoader` is no set");
     resetResource();
-    _currGame.first = "__MENU__";
-    _currGame.second = _menuLoader(*this);
-    _currGame.second->launch();
+    _currGame.path = "__MENU__";
+    _currGame.name = "__MENU__";
+    _currGame.loader = _menuLoader;
+    _currGame.instance = _menuLoader(*this);
+    _currGame.instance->launch();
 }
 
 std::unique_ptr<IClock> Core::createClock()
@@ -111,60 +117,60 @@ std::unique_ptr<IClock> Core::createClock()
 void Core::loadResourceAudio(int id, std::string filepath)
 {
     _resources.insert_or_assign(id, Resource(ResourceType::AUDIO, filepath, filepath));
-    _currLib.second->loadResourceAudio(id, filepath);
+    _currLib.instance->loadResourceAudio(id, filepath);
 }
 
 void Core::loadResourceFont(int id, std::string filepath)
 {
     _resources.insert_or_assign(id, Resource(ResourceType::FONT, filepath, filepath));
-    _currLib.second->loadResourceFont(id, filepath);
+    _currLib.instance->loadResourceFont(id, filepath);
 }
 
 void Core::loadResourceImage(int id, std::string filepathGraph, std::string filepathAscii)
 {
     _resources.insert_or_assign(id, Resource(ResourceType::IMG, filepathGraph, filepathAscii));
-    _currLib.second->loadResourceImage(id, filepathGraph, filepathAscii);
+    _currLib.instance->loadResourceImage(id, filepathGraph, filepathAscii);
 }
 
 void Core::resetResource()
 {
-    _currLib.second->resetResource();
+    _currLib.instance->resetResource();
     _resources.clear();
 }
 
 void Core::displayImage(int id, int posX, int posY)
 {
-    _currLib.second->displayImage(id, posX, posY);
+    _currLib.instance->displayImage(id, posX, posY);
 }
 
 void Core::displayImage(int id, double posX, double posY)
 {
-    _currLib.second->displayImage(id, posX, posY);
+    _currLib.instance->displayImage(id, posX, posY);
 }
 
 void Core::displayText(int id, int posX, int posY, std::string const &text)
 {
-    _currLib.second->displayText(id, posX, posY, text);
+    _currLib.instance->displayText(id, posX, posY, text);
 }
 
 void Core::playAudio(int id, bool repeat)
 {
-    _currLib.second->playAudio(id, repeat);
+    _currLib.instance->playAudio(id, repeat);
 }
 
 void Core::stopAudio(int id)
 {
-    _currLib.second->stopAudio(id);
+    _currLib.instance->stopAudio(id);
 }
 
 void Core::clear()
 {
-    _currLib.second->clear();
+    _currLib.instance->clear();
 }
 
 void Core::render()
 {
-    _currLib.second->render();
+    _currLib.instance->render();
 }
 
 void Core::getKeyboardEvents(std::vector<KeyState> &keys)
@@ -178,7 +184,7 @@ void Core::getKeyboardEvents(std::vector<KeyState> &keys)
         { Key::F1, &arcade::Core::_keyMenu },
         { Key::F4, &arcade::Core::_keyExit }
     };
-    std::vector<KeyState> coreKeys = {
+    static std::vector<KeyState> coreKeys = {
         KeyState(Key::F9),  // Previous game
         KeyState(Key::F10), // Next game
         KeyState(Key::F11), // Previous library
@@ -188,8 +194,8 @@ void Core::getKeyboardEvents(std::vector<KeyState> &keys)
         KeyState(Key::F4)   // Exit
     };
 
-    _currLib.second->getKeyboardEvents(keys, coreKeys);
-    for (const auto &it : coreKeys) {
+    _currLib.instance->getKeyboardEvents(keys, coreKeys);
+    for (const auto &it: coreKeys) {
         if (it.is_pressed)
             (this->*actions[it.key])();
     }
@@ -197,40 +203,40 @@ void Core::getKeyboardEvents(std::vector<KeyState> &keys)
 
 void Core::_loadLibGraph(const std::string path)
 {
-    std::string rel_path = std::filesystem::path(path).lexically_normal().c_str();
+    std::string normal_path = std::filesystem::path(path).lexically_normal().c_str();
     libNameGetter_t nameGetter = nullptr;
     libGraphLoader_t loader = nullptr;
 
-    DLLoader lib(rel_path);
+    DLLoader lib(normal_path);
     loader = lib.getsym<libGraphLoader_t>("init_graph_lib");
     nameGetter = lib.getsym<libNameGetter_t>("get_lib_name");
     if (!loader || !nameGetter)
-        throw Exception(rel_path + " isn't valid");
-    _libGraphsInfos.push_back(LibGraphInfo(rel_path, nameGetter(), loader));
+        throw Exception(normal_path + " isn't valid");
+    _libGraphsInfos.push_back(LibGraphStorage(normal_path, nameGetter(), loader));
 }
 
 void Core::_loadGame(const std::string path)
 {
-    std::string rel_path = std::filesystem::path(path).lexically_normal().c_str();
+    std::string normal_path = std::filesystem::path(path).lexically_normal().c_str();
     libNameGetter_t nameGetter = nullptr;
     gameLoader_t loader = nullptr;
 
-    DLLoader lib(rel_path);
+    DLLoader lib(normal_path);
     loader = lib.getsym<gameLoader_t>("init_game_lib");
     nameGetter = lib.getsym<libNameGetter_t>("get_lib_name");
     if (!loader || !nameGetter)
-        throw Exception(rel_path + " isn't valid");
-    _gamesInfos.push_back(GameInfo(rel_path, nameGetter(), loader));
+        throw Exception(normal_path + " isn't valid");
+    _gamesInfos.push_back(GameStorage(normal_path, nameGetter(), loader));
 }
 
 void Core::_loadMenu(const std::string path)
 {
-    std::string rel_path = std::filesystem::path(path).lexically_normal().c_str();
-    DLLoader menu(rel_path);
+    std::string normal_path = std::filesystem::path(path).lexically_normal().c_str();
+    DLLoader menu(normal_path);
 
     _menuLoader = menu.getsym<menuLoader_t>("init_menu_lib");
     if (_menuLoader == NULL)
-        throw Exception(rel_path + ": cannot find symbol `init_menu_lib`");
+        throw Exception(normal_path + ": cannot find symbol `init_menu_lib`");
 }
 
 void Core::_keyPrevGame()
@@ -238,7 +244,7 @@ void Core::_keyPrevGame()
     auto it = _gamesInfos.rbegin();
 
     for (; it != _gamesInfos.rend(); ++it) {
-        if (it->path == _currGame.first)
+        if (it->path == _currGame.path)
             break;
     }
     if (it == _gamesInfos.rend())
@@ -247,8 +253,7 @@ void Core::_keyPrevGame()
         ++it;
     if (it == _gamesInfos.rend())
         it = _gamesInfos.rbegin();
-    _currGame.first = it->path;
-    _currGame.second = it->loader(*this);
+    this->setGame(it->path);
 }
 
 void Core::_keyNextGame()
@@ -256,7 +261,7 @@ void Core::_keyNextGame()
     auto it = _gamesInfos.begin();
 
     for (; it != _gamesInfos.end(); ++it) {
-        if (it->path == _currGame.first)
+        if (it->path == _currGame.path)
             break;
     }
     if (it == _gamesInfos.end())
@@ -265,8 +270,7 @@ void Core::_keyNextGame()
         ++it;
     if (it == _gamesInfos.end())
         it = _gamesInfos.begin();
-    _currGame.first = it->path;
-    _currGame.second = it->loader(*this);
+    this->setGame(it->path);
 }
 
 void Core::_keyPrevLib()
@@ -274,7 +278,7 @@ void Core::_keyPrevLib()
     auto it = _libGraphsInfos.rbegin();
 
     for (; it != _libGraphsInfos.rend(); ++it) {
-        if (it->path == _currLib.first)
+        if (it->path == _currLib.path)
             break;
     }
     if (it == _libGraphsInfos.rend())
@@ -283,8 +287,7 @@ void Core::_keyPrevLib()
         ++it;
     if (it == _libGraphsInfos.rend())
         it = _libGraphsInfos.rbegin();
-    _currLib.first = it->path;
-    _currLib.second = it->loader();
+    this->setLibGraph(it->path);
 }
 
 void Core::_keyNextLib()
@@ -292,7 +295,7 @@ void Core::_keyNextLib()
     auto it = _libGraphsInfos.begin();
 
     for (; it != _libGraphsInfos.end(); ++it) {
-        if (it->path == _currLib.first)
+        if (it->path == _currLib.path)
             break;
     }
     if (it == _libGraphsInfos.end())
@@ -301,16 +304,15 @@ void Core::_keyNextLib()
         ++it;
     if (it == _libGraphsInfos.end())
         it = _libGraphsInfos.begin();
-    _currLib.first = it->path;
-    _currLib.second = it->loader();
+    this->setLibGraph(it->path);
 }
 
 void Core::_keyRestartGame()
 {
     for (const auto &it : _gamesInfos) {
-        if (it.path == _currGame.first) {
+        if (it.path == _currGame.path) {
             resetResource();
-            _currGame.second = it.loader(*this);
+            _currGame.instance = it.loader(*this);
             return;
         }
     }
@@ -327,5 +329,5 @@ void Core::_keyMenu()
 
 void Core::_keyExit()
 {
-    _currGame.second->stop();
+    _currGame.instance->stop();
 }

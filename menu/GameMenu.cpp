@@ -14,9 +14,31 @@
 
 using namespace arcade;
 
+extern "C" std::unique_ptr<IGame> init_menu_lib(ICore &core)
+{
+    return (std::make_unique<GameMenu>(core));
+}
+
 GameMenu::GameMenu(ICore &core)
     : AGame(core)
+    , _currTab(1)
+    , _currItem(0)
+    , _tabs({ "Graphics", "Games" })
+    , _items({
+        _core.getLibGraphsList(),
+        _core.getGamesList()
+    })
 {
+    _keyActions = {
+        { Key::SPACE, &arcade::GameMenu::_keySelect },
+        { Key::LEFT, &arcade::GameMenu::_keyPrevTab },
+        { Key::RIGHT, &arcade::GameMenu::_keyNextTab },
+        { Key::DOWN, &arcade::GameMenu::_keyNextItem },
+        { Key::UP, &arcade::GameMenu::_keyPrevItem }
+    };
+    for (const auto &it : _keyActions)
+        _actionKeys.push_back(KeyState(it.first));
+
     _core.loadResourceFont(F_MENUS, "menu/assets/digitalt-regular.ttf");
     _core.loadResourceImage(I_ARROW, "menu/assets/arrow.png", "menu/assets/arrow.ascii");
 }
@@ -27,58 +49,84 @@ GameMenu::~GameMenu()
 
 void GameMenu::_drawMenu()
 {
-    _core.displayText(F_MENUS, 2, 0, "Pacman");
-    _core.displayText(F_MENUS, 2, 1, "Nibbler");
-    _core.displayText(F_MENUS, 2, 2, "SolarFox");
-    _core.displayImage(I_ARROW, (double)0, (double)_currItem);
+    size_t posx = 0;
+    size_t posy = 0;
+    size_t index = 0;
+
+    // Display tabs (beginning with the current tab)
+    auto currTabIt = _tabs.begin() + _currTab;
+    auto tabIt = currTabIt;
+    while (tabIt != _tabs.end()) {
+        _core.displayText(F_MENUS, posx, posy, *tabIt);
+        posx += tabIt->length() + 1;
+        ++tabIt;
+    }
+    tabIt = _tabs.begin();
+    while (tabIt != currTabIt) {
+        _core.displayText(F_MENUS, posx, posy, *tabIt);
+        posx += tabIt->length() + 1;
+        ++tabIt;
+    }
+
+    // Display items
+    posx = 2;
+    posy = 2;
+    _core.displayImage(I_ARROW, 0.0f, (double)(posy + _currItem));
+    for (const auto &itemIt: _items[_currTab]) {
+        _core.displayText(F_MENUS, posx, posy, itemIt.name);
+        ++posy;
+    }
 }
 
 void GameMenu::_keyNextItem()
 {
-    ++_currItem;
+    if (_currItem < _items[_currTab].size() - 1)
+        ++_currItem;
+    else
+        _currItem = 0;
 }
 
 void GameMenu::_keyPrevItem()
 {
-    --_currItem;
+    if (_currItem > 0)
+        --_currItem;
+    else
+        _currItem = _items[_currTab].size() - 1;
 }
 
 void GameMenu::_keyNextTab()
 {
-    ++_currTab;
+    if (_currTab < _tabs.size() - 1)
+        ++_currTab;
+    else
+        _currTab = 0;
+    _currItem = 0;
 }
 
 void GameMenu::_keyPrevTab()
 {
-    --_currTab;
+    if (_currTab > 0)
+        --_currTab;
+    else
+        _currTab = _tabs.size() - 1;
+    _currItem = 0;
 }
 
 void GameMenu::_keySelect()
 {
-    
+    if (_tabs[_currTab] == "Graphics") {
+        _core.setLibGraph(_items[_currTab][_currItem].path);
+    } else if (_tabs[_currTab] == "Games") {
+        _core.setGame(_items[_currTab][_currItem].path);
+    }
 }
 
 void GameMenu::_handleEvents()
 {
-    static std::unordered_map<Key, keyAction> actions = {
-        { Key::ENTER, &arcade::GameMenu::_keySelect },
-        { Key::LEFT, &arcade::GameMenu::_keyPrevTab },
-        { Key::RIGHT, &arcade::GameMenu::_keyNextTab },
-        { Key::DOWN, &arcade::GameMenu::_keyNextItem },
-        { Key::UP, &arcade::GameMenu::_keyPrevItem }
-    };
-    static std::vector<arcade::KeyState> keys = {
-        arcade::KeyState(arcade::Key::ENTER),
-        arcade::KeyState(arcade::Key::LEFT),
-        arcade::KeyState(arcade::Key::RIGHT),
-        arcade::KeyState(arcade::Key::DOWN),
-        arcade::KeyState(arcade::Key::UP)
-    };
-
-    _core.getKeyboardEvents(keys);
-    for (const auto &it: keys) {
+    _core.getKeyboardEvents(_actionKeys);
+    for (const auto &it: _actionKeys) {
         if (it.is_pressed)
-            (this->*actions[it.key])();
+            (this->*_keyActions[it.key])();
     }
 }
 
@@ -92,9 +140,4 @@ void GameMenu::launch()
         _core.render();
         _handleEvents();
     }
-}
-
-void GameMenu::stop()
-{
-    _running = false;
 }

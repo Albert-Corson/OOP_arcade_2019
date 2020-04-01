@@ -7,7 +7,7 @@
 
 CC	=	g++
 
-SRC	=	main.cpp
+SRC	=	Game.cpp
 
 OBJ	=	$(SRC:.cpp=.o)
 

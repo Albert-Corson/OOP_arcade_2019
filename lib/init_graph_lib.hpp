@@ -5,12 +5,9 @@
 ** graph lib init header
 */
 
-#ifndef INIT_HPP_
-#define INIT_HPP_
+#pragma once
 
 #include <memory>
 #include "ILibGraph.hpp"
 
 extern "C" std::unique_ptr<arcade::ILibGraph> init_graph_lib();
-
-#endif

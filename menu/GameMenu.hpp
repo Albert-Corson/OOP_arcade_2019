@@ -14,11 +14,12 @@ namespace arcade {
 
     class GameMenu: public AGame {
         public:
+            typedef void (GameMenu::*keyAction_t)();
+
             GameMenu(ICore &core);
             ~GameMenu();
 
-            void launch();
-            void stop();
+            void launch() override final;
 
         private:
             enum RFont {
@@ -28,10 +29,13 @@ namespace arcade {
                 I_ARROW
             };
 
-            typedef void (GameMenu::*keyAction)();
-            bool _running{false};
-            int _currTab{0};
-            int _currItem{0};
+            std::vector<KeyState> _actionKeys;
+            std::unordered_map<Key, keyAction_t> _keyActions;
+
+            std::size_t _currTab;
+            std::size_t _currItem;
+            const std::vector<std::string> _tabs;
+            const std::vector<std::vector<ICore::LibInfo>> _items;
 
             void _drawMenu();
             void _handleEvents();

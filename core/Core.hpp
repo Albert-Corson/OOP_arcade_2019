@@ -31,25 +31,67 @@ namespace arcade {
         public:
             class Exception;
 
-            struct GameInfo : public LibInfo {
-                GameInfo(const std::string &libPath, const std::string &libName, const gameLoader_t &libLoader)
+            struct GameStorage : public LibInfo {
+                GameStorage()
+                    : LibInfo()
+                    , loader(nullptr)
+                    , instance(nullptr)
+                {}
+                GameStorage(const std::string &libPath, const std::string &libName, const gameLoader_t &libLoader)
                     : LibInfo(libPath, libName)
                     , loader(libLoader)
+                    , instance(nullptr)
                 {}
-                const gameLoader_t loader;
+                GameStorage(const GameStorage &other)
+                    : LibInfo(other)
+                    , loader(other.loader)
+                    , instance(nullptr)
+                {}
+                GameStorage &operator=(const GameStorage &other)
+                {
+                    LibInfo::operator=(other);
+                    this->loader = other.loader;
+                    this->instance = nullptr;
+                    return (*this);
+                }
+
+                gameLoader_t loader;
+                std::unique_ptr<IGame> instance;
             };
 
-            struct LibGraphInfo : public LibInfo {
-                LibGraphInfo(const std::string &libPath, const std::string &libName, const libGraphLoader_t &libLoader)
+            struct LibGraphStorage : public LibInfo {
+                LibGraphStorage()
+                    : LibInfo()
+                    , loader(nullptr)
+                    , instance(nullptr)
+                {}
+                LibGraphStorage(const std::string &libPath, const std::string &libName, const libGraphLoader_t &libLoader)
                     : LibInfo(libPath, libName)
                     , loader(libLoader)
+                    , instance(nullptr)
                 {}
-                const libGraphLoader_t loader;
+                LibGraphStorage(const LibGraphStorage &other)
+                    : LibInfo(other)
+                    , loader(other.loader)
+                    , instance(nullptr)
+                {}
+                LibGraphStorage &operator=(const LibGraphStorage &other)
+                {
+                    LibInfo::operator=(other);
+                    this->loader = other.loader;
+                    this->instance = nullptr;
+                    return (*this);
+                }
+
+                libGraphLoader_t loader;
+                std::unique_ptr<ILibGraph> instance;
             };
 
             Core(const std::string &menuToLoad);
             ~Core();
 
+            void changeLibGraph(const std::string path);
+            void changeGame(const std::string path);
             void setLibGraph(const std::string path);
             void setGame(const std::string path);
             void startMenu();
@@ -85,11 +127,11 @@ namespace arcade {
             void _keyMenu();
             void _keyExit();
 
-            std::pair<std::string, std::unique_ptr<ILibGraph>> _currLib;
-            std::pair<std::string, std::unique_ptr<IGame>> _currGame;
+            LibGraphStorage _currLib;
+            GameStorage _currGame;
 
-            std::vector<LibGraphInfo> _libGraphsInfos;
-            std::vector<GameInfo> _gamesInfos;
+            std::vector<LibGraphStorage> _libGraphsInfos;
+            std::vector<GameStorage> _gamesInfos;
 
             gameLoader_t _menuLoader;
 

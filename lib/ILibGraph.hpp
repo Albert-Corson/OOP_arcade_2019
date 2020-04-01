@@ -12,8 +12,8 @@
 #include <vector>
 
 namespace arcade {
-    constexpr auto cell_size_x = 15;
-    constexpr auto cell_size_y = 15;
+    constexpr auto cell_size_x = 45;
+    constexpr auto cell_size_y = 45;
 
     class ILibGraph {
         public:

@@ -5,8 +5,7 @@
 ** iclock
 */
 
-#ifndef ICLOCK_HPP_
-#define ICLOCK_HPP_
+#pragma once
 
 namespace arcade {
     class IClock {
@@ -20,5 +19,3 @@ namespace arcade {
             IClock() = default;
     };
 }
-
-#endif

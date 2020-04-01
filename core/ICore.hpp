@@ -5,8 +5,7 @@
 ** icore
 */
 
-#ifndef ICORE_HPP_
-#define ICORE_HPP_
+#pragma once
 
 #include "IClock.hpp"
 #include "deps/keys.hpp"
@@ -21,13 +20,34 @@ namespace arcade {
     class ICore {
         public:
             struct LibInfo {
+                LibInfo()
+                    : path("")
+                    , name("")
+                {}
                 LibInfo(const std::string &libPath, const std::string &libName)
                     : path(libPath)
                     , name(libName)
                 {}
-                const std::string path;
-                const std::string name;
+                LibInfo(const LibInfo &other)
+                    : path(other.path)
+                    , name(other.name)
+                {}
+                LibInfo &operator=(const LibInfo &other)
+                {
+                    this->name = other.name;
+                    this->path = other.path;
+                    return (*this);
+                }
+
+                std::string path;
+                std::string name;
             };
+
+            virtual const std::vector<ICore::LibInfo> getLibGraphsList() const = 0;
+            virtual const std::vector<ICore::LibInfo> getGamesList() const = 0;
+            virtual void setLibGraph(const std::string path) = 0;
+            virtual void setGame(const std::string path) = 0;
+            virtual void startMenu() = 0;
 
             virtual ~ICore() = default;
 
@@ -72,5 +92,3 @@ namespace arcade {
             virtual void getKeyboardEvents(std::vector<KeyState> &keys) = 0;
     };
 }
-
-#endif
