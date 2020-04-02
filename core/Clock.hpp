@@ -10,7 +10,6 @@
 #include "IClock.hpp"
 #include <chrono>
 
-
 namespace arcade {
     class Clock : public IClock {
         public:

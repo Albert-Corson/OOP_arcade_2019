@@ -6,6 +6,7 @@
 */
 
 #include "Game.hpp"
+#include "assets.hpp"
 
 using namespace arcade;
 
@@ -24,16 +25,17 @@ Game::Game(ICore &core)
     , _paused(false)
 {
     _keyActions = {
-        { Key::UP, &Game::setPlayerDir },
-        { Key::DOWN, &Game::setPlayerDir },
-        { Key::LEFT, &Game::setPlayerDir },
-        { Key::RIGHT, &Game::setPlayerDir },
-        { Key::SPACE, &Game::playerShoot },
-        { Key::P, &Game::pause }
+        { Key::UP, &Game::_setPlayerDir },
+        { Key::DOWN, &Game::_setPlayerDir },
+        { Key::LEFT, &Game::_setPlayerDir },
+        { Key::RIGHT, &Game::_setPlayerDir },
+        { Key::SPACE, &Game::_playerShoot },
+        { Key::P, &Game::_pause }
     };
 
     for (const auto &it : _keyActions)
         _actionKeys.push_back(KeyState(it.first));
+    _loadAssets();
 }
 
 void Game::launch()
@@ -44,11 +46,21 @@ void Game::launch()
         _core.clear();
         _core.render();
         _core.getKeyboardEvents(_actionKeys);
-        processKeys();
+        _processKeys();
     }
 }
 
-void Game::processKeys()
+void Game::_loadAssets() 
+{
+    for (const auto &it : IMAGES_TO_LOAD)
+        _core.loadResourceImage(it.first, PATH_TO_ASSETS + it.second.first, PATH_TO_ASSETS + it.second.second);
+    for (const auto &it : FONTS_TO_LOAD)
+        _core.loadResourceFont(it.first, PATH_TO_ASSETS + it.second);
+    for (const auto &it : AUDIOS_TO_LOAD)
+        _core.loadResourceAudio(it.first, PATH_TO_ASSETS + it.second);
+}
+
+void Game::_processKeys()
 {
     for (const auto &it : _actionKeys) {
         if (it.is_pressed)
@@ -56,17 +68,17 @@ void Game::processKeys()
     }
 }
 
-void Game::setPlayerDir(Key key)
+void Game::_setPlayerDir(Key key)
 {
     throw "TO DO";
 }
 
-void Game::playerShoot(Key key)
+void Game::_playerShoot(Key key)
 {
     throw "TO DO";
 }
 
-void Game::pause(Key key)
+void Game::_pause(Key key)
 {
     _paused = !_paused;
 }
