@@ -17,7 +17,7 @@ namespace arcade {
         public:
             class Exception;
 
-            virtual ~ALibGraph() = default;
+            virtual ~ALibGraph() override = default;
 
         protected:
             ALibGraph() = default;

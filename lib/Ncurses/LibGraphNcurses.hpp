@@ -16,7 +16,7 @@ namespace arcade {
     class LibGraphNcurses: public ALibGraph {
         public:
             LibGraphNcurses();
-            ~LibGraphNcurses();
+            ~LibGraphNcurses() override;
 
             void getKeyboardEvents(std::vector<KeyState> &keysGame, std::vector<KeyState> &keysCore) override final;
             void displayImage(int id, int posX, int posY) override final;

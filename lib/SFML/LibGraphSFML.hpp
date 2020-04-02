@@ -16,7 +16,7 @@ namespace arcade {
     class LibGraphSFML: public ALibGraph {
         public:
             LibGraphSFML();
-            ~LibGraphSFML();
+            ~LibGraphSFML() override;
 
             void getKeyboardEvents(std::vector<KeyState> &keysGame, std::vector<KeyState> &keysCore) override final;
             void displayImage(int id, int posX, int posY) override final;

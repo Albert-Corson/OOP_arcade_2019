@@ -45,7 +45,7 @@ namespace SDL {
             {
                 this->create(title, x, y, w, h, flags);
             }
-            ~Window()
+            ~Window() override
             {
                 if (_renderer != NULL)
                     SDL_DestroyRenderer(_renderer);
@@ -91,7 +91,7 @@ namespace SDL {
             {
                 this->loadFromFile(path);
             }
-            ~Surface()
+            ~Surface() override
             {
                 if (_value != NULL)
                     SDL_FreeSurface(_value);
@@ -121,7 +121,7 @@ namespace SDL {
             {
                 this->loadFromFile(renderer, path);
             }
-            ~Image()
+            ~Image() override
             {
                 if (_value != NULL)
                     SDL_DestroyTexture(_value);
@@ -178,7 +178,7 @@ namespace SDL {
             {
                 this->loadFromFile(path, fontSize);
             }
-            ~Font()
+            ~Font() override
             {
                 if (_value != NULL)
                     TTF_CloseFont(_value);
@@ -212,7 +212,7 @@ namespace SDL {
             {
                 this->loadFromFile(path);
             }
-            ~Audio()
+            ~Audio() override
             {
                 if (_value != NULL)
                     Mix_FreeMusic(_value);

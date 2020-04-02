@@ -17,7 +17,7 @@ namespace arcade {
             typedef void (GameMenu::*keyAction_t)();
 
             GameMenu(ICore &core);
-            ~GameMenu();
+            ~GameMenu() override;
 
             void launch() override final;
 

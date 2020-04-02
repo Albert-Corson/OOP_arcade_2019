@@ -42,7 +42,7 @@ namespace arcade {
             struct LibGraphStorage;
 
             Core(const std::string &menuToLoad, const std::string &libGraph = "");
-            ~Core();
+            ~Core() override;
 
             void start();
 

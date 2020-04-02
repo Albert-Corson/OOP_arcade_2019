@@ -22,14 +22,14 @@ namespace arcade {
             struct LibInfo;
             struct GameScoreboard;
 
+            virtual ~ICore() = default;
+
             virtual const std::vector<ICore::LibInfo> getLibGraphsList() const = 0;
             virtual const std::vector<ICore::LibInfo> getGamesList() const = 0;
             virtual const std::vector<GameScoreboard> getScoreboards() const = 0;
             virtual void setUserName(const std::string &name) = 0;
             virtual void setLibGraph(const std::string &path) = 0;
             virtual void setGame(const std::string &path) = 0;
-
-            virtual ~ICore() = default;
 
             // Creates a new clock object
             virtual std::unique_ptr<IClock> createClock() = 0;

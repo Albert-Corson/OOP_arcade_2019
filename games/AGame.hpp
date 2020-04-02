@@ -16,7 +16,7 @@ namespace arcade {
     class AGame : public IGame {
         public:
             class Exception;
-            virtual ~AGame() = default;
+            virtual ~AGame() override = default;
 
             void stop() override
             {

@@ -24,7 +24,7 @@ namespace arcade {
             typedef void (Game::*keyAction_t)(Key);
 
             Game(ICore &core);
-            ~Game() = default;
+            ~Game() override = default;
 
             void launch() override final;
 
