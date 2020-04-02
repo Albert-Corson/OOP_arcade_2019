@@ -65,7 +65,7 @@ void Game::initAssets()
 void Game::displayAssets()
 {
     for (auto &it : _map) {
-        if (it.val == '1' || it.val == '2')
+        if (it.val != '0')
             _core.displayImage(atoi(&it.val), it.x, it.y);
     }
     for (auto &it : _snake) {
