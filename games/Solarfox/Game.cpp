@@ -14,7 +14,7 @@ std::string get_lib_name()
     return ("Solar Fox");
 }
 
-std::unique_ptr<arcade::IGame> init_game_lib(arcade::ICore& core)
+std::unique_ptr<arcade::IGame> init_game_lib(arcade::ICore &core)
 {
     return (std::make_unique<Game>(core));
 }
@@ -24,12 +24,12 @@ Game::Game(ICore &core)
     , _paused(false)
 {
     _keyActions = {
-        {Key::UP, &Game::setPlayerDir},
-        {Key::DOWN, &Game::setPlayerDir},
-        {Key::LEFT, &Game::setPlayerDir},
-        {Key::RIGHT, &Game::setPlayerDir},
-        {Key::SPACE, &Game::playerShoot},
-        {Key::P, &Game::pause}
+        { Key::UP, &Game::setPlayerDir },
+        { Key::DOWN, &Game::setPlayerDir },
+        { Key::LEFT, &Game::setPlayerDir },
+        { Key::RIGHT, &Game::setPlayerDir },
+        { Key::SPACE, &Game::playerShoot },
+        { Key::P, &Game::pause }
     };
 
     for (const auto &it : _keyActions)

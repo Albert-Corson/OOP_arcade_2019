@@ -6,6 +6,7 @@
 ##
 
 LIBSDIR	=	SFML	\
+			SDL2	\
 			Ncurses
 
 MAKE	= make --no-print-directory
