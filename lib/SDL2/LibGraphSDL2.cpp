@@ -29,6 +29,7 @@ LibGraphSDL2::LibGraphSDL2()
     SDL_Init(SDL_INIT_VIDEO | SDL_INIT_AUDIO | SDL_INIT_EVENTS);
     TTF_Init();
     IMG_Init(IMG_INIT_JPG | IMG_INIT_PNG);
+    Mix_OpenAudio(MIX_DEFAULT_FREQUENCY, MIX_DEFAULT_FORMAT, MIX_DEFAULT_CHANNELS, 2048);
     _window.create(
         "Arcade",
         SDL_WINDOWPOS_CENTERED, SDL_WINDOWPOS_CENTERED,
@@ -40,6 +41,7 @@ LibGraphSDL2::LibGraphSDL2()
 LibGraphSDL2::~LibGraphSDL2()
 {
     this->resetResource();
+    Mix_CloseAudio();
     IMG_Quit();
     TTF_Quit();
     SDL_Quit();
@@ -111,7 +113,7 @@ void LibGraphSDL2::render()
 void LibGraphSDL2::loadResourceAudio(int id, std::string const &filepath)
 {
     if (!_musics[id].loadFromFile(filepath))
-        throw Exception("loadRessourceFont: couldn't load file: " + filepath);
+        throw Exception("loadRessourceAudio: couldn't load file: " + filepath);
 }
 
 void LibGraphSDL2::loadResourceFont(int id, std::string const &filepath)
@@ -128,12 +130,20 @@ void LibGraphSDL2::loadResourceImage(int id, std::string const &filepathGraph, s
 
 void LibGraphSDL2::playAudio(int id, bool repeat)
 {
-    throw Exception("TO DO");
+    auto search = _musics.find(id);
+
+    if (search == _musics.end())
+        throw Exception("playAudio: invalid audio id: " + std::to_string(id));
+    Mix_PlayMusic(*_musics[id], repeat);
 }
 
 void LibGraphSDL2::stopAudio(int id)
 {
-    throw Exception("TO DO");
+    auto search = _musics.find(id);
+
+    if (search == _musics.end())
+        throw Exception("playAudio: invalid audio id: " + std::to_string(id));
+    Mix_FadeOutMusic(100);
 }
 
 void LibGraphSDL2::resetResource()

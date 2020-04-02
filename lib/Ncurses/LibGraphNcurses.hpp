@@ -36,10 +36,8 @@ namespace arcade {
                 Image(const std::string &img = "");
                 Image(const Image &other);
                 void operator=(const Image &other);
-
+                
                 std::string image;
-                int posX;
-                int posY;
             };
 
             std::unordered_map<int, Image> _images;

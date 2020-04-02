@@ -26,8 +26,6 @@ std::unique_ptr<ILibGraph> init_graph_lib()
 
 LibGraphNcurses::Image::Image(const std::string &img)
     : image(img)
-    , posX(0)
-    , posY(0)
 {
 }
 
@@ -39,8 +37,6 @@ LibGraphNcurses::Image::Image(const Image &other)
 void LibGraphNcurses::Image::operator=(const Image &other)
 {
     image = other.image;
-    posX = other.posX;
-    posY = other.posY;
 }
 
 LibGraphNcurses::LibGraphNcurses()
@@ -97,8 +93,7 @@ void LibGraphNcurses::displayImage(int id, double posX, double posY)
 {
     try {
         Image &img = _images.at(id);
-        img.posX = posX;
-        img.posY = posY;
+        mvaddstr(posY, posX * 2, img.image.c_str());
     } catch (...) {
         throw Exception("displayImage: incorrect id:" + std::to_string(id));
     }
@@ -109,7 +104,7 @@ void LibGraphNcurses::displayText(int fontID, int posX, int posY, std::string co
     int x = getcurx(stdscr);
     int y = getcury(stdscr);
 
-    mvaddstr(posY, posX, text.c_str());
+    mvaddstr(posY, posX * 2, text.c_str());
     move(y, x);
 }
 
@@ -120,8 +115,6 @@ void LibGraphNcurses::clear()
 
 void LibGraphNcurses::render()
 {
-    for (const auto &it: _images)
-        mvaddstr(it.second.posY, it.second.posX, it.second.image.c_str());
     refresh();
 }
 

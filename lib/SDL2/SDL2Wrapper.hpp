@@ -203,7 +203,7 @@ namespace SDL {
             {}
     };
 
-    class Audio : public Wrapper<TTF_Font>
+    class Audio : public Wrapper<Mix_Music>
     {
         public:
             Audio()
@@ -215,11 +215,14 @@ namespace SDL {
             ~Audio()
             {
                 if (_value != NULL)
-                    return;
+                    Mix_FreeMusic(_value);
             }
 
             bool loadFromFile(const std::string &path)
             {
+                if (_value != NULL)
+                    Mix_FreeMusic(_value);
+                _value = Mix_LoadMUS(path.c_str());
                 if (_value == NULL)
                     return (false);
                 return (true);

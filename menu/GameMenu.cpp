@@ -43,7 +43,7 @@ GameMenu::GameMenu(ICore &core)
         _actionKeys.push_back(KeyState(it.first));
 
     _core.loadResourceFont(F_MENUS, "menu/assets/digitalt-regular.ttf");
-    _core.loadResourceImage(I_ARROW, "menu/assets/arrow.png", "menu/assets/arrow.ascii");
+    _core.loadResourceImage(I_ARROW, "menu/assets/arrow.png", "menu/assets/arrow");
 }
 
 GameMenu::~GameMenu()
