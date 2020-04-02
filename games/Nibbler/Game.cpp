@@ -208,7 +208,7 @@ void Game::eatFruit(void)
 {
     size_t i = _snake.size() - 1;
 
-    _map[getPos(_snake[0].x, _snake[0].y)].val = 0;
+    _map[getPos(_snake[0].x, _snake[0].y)].val = '0';
     _snake.push_back(_snake[i]);
     _snake[i].val = '4';
 }
