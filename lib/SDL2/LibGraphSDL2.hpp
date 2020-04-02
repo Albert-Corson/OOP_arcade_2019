@@ -2,21 +2,26 @@
 ** EPITECH PROJECT, 2020
 ** OOP_arcade_2019
 ** File description:
-** LibGraphSFML
+** LibGraphSDL2
 */
 
 #pragma once
 
-#include <SFML/Graphics.hpp>
-#include <SFML/Audio.hpp>
+#include <SDL2/SDL.h>
+#include <SDL2/SDL_image.h>
 #include <unordered_map>
 #include "ALibGraph.hpp"
+#include "deps/Exception.hpp"
+#include "SDL2Wrapper.hpp"
+#include "init_graph_lib.hpp"
 
 namespace arcade {
-    class LibGraphSFML: public ALibGraph {
+    class LibGraphSDL2: public ALibGraph {
         public:
-            LibGraphSFML();
-            ~LibGraphSFML();
+            class Exception;
+
+            LibGraphSDL2();
+            ~LibGraphSDL2();
 
             void getKeyboardEvents(std::vector<KeyState> &keysGame, std::vector<KeyState> &keysCore) override final;
             void displayImage(int id, int posX, int posY) override final;
@@ -32,14 +37,22 @@ namespace arcade {
             void resetResource() override final;
 
         private:
-            struct Image {
-                sf::Sprite sprite;
-                sf::Texture texture;
+            SDL::Window _window;
+            std::unordered_map<int, SDL::Image> _images;
+            std::unordered_map<int, SDL::Font> _fonts;
+            std::unordered_map<int, SDL::Audio> _musics;
+    };
+
+    class LibGraphSDL2::Exception : public arcade::Exception {
+        public:
+            Exception(const std::string &message)
+                : arcade::Exception("LibGraphSDL2::Exception " + message)
+            {
             };
 
-            sf::RenderWindow _window;
-            std::unordered_map<int, Image> _images;
-            std::unordered_map<int, sf::Font> _fonts;
-            std::unordered_map<int, sf::Music> _musics;
+            const char *what() const throw() override
+            {
+                return (_msg.c_str());
+            };
     };
 }
