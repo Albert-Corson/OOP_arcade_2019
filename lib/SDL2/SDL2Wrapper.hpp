@@ -10,7 +10,6 @@
 #include <SDL2/SDL.h>
 #include <SDL2/SDL_image.h>
 #include <SDL2/SDL_ttf.h>
-#include <SDL2/SDL_mixer.h>
 #include <string>
 
 namespace SDL {
@@ -201,31 +200,5 @@ namespace SDL {
             Text(SDL_Renderer *renderer, TTF_Font *font, const std::string &text, SDL_Color color = {255, 255, 255, 255})
                 : Image(renderer, TTF_RenderText_Solid(font, text.c_str(), color))
             {}
-    };
-
-    class Audio : public Wrapper<Mix_Music>
-    {
-        public:
-            Audio()
-            {}
-            Audio(const std::string &path)
-            {
-                this->loadFromFile(path);
-            }
-            ~Audio() override
-            {
-                if (_value != NULL)
-                    Mix_FreeMusic(_value);
-            }
-
-            bool loadFromFile(const std::string &path)
-            {
-                if (_value != NULL)
-                    Mix_FreeMusic(_value);
-                _value = Mix_LoadMUS(path.c_str());
-                if (_value == NULL)
-                    return (false);
-                return (true);
-            }
     };
 }

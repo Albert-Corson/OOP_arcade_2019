@@ -40,7 +40,6 @@ namespace arcade {
             SDL::Window _window;
             std::unordered_map<int, SDL::Image> _images;
             std::unordered_map<int, SDL::Font> _fonts;
-            std::unordered_map<int, SDL::Audio> _musics;
     };
 
     class LibGraphSDL2::Exception : public arcade::Exception {

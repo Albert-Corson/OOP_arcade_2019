@@ -19,35 +19,13 @@ namespace arcade {
     // graphical libraries
     class ICore {
         public:
-            struct LibInfo;
-            struct GameScoreboard;
-
             virtual ~ICore() = default;
-
-            virtual const std::vector<ICore::LibInfo> getLibGraphsList() const = 0;
-            virtual const std::vector<ICore::LibInfo> getGamesList() const = 0;
-            virtual const std::vector<GameScoreboard> getScoreboards() const = 0;
-            virtual void setUserName(const std::string &name) = 0;
-            virtual void setLibGraph(const std::string &path) = 0;
-            virtual void setGame(const std::string &path) = 0;
 
             // Creates a new clock object
             virtual std::unique_ptr<IClock> createClock() = 0;
 
-            // Loads a new sound
-            // Throws an exception in case of failure
-            virtual void loadResourceAudio(int id, std::string filepath) = 0;
-
-            // Loads a new font
-            // Throws an exception in case of failure
-            virtual void loadResourceFont(int id, std::string filepath) = 0;
-
-            // Loads a new image
-            // Throws an exception in case of failure
-            virtual void loadResourceImage(int id, std::string filepathGraph, std::string filepathAscii) = 0;
-
-            // erases all content of resources
-            virtual void resetResource() = 0;
+            // Returns the latest keyboard events
+            virtual void getKeyboardEvents(std::vector<KeyState> &keys) = 0;
 
             // Draws an image at a given position
             virtual void displayImage(int id, int posX, int posY) = 0;
@@ -68,8 +46,31 @@ namespace arcade {
             // Renders the window
             virtual void render() = 0;
 
-            // Returns the latest keyboard events
-            virtual void getKeyboardEvents(std::vector<KeyState> &keys) = 0;
+            // Loads a new sound
+            // Throws an exception in case of failure
+            virtual void loadResourceAudio(int id, std::string filepath) = 0;
+
+            // Loads a new font
+            // Throws an exception in case of failure
+            virtual void loadResourceFont(int id, std::string filepath) = 0;
+
+            // Loads a new image
+            // Throws an exception in case of failure
+            virtual void loadResourceImage(int id, std::string filepathGraph, std::string filepathAscii) = 0;
+
+            // erases all content of resources
+            virtual void resetResource() = 0;
+
+            struct LibInfo;
+            struct GameScoreboard;
+
+            virtual const std::vector<ICore::LibInfo> getLibGraphsList() const = 0;
+            virtual const std::vector<ICore::LibInfo> getGamesList() const = 0;
+            virtual const std::vector<GameScoreboard> getScoreboards() const = 0;
+            virtual void setUserName(const std::string &name) = 0;
+            virtual void setLibGraph(const std::string &path) = 0;
+            virtual void setGame(const std::string &path) = 0;
+
     };
 }
 

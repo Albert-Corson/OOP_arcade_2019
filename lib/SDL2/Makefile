@@ -15,7 +15,7 @@ CXXFLAGS	=	$(COMMON_CXXFLAGS)
 CXXFLAGS	+=	-fPIC			\
 				-I../ -I../../
 
-LDLIBS		=	-lSDL2 -lSDL2_image -lSDL2_ttf -lSDL2_mixer
+LDLIBS		=	-lSDL2 -lSDL2_image -lSDL2_ttf
 
 NAME		=	../lib_arcade_sdl2.so
 

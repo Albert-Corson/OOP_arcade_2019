@@ -132,8 +132,6 @@ void LibGraphSFML::loadResourceImage(int id, std::string const &filepathGraph, s
     if (!_images[id].texture.loadFromFile(filepathGraph))
         throw ALibGraph::Exception("loadResourceImage: couldn't load file: " + filepathGraph);
     _images[id].sprite.setTexture(_images[id].texture);
-    sf::Vector2u size = _images[id].texture.getSize();
-    _images[id].sprite.setScale(cell_size_x / (float)(size.x), cell_size_y / (float)size.y);
 }
 
 void LibGraphSFML::resetResource()
