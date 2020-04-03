@@ -11,6 +11,7 @@
 #include <iostream>
 #include <memory>
 #include <sstream>
+#include <clocale>
 
 using namespace arcade;
 
@@ -41,6 +42,7 @@ void LibGraphNcurses::Image::operator=(const Image &other)
 
 LibGraphNcurses::LibGraphNcurses()
 {
+    setlocale(LC_ALL, "");
     if (!initscr())
         throw Exception("LibGraphNcurses: could not initiate window");
     cbreak();

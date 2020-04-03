@@ -15,7 +15,7 @@ CXXFLAGS	=	$(COMMON_CXXFLAGS)
 CXXFLAGS	+=	-fPIC			\
 				-I../ -I../../
 
-LDLIBS		=	-lncurses
+LDLIBS		=	-lncursesw -D_XOPEN_SOURCE_EXTENDED
 
 NAME		=	../lib_arcade_ncurses.so
 
