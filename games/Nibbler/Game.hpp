@@ -37,6 +37,9 @@ namespace arcade {
             Key snakeDirection(size_t i);
             bool canMove();
 
+            void sceneGame(std::unique_ptr<IClock> &cl);
+            void scenePause();
+
             void gameMotor();
             Key onlyOneKey();
             void initMap(void);
