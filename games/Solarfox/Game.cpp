@@ -10,16 +10,6 @@
 
 using namespace arcade;
 
-std::string get_lib_name()
-{
-    return ("Solar Fox");
-}
-
-std::unique_ptr<arcade::IGame> init_game_lib(arcade::ICore &core)
-{
-    return (std::make_unique<Game>(core));
-}
-
 static int randBetween(int low, int high)
 {
     float random = static_cast<float>(rand() + low);

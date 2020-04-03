@@ -8,6 +8,7 @@
 CC	=	g++
 
 SRC	=	Game.cpp		\
+		lib_communs.cpp	\
 		GameAsset.cpp
 
 OBJ	=	$(SRC:.cpp=.o)

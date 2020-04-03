@@ -7,7 +7,8 @@
 
 CC			=	g++
 
-SRC			=	LibGraphNcurses.cpp
+SRC			=	LibGraphNcurses.cpp	\
+				lib_communs.cpp
 
 OBJ			=	$(SRC:.cpp=.o)
 

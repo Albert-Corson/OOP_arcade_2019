@@ -7,7 +7,8 @@
 
 CC	=	g++
 
-SRC	=	GameMenu.cpp
+SRC	=	GameMenu.cpp	\
+		lib_communs.cpp
 
 OBJ	=	$(SRC:.cpp=.o)
 

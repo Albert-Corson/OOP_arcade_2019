@@ -14,16 +14,6 @@
 
 using namespace arcade;
 
-std::unique_ptr<IGame> init_game_lib(ICore &core)
-{
-    return (std::make_unique<GameMenu>(core));
-}
-
-std::string get_lib_name()
-{
-    return ("Menu");
-}
-
 GameMenu::GameMenu(ICore &core)
     : AGame(core)
     , _currTab(1)

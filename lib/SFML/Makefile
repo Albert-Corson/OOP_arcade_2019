@@ -7,7 +7,8 @@
 
 CC			=	g++
 
-SRC			=	LibGraphSFML.cpp
+SRC			=	LibGraphSFML.cpp	\
+				lib_communs.cpp
 
 OBJ			=	$(SRC:.cpp=.o)
 

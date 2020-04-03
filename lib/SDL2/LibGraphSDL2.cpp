@@ -14,16 +14,6 @@
 
 using namespace arcade;
 
-std::string get_lib_name()
-{
-    return ("SDL2");
-}
-
-std::unique_ptr<ILibGraph> init_graph_lib()
-{
-    return (std::make_unique<LibGraphSDL2>());
-}
-
 LibGraphSDL2::LibGraphSDL2()
 {
     SDL_Init(SDL_INIT_VIDEO | SDL_INIT_EVENTS);

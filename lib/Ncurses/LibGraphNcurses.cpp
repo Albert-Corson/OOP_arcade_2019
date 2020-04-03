@@ -15,16 +15,6 @@
 
 using namespace arcade;
 
-std::string get_lib_name()
-{
-    return ("NCurses");
-}
-
-std::unique_ptr<ILibGraph> init_graph_lib()
-{
-    return (std::make_unique<LibGraphNcurses>());
-}
-
 LibGraphNcurses::Image::Image(const std::string &img)
     : image(img)
 {

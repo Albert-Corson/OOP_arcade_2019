@@ -7,7 +7,8 @@
 
 CC			=	g++
 
-SRC			=	LibGraphSDL2.cpp
+SRC			=	LibGraphSDL2.cpp	\
+				lib_communs.cpp
 
 OBJ			=	$(SRC:.cpp=.o)
 

@@ -12,16 +12,6 @@
 
 using namespace arcade;
 
-std::string get_lib_name()
-{
-    return ("SFML");
-}
-
-std::unique_ptr<ILibGraph> init_graph_lib()
-{
-    return (std::make_unique<LibGraphSFML>());
-}
-
 LibGraphSFML::LibGraphSFML()
 {
     _window.create(sf::VideoMode::getDesktopMode(), "Arcade", sf::Style::Fullscreen);

@@ -8,6 +8,7 @@
 #pragma once
 
 #include "AGame.hpp"
+#include <unordered_map>
 
 namespace arcade {
     class ICore;
