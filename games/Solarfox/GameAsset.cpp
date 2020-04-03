@@ -9,17 +9,23 @@
 
 using namespace arcade;
 
-Game::Asset::Asset(Game::entity_type_t type, double x, double y, Game::orientation_t orient)
+Game::Asset::Asset(Game::ent_type::_t type, double x, double y, int orient)
     : etype(type)
     , posX(x)
     , posY(y)
     , orientation(orient)
+    , clock(nullptr)
 {
 }
 
-Game::image_t Game::Asset::getImage() const noexcept
+Game::Asset::operator int() const noexcept
 {
-    return static_cast<Game::image_t>((int)etype | orientation);
+    return (getImage());
+}
+
+Game::image::_t Game::Asset::getImage() const noexcept
+{
+    return static_cast<Game::image::_t>(etype | orientation);
 }
 
 void Game::Asset::setPosition(double x, double y) noexcept
@@ -28,13 +34,35 @@ void Game::Asset::setPosition(double x, double y) noexcept
     posY = y;
 }
 
-void Game::Asset::setPosition(double x, double y, Game::orientation_t orient) noexcept
+void Game::Asset::setPosition(double x, double y, int orient) noexcept
 {
     setPosition(x, y);
     setOrientation(orient);
 }
 
-void Game::Asset::setOrientation(Game::orientation_t orient) noexcept
+void Game::Asset::setOrientation(int orient) noexcept
 {
     orientation = orient;
+}
+
+void Game::Asset::display(ICore &core) const
+{
+    core.displayImage(getImage(), posX, posY);
+}
+
+void Game::Asset::resetClock(ICore &core)
+{
+    if (clock == nullptr)
+        clock = core.createClock();
+    else
+        clock->reset();
+}
+
+long Game::Asset::getElapsedTime(bool reset)
+{
+    long elapsed = clock->getElapsedTime();
+
+    if (reset)
+        clock->reset();
+    return (elapsed);
 }

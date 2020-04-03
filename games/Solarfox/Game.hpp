@@ -13,66 +13,73 @@
 namespace arcade {
     class Game : public AGame {
         public:
-            typedef void (Game::*keyAction_t)(Key);
-
             class Asset;
 
-            enum orientation_t {
+            enum orientation_t : int {
                 UP      = 1,
                 DOWN    = UP << 1,
                 LEFT    = DOWN << 1,
                 RIGHT   = LEFT << 1
             };
 
-            enum class entity_type_t {
-                POWERUP         = orientation_t::RIGHT << 1,
-                WALL            = POWERUP << 1,
-                PLAYER          = WALL << 1,
-                PLAYER_LASER    = PLAYER << 1,
-                ENEMY           = PLAYER_LASER << 1,
-                ENEMY_LASER     = ENEMY << 1
+            struct ent_type {
+                enum _t : int {
+                    POWERUP         = orientation_t::RIGHT << 1,
+                    WALL            = POWERUP << 1,
+                    PLAYER          = WALL << 1,
+                    PLAYER_LASER    = PLAYER << 1,
+                    ENEMY           = PLAYER_LASER << 1,
+                    ENEMY_LASER     = ENEMY << 1
+                };
             };
 
-            enum class image_t {
-                POWERUP             = (int)entity_type_t::POWERUP,
+            struct image {
+                enum _t : int {
+                    POWERUP             = ent_type::POWERUP | UP,
 
-                WALL_LEFT           = (int)entity_type_t::WALL | LEFT,
-                WALL_RIGHT          = (int)entity_type_t::WALL | RIGHT,
-                WALL_HOR            = (int)entity_type_t::WALL | LEFT | RIGHT,
-                WALL_UPLEFT         = (int)entity_type_t::WALL | UP | LEFT,
-                WALL_UPRIGHT        = (int)entity_type_t::WALL | UP | RIGHT,
-                WALL_DOWNLEFT       = (int)entity_type_t::WALL | DOWN | LEFT,
-                WALL_DOWNRIGHT      = (int)entity_type_t::WALL | DOWN | RIGHT,
+                    WALL_UP             = ent_type::WALL | UP,
+                    WALL_DOWN           = ent_type::WALL | DOWN,
+                    WALL_LEFT           = ent_type::WALL | LEFT,
+                    WALL_RIGHT          = ent_type::WALL | RIGHT,
+                    WALL_UPLEFT         = ent_type::WALL | UP | LEFT,
+                    WALL_UPRIGHT        = ent_type::WALL | UP | RIGHT,
+                    WALL_DOWNLEFT       = ent_type::WALL | DOWN | LEFT,
+                    WALL_DOWNRIGHT      = ent_type::WALL | DOWN | RIGHT,
 
-                PLAYER_UP           = (int)entity_type_t::PLAYER | UP,
-                PLAYER_DOWN         = (int)entity_type_t::PLAYER | DOWN,
-                PLAYER_LEFT         = (int)entity_type_t::PLAYER | LEFT,
-                PLAYER_RIGHT        = (int)entity_type_t::PLAYER | RIGHT,
+                    PLAYER_UP           = ent_type::PLAYER | UP,
+                    PLAYER_DOWN         = ent_type::PLAYER | DOWN,
+                    PLAYER_LEFT         = ent_type::PLAYER | LEFT,
+                    PLAYER_RIGHT        = ent_type::PLAYER | RIGHT,
 
-                PLAYER_LASER_UP     = (int)entity_type_t::PLAYER_LASER | UP,
-                PLAYER_LASER_DOWN   = (int)entity_type_t::PLAYER_LASER | DOWN,
-                PLAYER_LASER_LEFT   = (int)entity_type_t::PLAYER_LASER | LEFT,
-                PLAYER_LASER_RIGHT  = (int)entity_type_t::PLAYER_LASER | RIGHT,
+                    PLAYER_LASER_UP     = ent_type::PLAYER_LASER | UP,
+                    PLAYER_LASER_DOWN   = ent_type::PLAYER_LASER | DOWN,
+                    PLAYER_LASER_LEFT   = ent_type::PLAYER_LASER | LEFT,
+                    PLAYER_LASER_RIGHT  = ent_type::PLAYER_LASER | RIGHT,
 
-                ENEMY_UP            = (int)entity_type_t::ENEMY | UP,
-                ENEMY_DOWN          = (int)entity_type_t::ENEMY | DOWN,
-                ENEMY_LEFT          = (int)entity_type_t::ENEMY | LEFT,
-                ENEMY_RIGHT         = (int)entity_type_t::ENEMY | RIGHT,
+                    ENEMY_UP            = ent_type::ENEMY | UP,
+                    ENEMY_DOWN          = ent_type::ENEMY | DOWN,
+                    ENEMY_LEFT          = ent_type::ENEMY | LEFT,
+                    ENEMY_RIGHT         = ent_type::ENEMY | RIGHT,
 
-                ENEMY_LASER_UP      = (int)entity_type_t::ENEMY_LASER | UP,
-                ENEMY_LASER_DOWN    = (int)entity_type_t::ENEMY_LASER | DOWN,
-                ENEMY_LASER_LEFT    = (int)entity_type_t::ENEMY_LASER | LEFT,
-                ENEMY_LASER_RIGHT   = (int)entity_type_t::ENEMY_LASER | RIGHT,
+                    ENEMY_LASER_UP      = ent_type::ENEMY_LASER | UP,
+                    ENEMY_LASER_DOWN    = ent_type::ENEMY_LASER | DOWN,
+                    ENEMY_LASER_LEFT    = ent_type::ENEMY_LASER | LEFT,
+                    ENEMY_LASER_RIGHT   = ent_type::ENEMY_LASER | RIGHT,
+                };
             };
 
-            enum class font_t {
-                DEFAULT
+            struct font {
+                enum _t : int {
+                    DEFAULT
+                };
             };
 
-            enum class audio_t {
-                POWERUP         = (int)entity_type_t::POWERUP,
-                PLAYER_LASER    = (int)entity_type_t::PLAYER_LASER,
-                ENEMY_LASER     = (int)entity_type_t::ENEMY_LASER
+            struct audio {
+                enum _t : int {
+                    POWERUP         = ent_type::POWERUP,
+                    PLAYER_LASER    = ent_type::PLAYER_LASER,
+                    ENEMY_LASER     = ent_type::ENEMY_LASER
+                };
             };
 
             Game(ICore &core);
@@ -81,14 +88,44 @@ namespace arcade {
             void launch() override final;
 
         private:
-            void _loadAssets();
+            static constexpr unsigned __boardSizeX = 35;
+            static constexpr unsigned __boardSizeY = 20;
+            static constexpr unsigned __powerUpRatio = 15;
 
+            typedef void (Game::*keyAction_t)();
+
+            void _loadAssets();
+            void _initWalls();
+            void _initPowerups();
+            void _updateScore();
+            void _showPause() const;
+            void _showScore(int offsetY = 0) const;
+            void _showGame() const;
             void _processKeys();
-            void _setPlayerDir(Key key);
-            void _playerShoot(Key key = Key::UNKNOWN);
-            void _pause(Key key = Key::UNKNOWN);
+
+            void _setPlayerDirUp();
+            void _setPlayerDirDown();
+            void _setPlayerDirLeft();
+            void _setPlayerDirRight();
+            void _playerShoot();
+            void _pause();
+
+            std::unique_ptr<IClock> _gameClock;
+            long _playTime;
 
             bool _paused;
+
+            unsigned _eatenPowerups;
+
+            std::unique_ptr<Asset> _player;
+            std::unique_ptr<Asset> _playerLaser;
+
+            std::array<std::unique_ptr<Asset>, 4> _enemies;
+            std::array<std::unique_ptr<Asset>, 4> _enemyLasers;
+
+            std::vector<std::unique_ptr<Asset>> _powerups;
+            std::vector<std::unique_ptr<Asset>> _walls;
+
             std::vector<KeyState> _actionKeys;
             std::unordered_map<Key, keyAction_t> _keyActions;
     };
@@ -96,15 +133,21 @@ namespace arcade {
 
 class arcade::Game::Asset {
     public:
-        Asset(entity_type_t type, double x = 0, double y = 0, orientation_t orient = UP);
+        Asset(ent_type::_t type, double x = 0, double y = 0, int orient = UP);
 
-        image_t getImage() const noexcept;
+        operator int() const noexcept;
+
+        image::_t getImage() const noexcept;
         void setPosition(double x, double y) noexcept;
-        void setPosition(double x, double y, orientation_t orient) noexcept;
-        void setOrientation(orientation_t orient) noexcept;
+        void setPosition(double x, double y, int orient) noexcept;
+        void setOrientation(int orient) noexcept;
+        void display(ICore &core) const;
+        void resetClock(ICore &core);
+        long getElapsedTime(bool reset = true);
 
-        entity_type_t etype;
+        ent_type::_t etype;
         double posX;
         double posY;
-        orientation_t orientation;
+        int orientation;
+        std::unique_ptr<IClock> clock;
 };
