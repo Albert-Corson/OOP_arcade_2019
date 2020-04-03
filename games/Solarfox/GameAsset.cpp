@@ -5,16 +5,18 @@
 ** GameAsset
 */
 
-#include "Game.hpp"
+#include "GameAsset.hpp"
 
 using namespace arcade;
 
-Game::Asset::Asset(Game::ent_type::_t type, double x, double y, int orient)
+Game::Asset::Asset(Game &owner, Game::ent_type::_t type, double x, double y, int orient)
     : etype(type)
     , posX(x)
     , posY(y)
     , orientation(orient)
-    , clock(nullptr)
+    , _paused(true)
+    , _owner(owner)
+    , _mainClock { owner.createClock(), 0 }
 {
 }
 
@@ -50,19 +52,15 @@ void Game::Asset::display(ICore &core) const
     core.displayImage(getImage(), posX, posY);
 }
 
-void Game::Asset::resetClock(ICore &core)
+void Game::Asset::process()
 {
-    if (clock == nullptr)
-        clock = core.createClock();
-    else
-        clock->reset();
 }
 
-long Game::Asset::getElapsedTime(bool reset)
+void Game::Asset::pause()
 {
-    long elapsed = clock->getElapsedTime();
-
-    if (reset)
-        clock->reset();
-    return (elapsed);
+    if (!_paused)
+        _mainClock.second += _mainClock.first->getElapsedTime();
+    else
+        _mainClock.first->reset();
+    _paused = !_paused;
 }

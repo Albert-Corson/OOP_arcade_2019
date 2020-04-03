@@ -284,6 +284,8 @@ void Core::_keyPrevGame()
     auto it = _games.rbegin();
     auto end = _games.rend();
 
+    if (!_games.size())
+        return;
     for (; it != end; ++it) {
         if ((*it)->path == _currGame.lock()->path) {
             ++it;
@@ -292,10 +294,6 @@ void Core::_keyPrevGame()
     }
     if (it == end)
         it = _games.rbegin();
-    while (it == end && (*it)->path == __menu__)
-        ++it;
-    if (it == end)
-        throw Exception("_keyPrevGame: No games loaded");
     setGame((*it)->path);
 }
 
@@ -304,6 +302,8 @@ void Core::_keyNextGame()
     auto it = _games.begin();
     auto end = _games.end();
 
+    if (!_games.size())
+        return;
     for (; it != end; ++it) {
         if ((*it)->path == _currGame.lock()->path) {
             ++it;
@@ -312,10 +312,6 @@ void Core::_keyNextGame()
     }
     if (it == end)
         it = _games.begin();
-    while (it == end && (*it)->path == __menu__)
-        ++it;
-    if (it == end)
-        throw Exception("_keyNextGame: No games loaded");
     setGame((*it)->path);
 }
 

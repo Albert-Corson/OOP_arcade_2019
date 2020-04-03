@@ -13,10 +13,20 @@
 namespace arcade {
     class Game : public AGame {
         public:
-            class Asset;
+            Game(ICore &core);
+            ~Game() override = default;
+
+            void launch() override final;
+
+            std::unique_ptr<IClock> createClock() const;
+
+            static constexpr unsigned boardSizeX = 35;
+            static constexpr unsigned boardSizeY = 20;
+            static constexpr unsigned powerUpRatio = 15;
 
             enum orientation_t : int {
-                UP      = 1,
+                NONE    = 1,
+                UP      = NONE << 1,
                 DOWN    = UP << 1,
                 LEFT    = DOWN << 1,
                 RIGHT   = LEFT << 1
@@ -35,7 +45,7 @@ namespace arcade {
 
             struct image {
                 enum _t : int {
-                    POWERUP             = ent_type::POWERUP | UP,
+                    POWERUP             = ent_type::POWERUP | NONE,
 
                     WALL_UP             = ent_type::WALL | UP,
                     WALL_DOWN           = ent_type::WALL | DOWN,
@@ -82,15 +92,10 @@ namespace arcade {
                 };
             };
 
-            Game(ICore &core);
-            ~Game() override = default;
-
-            void launch() override final;
-
         private:
-            static constexpr unsigned __boardSizeX = 35;
-            static constexpr unsigned __boardSizeY = 20;
-            static constexpr unsigned __powerUpRatio = 15;
+            class Asset;
+            class Player;
+            class Enemy;
 
             typedef void (Game::*keyAction_t)();
 
@@ -102,6 +107,7 @@ namespace arcade {
             void _showScore(int offsetY = 0) const;
             void _showGame() const;
             void _processKeys();
+            void _processAssets();
 
             void _setPlayerDirUp();
             void _setPlayerDirDown();
@@ -115,12 +121,10 @@ namespace arcade {
 
             bool _paused;
 
-            unsigned _eatenPowerups;
-
-            std::unique_ptr<Asset> _player;
+            std::unique_ptr<Player> _player;
             std::unique_ptr<Asset> _playerLaser;
 
-            std::array<std::unique_ptr<Asset>, 4> _enemies;
+            std::array<std::unique_ptr<Enemy>, 4> _enemies;
             std::array<std::unique_ptr<Asset>, 4> _enemyLasers;
 
             std::vector<std::unique_ptr<Asset>> _powerups;
@@ -131,23 +135,4 @@ namespace arcade {
     };
 }
 
-class arcade::Game::Asset {
-    public:
-        Asset(ent_type::_t type, double x = 0, double y = 0, int orient = UP);
-
-        operator int() const noexcept;
-
-        image::_t getImage() const noexcept;
-        void setPosition(double x, double y) noexcept;
-        void setPosition(double x, double y, int orient) noexcept;
-        void setOrientation(int orient) noexcept;
-        void display(ICore &core) const;
-        void resetClock(ICore &core);
-        long getElapsedTime(bool reset = true);
-
-        ent_type::_t etype;
-        double posX;
-        double posY;
-        int orientation;
-        std::unique_ptr<IClock> clock;
-};
+#include "GameAsset.hpp"

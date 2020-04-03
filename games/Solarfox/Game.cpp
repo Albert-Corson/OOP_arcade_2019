@@ -7,6 +7,7 @@
 
 #include "Game.hpp"
 #include "assets.hpp"
+#include <cmath>
 
 using namespace arcade;
 
@@ -22,15 +23,14 @@ Game::Game(ICore &core)
     : AGame(core)
     , _gameClock(core.createClock())
     , _playTime(0)
-    , _paused(false)
-    , _eatenPowerups(0)
-    , _player(std::make_unique<Asset>(ent_type::PLAYER, __boardSizeX / 2, __boardSizeY / 2))
+    , _paused(true)
+    , _player(std::make_unique<Player>(*this, ent_type::PLAYER, boardSizeX / 2, boardSizeY / 2, UP))
     , _playerLaser(nullptr)
     , _enemies {
-        std::make_unique<Asset>(ent_type::ENEMY, 1, 0, DOWN),
-        std::make_unique<Asset>(ent_type::ENEMY, __boardSizeX - 1, __boardSizeY, UP),
-        std::make_unique<Asset>(ent_type::ENEMY, __boardSizeX, 1, LEFT),
-        std::make_unique<Asset>(ent_type::ENEMY, 0, __boardSizeY - 1, RIGHT)
+        std::make_unique<Enemy>(*this, ent_type::ENEMY, 1, 0, DOWN),
+        std::make_unique<Enemy>(*this, ent_type::ENEMY, boardSizeX - 1, boardSizeY, UP),
+        std::make_unique<Enemy>(*this, ent_type::ENEMY, boardSizeX, 1, LEFT),
+        std::make_unique<Enemy>(*this, ent_type::ENEMY, 0, boardSizeY - 1, RIGHT)
     }
     , _enemyLasers { nullptr }
 {
@@ -58,13 +58,20 @@ void Game::launch()
         _core.getKeyboardEvents(_actionKeys);
         _processKeys();
         _core.clear();
-        if (_paused)
+        if (_paused) {
             _showPause();
-        else
+        } else {
+            _processAssets();
             _showGame();
+        }
         _core.render();
     }
     _updateScore();
+}
+
+std::unique_ptr<IClock> Game::createClock() const
+{
+    return (_core.createClock());
 }
 
 void Game::_loadAssets()
@@ -79,42 +86,42 @@ void Game::_loadAssets()
 
 void Game::_initWalls()
 {
-    _walls.push_back(std::make_unique<Asset>(ent_type::WALL, 0, 0, UP | LEFT));
-    _walls.push_back(std::make_unique<Asset>(ent_type::WALL, __boardSizeX, 0, UP | RIGHT));
-    _walls.push_back(std::make_unique<Asset>(ent_type::WALL, 0, __boardSizeY, DOWN | LEFT));
-    _walls.push_back(std::make_unique<Asset>(ent_type::WALL, __boardSizeX, __boardSizeY, DOWN | RIGHT));
-    for (unsigned y = 1; y < __boardSizeY; ++y) {
-        _walls.push_back(std::make_unique<Asset>(ent_type::WALL, 0, y, LEFT));
-        _walls.push_back(std::make_unique<Asset>(ent_type::WALL, __boardSizeX, y, RIGHT));
+    _walls.push_back(std::make_unique<Asset>(*this, ent_type::WALL, 0, 0, UP | LEFT));
+    _walls.push_back(std::make_unique<Asset>(*this, ent_type::WALL, boardSizeX, 0, UP | RIGHT));
+    _walls.push_back(std::make_unique<Asset>(*this, ent_type::WALL, 0, boardSizeY, DOWN | LEFT));
+    _walls.push_back(std::make_unique<Asset>(*this, ent_type::WALL, boardSizeX, boardSizeY, DOWN | RIGHT));
+    for (unsigned y = 1; y < boardSizeY; ++y) {
+        _walls.push_back(std::make_unique<Asset>(*this, ent_type::WALL, 0, y, LEFT));
+        _walls.push_back(std::make_unique<Asset>(*this, ent_type::WALL, boardSizeX, y, RIGHT));
     }
-    for (unsigned x = 1; x < __boardSizeX; ++x) {
-        _walls.push_back(std::make_unique<Asset>(ent_type::WALL, x, 0, UP));
-        _walls.push_back(std::make_unique<Asset>(ent_type::WALL, x, __boardSizeY, DOWN));
+    for (unsigned x = 1; x < boardSizeX; ++x) {
+        _walls.push_back(std::make_unique<Asset>(*this, ent_type::WALL, x, 0, UP));
+        _walls.push_back(std::make_unique<Asset>(*this, ent_type::WALL, x, boardSizeY, DOWN));
     }
 }
 
 void Game::_initPowerups()
 {
-    int tmp = __boardSizeX * __boardSizeY;
-    int nbPowerUps = (tmp * __powerUpRatio) / 100;
+    int tmp = boardSizeX * boardSizeY;
+    int nbPowerUps = (tmp * powerUpRatio) / 100;
     std::string check(tmp, ' ');
     int posX;
     int posY;
 
     srand(time(nullptr));
     if (nbPowerUps < 0 || nbPowerUps > tmp)
-        throw Exception("_initPowerups: `__powerUpRatio` too high/low");
+        throw Exception("_initPowerups: `powerUpRatio` too high/low");
     for (int i = 0; i < nbPowerUps;) {
-        posX = randBetween(0, __boardSizeX - 1);
-        posY = randBetween(0, __boardSizeY - 1);
-        tmp = (posY * __boardSizeY) + posX;
+        posX = randBetween(0, boardSizeX - 1);
+        posY = randBetween(0, boardSizeY - 1);
+        tmp = (posY * boardSizeY) + posX;
         if (check[tmp] != '*') {
             ++posX;
             ++posY;
             if (_player->posX == posX && _player->posY == posY)
                 continue;
             check[tmp] = '*';
-            _powerups.push_back(std::make_unique<Asset>(ent_type::POWERUP, posX, posY));
+            _powerups.push_back(std::make_unique<Asset>(*this, ent_type::POWERUP, posX, posY));
             ++i;
         }
     }
@@ -122,13 +129,14 @@ void Game::_initPowerups()
 
 void Game::_updateScore()
 {
-    // throw "TO DO";
+    setScore((log(pow(_playTime / 1000, 35)) * -1) + 350);
 }
 
 void Game::_showPause() const
 {
     _core.displayText(font::DEFAULT, 0, 0, "Game paused");
-    _showScore(1);
+    _showScore(2);
+    _core.displayText(font::DEFAULT, 0, 4, "Press [P] to resume");
 }
 
 void Game::_showScore(int offsetY) const
@@ -151,6 +159,23 @@ void Game::_showGame() const
     if (_playerLaser != nullptr)
         _playerLaser->display(_core);
     _player->display(_core);
+}
+
+void Game::_processAssets()
+{
+    for (const auto &it : _walls)
+        it->process();
+    for (const auto &it : _powerups)
+        it->process();
+    for (const auto &it : _enemies)
+        it->process();
+    _player->process();
+    if (_playerLaser != nullptr)
+        _playerLaser->process();
+    for (const auto &it : _enemyLasers) {
+        if (it != nullptr)
+            it->process();
+    }
 }
 
 void Game::_processKeys()
@@ -187,7 +212,7 @@ void Game::_setPlayerDirRight()
 
 void Game::_playerShoot()
 {
-    // throw "TO DO";
+    throw "TO DO";
 }
 
 void Game::_pause()
@@ -196,20 +221,20 @@ void Game::_pause()
         _playTime += _gameClock->getElapsedTime();
         _updateScore();
     } else {
-        for (const auto &it : _walls)
-            it->resetClock(_core);
-        for (const auto &it : _powerups)
-            it->resetClock(_core);
-        for (const auto &it : _enemyLasers) {
-            if (it != nullptr)
-                it->resetClock(_core);
-        }
-        for (const auto &it : _enemies)
-            it->resetClock(_core);
-        if (_playerLaser != nullptr)
-            _playerLaser->resetClock(_core);
-        _player->resetClock(_core);
         _gameClock->reset();
     }
+    for (const auto &it : _walls)
+        it->pause();
+    for (const auto &it : _powerups)
+        it->pause();
+    for (const auto &it : _enemyLasers) {
+        if (it != nullptr)
+            it->pause();
+    }
+    for (const auto &it : _enemies)
+        it->pause();
+    if (_playerLaser != nullptr)
+        _playerLaser->pause();
+    _player->pause();
     _paused = !_paused;
 }
