@@ -41,13 +41,21 @@ Game::Game(ICore &core)
 
 void Game::launch()
 {
+    std::unique_ptr<IClock> cl = _core.createClock();
+    double idx = 0.00;
+
     _running = true;
     while (_running) {
+        idx = cl->getElapsedTime() / 100.00;
+        if (cl->getElapsedTime() > 100) {
+            _core.getKeyboardEvents(_actionKeys);
+            processKeys();
+            cl->reset();
+            idx = 0.00;
+        }
         _core.clear();
-        displayAssets();
+        displayAssets(idx);
         _core.render();
-        _core.getKeyboardEvents(_actionKeys);
-        processKeys();
     }
     this->stop();
 }
@@ -62,15 +70,66 @@ void Game::initAssets()
     _core.loadResourceImage(6, "games/Nibbler/assets/fruit.png", "games/Nibbler/assets/fruit");
 }
 
-void Game::displayAssets()
+bool Game::canMove()
+{
+    char r = _map[getPos(_snake[0].x + 1, _snake[0].y)].val;
+    char l = _map[getPos(_snake[0].x - 1, _snake[0].y)].val;
+    char u = _map[getPos(_snake[0].x, _snake[0].y - 1)].val;
+    char d = _map[getPos(_snake[0].x, _snake[0].y + 1)].val;
+
+    if (_lastKey == UNKNOWN)
+        return true;
+    else if ((_lastKey == Key::RIGHT && r != '0' && r != '6') ||
+        (_lastKey == Key::LEFT && l != '0' && l != '6') ||
+        (_lastKey == Key::UP && u != '0' && u != '6') ||
+        (_lastKey == Key::DOWN && d != '0' && d != '6'))
+        return false;
+    return true;
+}
+
+void Game::displayAssets(double idx)
 {
     for (auto &it : _map) {
         if (it.val != '0')
             _core.displayImage(atoi(&it.val), it.x, it.y);
     }
-    for (auto &it : _snake) {
-        _core.displayImage(atoi(&it.val), it.x, it.y);
+    for (size_t i = 0; i < _snake.size(); i += 1) {
+        if (_lastKey == UNKNOWN || !canMove())
+            idx = 0;
+        switch (snakeDirection(i))
+        {
+        case Key::LEFT:
+           _core.displayImage(atoi(&_snake[i].val), _snake[i].x - idx, (double)_snake[i].y);
+            break;
+        case Key::RIGHT:
+           _core.displayImage(atoi(&_snake[i].val), _snake[i].x + idx, (double)_snake[i].y);
+            break;
+        case Key::UP:
+           _core.displayImage(atoi(&_snake[i].val), (double)_snake[i].x, _snake[i].y - idx);
+            break;
+        case Key::DOWN:
+           _core.displayImage(atoi(&_snake[i].val), (double)_snake[i].x, _snake[i].y + idx);
+            break;
+        default:
+           _core.displayImage(atoi(&_snake[i].val), _snake[i].x, _snake[i].y);
+            break;
+        }
     }
+}
+
+Key Game::snakeDirection(size_t i)
+{
+    if (i == 0)
+        return _lastKey;
+    if (_snake[i].x > _snake[i-1].x)
+        return Key::LEFT;
+    if (_snake[i].x < _snake[i-1].x)
+        return Key::RIGHT;
+    if (_snake[i].y > _snake[i-1].y)
+        return Key::UP;
+    if (_snake[i].y < _snake[i-1].y)
+        return Key::DOWN;
+    return Key::UNKNOWN;
 }
 
 void Game::initMap(void)
@@ -174,25 +233,35 @@ void Game::moveLeft(Key key)
     moveSnake(-1, 0, key);
 }
 
+std::vector<pos_t> Game::getMap()
+{
+    std::vector<pos_t> tmp = _map;
+
+    for (size_t i = 0; i < _snake.size(); i++) {
+        tmp[getPos(_snake[i].x, _snake[i].y)].val = _snake[i].val;
+    }
+    return tmp;
+}
+
 void Game::moveSnake(const int x, const int y, const Key key)
 {
     int i = getPos(_snake[0].x + x, _snake[0].y + y);
-    char c = _map[i].val;
+    char m = getMap()[i].val;
     bool inTail = (_map[i].x == _snake[1].x && _map[i].y == _snake[1].y);
 
-    if (_lastKey != UNKNOWN && key != _lastKey && (c == '2' || inTail))
+    if (_lastKey != UNKNOWN && key != _lastKey && (m == '2' || inTail))
         return (this->*_keyActions[_lastKey])(_lastKey);
-    if (c != '2' && !inTail) {
+    if (m == '0' || m == '6') {
         _lastKey = key;
         moveTail();
         _snake[0].x += x;
         _snake[0].y += y;
-        if (c == '6')
+        if (m == '6')
             eatFruit();
     }
     else
         _lastKey = UNKNOWN;
-    if (c == '1' || c == '4' || c == '5')
+    if (m == '1' || m == '4' || m == '5')
         _gameState = 2;
 }
 

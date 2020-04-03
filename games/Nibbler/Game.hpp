@@ -33,13 +33,16 @@ namespace arcade {
             void pause(Key key = Key::UNKNOWN);
 
             void initAssets();
-            void displayAssets();
+            void displayAssets(double idx);
+            Key snakeDirection(size_t i);
+            bool canMove();
 
             void gameMotor();
             Key onlyOneKey();
             void initMap(void);
             void initSnake(const char id);
             int getPos(int x, int y);
+            std::vector<pos_t> getMap();
             void moveSnake(const int x, const int y, const Key key);
             void moveDown(Key key = Key::UNKNOWN);
             void moveUp(Key key = Key::UNKNOWN);
