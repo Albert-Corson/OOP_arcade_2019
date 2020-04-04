@@ -7,10 +7,6 @@
 
 #include "GameAsset.hpp"
 
-#define MOVE_TIMER 250.0
-#define SHOOT_TIMER MOVE_TIMER * 5.0
-#define DISABLED_TIMER 2000.0
-
 using namespace arcade;
 
 Game::Enemy::Enemy(Game &owner, ent_type::_t type, double x, double y, int orient)
@@ -34,8 +30,8 @@ void Game::Enemy::process()
     if (_paused)
         return;
     if (!_active) {
-        if (elapsed >= DISABLED_TIMER) {
-            _mainClock.second += elapsed - DISABLED_TIMER;
+        if (elapsed >= E_DISABLED_TIMER) {
+            _mainClock.second += elapsed - E_DISABLED_TIMER;
             _shootClock.second = 0;
             _mainClock.first->reset();
             _shootClock.first->reset();
@@ -55,24 +51,37 @@ void Game::Enemy::pause()
     Asset::pause();
 }
 
+void Game::Enemy::disable()
+{
+    _active = false;
+}
+
 void Game::Enemy::_processUp()
 {
     _moveHor();
+    if (_canShoot())
+        _shoot(posX, posY - 1, UP);
 }
 
 void Game::Enemy::_processDown()
 {
     _moveHor();
+    if (_canShoot())
+        _shoot(posX, posY + 1, DOWN);
 }
 
 void Game::Enemy::_processLeft()
 {
     _moveVert();
+    if (_canShoot())
+        _shoot(posX - 1, posY, LEFT);
 }
 
 void Game::Enemy::_processRight()
 {
     _moveVert();
+    if (_canShoot())
+        _shoot(posX + 1, posY, RIGHT);
 }
 
 double Game::Enemy::_move()
@@ -81,8 +90,8 @@ double Game::Enemy::_move()
     double ret = 0;
 
     if (_mainClock.second + elapsed >= 10) {
-        ret = (double)(_mainClock.second + elapsed) / MOVE_TIMER * _speed;
-        _mainClock.second = 0;
+        ret = (double)(_mainClock.second + elapsed) / E_MOVE_TIMER * _speed;
+        _mainClock.second += elapsed - 10;
         _mainClock.first->reset();
     }
     return (ret);
@@ -90,28 +99,50 @@ double Game::Enemy::_move()
 
 void Game::Enemy::_moveHor()
 {
+    const double limX = Game::boardSizeX;
     double step = _move();
 
     posX += step;
     if (posX < 1.0) {
         posX = 1.0 + (1.0 - posX);
-        _speed *= -1;
-    } else if (posX > (double)Game::boardSizeX - 1.0) {
-        posX = (double)Game::boardSizeX - 1.0 - ((double)Game::boardSizeX - 1.0 - posX);
-        _speed *= -1;
+        _speed = 1;
+    } else if (posX >= limX) {
+        posX = limX - (limX - posX);
+        _speed = -1;
     }
 }
 
 void Game::Enemy::_moveVert()
 {
+    const double limY = Game::boardSizeY;
     double step = _move();
 
     posY += step;
     if (posY < 1.0) {
         posY = 1.0 + (1.0 - posY);
-        _speed *= -1;
-    } else if (posY > (double)Game::boardSizeY - 1.0) {
-        posY = (double)Game::boardSizeY - 1.0 - ((double)Game::boardSizeY - 1.0 - posY);
-        _speed *= -1;
+        _speed = 1;
+    } else if (posY >= limY) {
+        posY = limY - (limY - posY);
+        _speed = -1;
     }
+}
+
+bool Game::Enemy::_canShoot()
+{
+    if (!_laser.expired())
+        return (false);
+
+    long elapsed = _shootClock.first->getElapsedTime();
+
+    if (_shootClock.second + elapsed > E_SHOOT_TIMER) {
+        _shootClock.second += elapsed - E_SHOOT_TIMER;
+        _shootClock.first->reset();
+        return (true);
+    }
+    return (false);
+}
+
+void Game::Enemy::_shoot(double x, double y, orientation_t dir)
+{
+    _laser = _owner.addEnemyLaser(x, y, dir);
 }

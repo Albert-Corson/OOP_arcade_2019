@@ -23,7 +23,7 @@ Game::Game(ICore &core)
     : AGame(core)
     , _gameClock(core.createClock())
     , _playTime(0)
-    , _paused(true)
+    , _paused(0)
     , _player(std::make_unique<Player>(*this, ent_type::PLAYER, boardSizeX / 2, boardSizeY / 2, UP))
     , _playerLaser(nullptr)
     , _enemies {
@@ -32,7 +32,6 @@ Game::Game(ICore &core)
         std::make_unique<Enemy>(*this, ent_type::ENEMY, boardSizeX, 1, LEFT),
         std::make_unique<Enemy>(*this, ent_type::ENEMY, 0, boardSizeY - 1, RIGHT)
     }
-    , _enemyLasers { nullptr }
 {
     _initPowerups();
     _initWalls();
@@ -47,6 +46,8 @@ Game::Game(ICore &core)
     for (const auto &it : _keyActions)
         _actionKeys.push_back(KeyState(it.first));
     _loadAssets();
+    _gameClock->reset();
+    _pause();
 }
 
 void Game::launch()
@@ -58,20 +59,46 @@ void Game::launch()
         _core.getKeyboardEvents(_actionKeys);
         _processKeys();
         _core.clear();
-        if (_paused) {
-            _showPause();
-        } else {
-            _processAssets();
+        if (!_paused) {
+            _processAllAssets();
             _showGame();
-        }
+        } else
+            _showPause();
         _core.render();
     }
+    _paused = -1;
     _updateScore();
+    _running = true;
+    _gameClock->reset();
+    while (_running && _gameClock->getElapsedTime() < 2500) {
+        _core.getKeyboardEvents(_actionKeys);
+        _processKeys();
+        _core.clear();
+        _showScore();
+        _core.render();
+    }
 }
 
 std::unique_ptr<IClock> Game::createClock() const
 {
     return (_core.createClock());
+}
+
+ICore &Game::getCore()
+{
+    return (_core);
+}
+
+std::weak_ptr<Game::PlayerLaser> Game::addPlayerLaser(double x, double y, orientation_t dir)
+{
+    _playerLaser = std::make_shared<PlayerLaser>(*this, ent_type::PLAYER_LASER, x, y, dir);
+    return (_playerLaser);
+}
+
+std::weak_ptr<Game::EnemyLaser> Game::addEnemyLaser(double x, double y, orientation_t dir)
+{
+    _enemyLasers.push_back(std::make_shared<EnemyLaser>(*this, ent_type::ENEMY_LASER, x, y, dir));
+    return (_enemyLasers.back());
 }
 
 void Game::_loadAssets()
@@ -121,7 +148,7 @@ void Game::_initPowerups()
             if (_player->posX == posX && _player->posY == posY)
                 continue;
             check[tmp] = '*';
-            _powerups.push_back(std::make_unique<Asset>(*this, ent_type::POWERUP, posX, posY));
+            _powerups.push_back(std::make_unique<Powerup>(*this, ent_type::POWERUP, posX, posY));
             ++i;
         }
     }
@@ -129,19 +156,26 @@ void Game::_initPowerups()
 
 void Game::_updateScore()
 {
-    setScore((log(pow(_playTime / 1000, 35)) * -1) + 350);
+    setScore(((log(pow((_gameClock->getElapsedTime() - _playTime + 10) / 1000, 35)) * -1) + 15000) / _powerups.size());
 }
 
 void Game::_showPause() const
 {
-    _core.displayText(font::DEFAULT, 0, 0, "Game paused");
-    _showScore(2);
-    _core.displayText(font::DEFAULT, 0, 4, "Press [P] to resume");
+    static const std::string pauseStr = "Game paused";
+    static const std::string helpStr = "Press [P] to resume";
+    static const int centerX = (boardSizeX) / 2;
+    static const int centerY = (boardSizeY) / 2;
+
+    _core.displayText(font::DEFAULT, centerX - pauseStr.size() / 2, centerY - 2, pauseStr);
+    _showScore();
+    _core.displayText(font::DEFAULT, centerX - helpStr.size() / 2, centerY + 2, helpStr);
 }
 
 void Game::_showScore(int offsetY) const
 {
-    _core.displayText(font::DEFAULT, 0, offsetY, "Score: " + std::to_string(_score));
+    const std::string scoreStr = "Score: " + std::to_string(_score);
+
+    _core.displayText(font::DEFAULT, (boardSizeX - scoreStr.size()) / 2, (boardSizeY / 2) + offsetY, scoreStr);
 }
 
 void Game::_showGame() const
@@ -150,10 +184,8 @@ void Game::_showGame() const
         it->display(_core);
     for (const auto &it : _powerups)
         it->display(_core);
-    for (const auto &it : _enemyLasers) {
-        if (it != nullptr)
-            it->display(_core);
-    }
+    for (const auto &it : _enemyLasers)
+        it->display(_core);
     for (const auto &it : _enemies)
         it->display(_core);
     if (_playerLaser != nullptr)
@@ -161,20 +193,62 @@ void Game::_showGame() const
     _player->display(_core);
 }
 
-void Game::_processAssets()
+void Game::_processAllAssets()
 {
-    for (const auto &it : _walls)
-        it->process();
-    for (const auto &it : _powerups)
-        it->process();
-    for (const auto &it : _enemies)
-        it->process();
+    if (!_powerups.size()) {
+        stop();
+        return;
+    }
+    _processPlayer();
+    _processEnemies();
+    _processPowerups();
+}
+
+void Game::_processPlayer()
+{
     _player->process();
+}
+
+void Game::_processPowerups()
+{
+    auto end = _powerups.end();
+
+    for (auto it = _powerups.begin(); it != end;) {
+        if ((*it)->collidesWith(*_player))
+            it = _powerups.erase(it);
+        else if (_playerLaser != nullptr && (*it)->collidesWith(*_playerLaser)) {
+            it = _powerups.erase(it);
+            _playerLaser = nullptr;
+        } else
+            ++it;
+    }
+}
+
+void Game::_processEnemies()
+{
+    auto end = _enemyLasers.end();
+
     if (_playerLaser != nullptr)
         _playerLaser->process();
-    for (const auto &it : _enemyLasers) {
-        if (it != nullptr)
-            it->process();
+    for (const auto &it : _enemies) {
+        if (_playerLaser != nullptr && it->collidesWith(*_playerLaser))
+            it->disable();
+        it->process();
+    }
+    if (_playerLaser != nullptr && _playerLaser->isDead())
+        _playerLaser = nullptr;
+    for (auto it = _enemyLasers.begin(); it != end;) {
+        (*it)->process();
+        if ((*it)->collidesWith(*_player)) {
+            stop();
+            return;
+        } else if (_playerLaser != nullptr && (*it)->collidesWith(*_playerLaser)) {
+            _playerLaser = nullptr;
+            it = _enemyLasers.erase(it);
+        } else if ((*it)->isDead())
+            it = _enemyLasers.erase(it);
+        else
+            ++it;
     }
 }
 
@@ -212,24 +286,24 @@ void Game::_setPlayerDirRight()
 
 void Game::_playerShoot()
 {
-    throw "TO DO";
+    _player->shoot();
 }
 
 void Game::_pause()
 {
+    if (_paused != 0 && _paused != 1)
+        return;
     if (!_paused) {
         _playTime += _gameClock->getElapsedTime();
         _updateScore();
-    } else {
+    } else
         _gameClock->reset();
-    }
     for (const auto &it : _walls)
         it->pause();
     for (const auto &it : _powerups)
         it->pause();
     for (const auto &it : _enemyLasers) {
-        if (it != nullptr)
-            it->pause();
+        it->pause();
     }
     for (const auto &it : _enemies)
         it->pause();

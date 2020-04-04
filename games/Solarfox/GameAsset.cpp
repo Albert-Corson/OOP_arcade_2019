@@ -6,6 +6,7 @@
 */
 
 #include "GameAsset.hpp"
+#include <cmath>
 
 using namespace arcade;
 
@@ -14,7 +15,7 @@ Game::Asset::Asset(Game &owner, Game::ent_type::_t type, double x, double y, int
     , posX(x)
     , posY(y)
     , orientation(orient)
-    , _paused(true)
+    , _paused(false)
     , _owner(owner)
     , _mainClock { owner.createClock(), 0 }
 {
@@ -63,4 +64,11 @@ void Game::Asset::pause()
     else
         _mainClock.first->reset();
     _paused = !_paused;
+}
+
+bool Game::Asset::collidesWith(Asset &other)
+{
+    if ((int)other.posX != (int)posX || (int)other.posY != (int)posY)
+        return (false);
+    return (true);
 }

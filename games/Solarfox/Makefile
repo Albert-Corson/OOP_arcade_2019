@@ -11,6 +11,9 @@ SRC	=	Game.cpp		\
 		lib_communs.cpp	\
 		Player.cpp		\
 		Enemy.cpp		\
+		PlayerLaser.cpp	\
+		EnemyLaser.cpp	\
+		Powerup.cpp		\
 		GameAsset.cpp
 
 OBJ	=	$(SRC:.cpp=.o)

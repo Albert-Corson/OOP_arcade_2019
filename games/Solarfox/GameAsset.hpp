@@ -24,6 +24,7 @@ namespace arcade {
             void display(ICore &core) const;
             virtual void process();
             virtual void pause();
+            bool collidesWith(Asset &other);
 
             ent_type::_t etype;
             double posX;
@@ -42,7 +43,17 @@ namespace arcade {
             ~Player() override = default;
 
             void process() override;
-            void pause() override;
+            void shoot();
+
+        private:
+            bool _isDead();
+            void _move();
+            void _moveUp(double step, int lastDir);
+            void _moveDown(double step, int lastDir);
+            void _moveLeft(double step, int lastDir);
+            void _moveRight(double step, int lastDir);
+
+            std::weak_ptr<Game::PlayerLaser> _laser;
     };
 
     class Game::Enemy : public Game::Asset {
@@ -52,6 +63,7 @@ namespace arcade {
 
             void process() override;
             void pause() override;
+            void disable();
 
         private:
             void _processUp();
@@ -61,9 +73,50 @@ namespace arcade {
             double _move();
             void _moveHor();
             void _moveVert();
+            bool _canShoot();
+            void _shoot(double x, double y, orientation_t dir);
 
             double _speed;
             bool _active;
             std::pair<std::unique_ptr<IClock>, long> _shootClock;
+            std::weak_ptr<Game::EnemyLaser> _laser;
+    };
+
+    class Game::Powerup : public Game::Asset {
+        public:
+            Powerup(Game &owner, ent_type::_t type, double x = 0, double y = 0, int orient = NONE);
+            ~Powerup() override;
+    };
+
+    class Game::PlayerLaser : public Game::Asset {
+        public:
+            PlayerLaser(Game &owner, ent_type::_t type, double x = 0, double y = 0, int orient = NONE);
+            ~PlayerLaser() override = default;
+
+            void process() override;
+            bool isDead();
+
+        private:
+            void _move();
+            void _moveUp(double step);
+            void _moveDown(double step);
+            void _moveLeft(double step);
+            void _moveRight(double step);
+    };
+
+    class Game::EnemyLaser : public Game::Asset {
+        public:
+            EnemyLaser(Game &owner, ent_type::_t type, double x = 0, double y = 0, int orient = NONE);
+            ~EnemyLaser() override = default;
+
+            void process() override;
+            bool isDead();
+
+        private:
+            void _move();
+            void _moveUp(double step);
+            void _moveDown(double step);
+            void _moveLeft(double step);
+            void _moveRight(double step);
     };
 }

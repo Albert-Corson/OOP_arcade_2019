@@ -8,7 +8,18 @@
 #pragma once
 
 #include "AGame.hpp"
+#include <list>
 #include <unordered_map>
+
+#define E_MOVE_TIMER 250.0
+#define E_SHOOT_TIMER E_MOVE_TIMER * 8.0
+#define E_DISABLED_TIMER 2000.0
+
+#define P_MOVE_TIMER 350.0
+#define P_SHOOT_TIMER P_MOVE_TIMER * 3.5
+
+#define PL_MOVE_TIMER 125.0
+#define EL_MOVE_TIMER 75.0
 
 namespace arcade {
     class Game : public AGame {
@@ -18,11 +29,16 @@ namespace arcade {
 
             void launch() override final;
 
-            std::unique_ptr<IClock> createClock() const;
-
             static constexpr unsigned boardSizeX = 35;
             static constexpr unsigned boardSizeY = 20;
             static constexpr unsigned powerUpRatio = 15;
+
+            class Asset;
+            class Powerup;
+            class Player;
+            class Enemy;
+            class PlayerLaser;
+            class EnemyLaser;
 
             enum orientation_t : int {
                 NONE    = 1,
@@ -92,11 +108,14 @@ namespace arcade {
                 };
             };
 
-        private:
-            class Asset;
-            class Player;
-            class Enemy;
 
+            std::unique_ptr<IClock> createClock() const;
+            ICore &getCore();
+            std::weak_ptr<PlayerLaser> addPlayerLaser(double x, double y, orientation_t dir);
+            std::weak_ptr<EnemyLaser> addEnemyLaser(double x, double y, orientation_t dir);
+
+
+        private:
             typedef void (Game::*keyAction_t)();
 
             void _loadAssets();
@@ -107,7 +126,10 @@ namespace arcade {
             void _showScore(int offsetY = 0) const;
             void _showGame() const;
             void _processKeys();
-            void _processAssets();
+            void _processAllAssets();
+            void _processPlayer();
+            void _processPowerups();
+            void _processEnemies();
 
             void _setPlayerDirUp();
             void _setPlayerDirDown();
@@ -119,15 +141,15 @@ namespace arcade {
             std::unique_ptr<IClock> _gameClock;
             long _playTime;
 
-            bool _paused;
+            int _paused;
 
             std::unique_ptr<Player> _player;
-            std::unique_ptr<Asset> _playerLaser;
+            std::shared_ptr<PlayerLaser> _playerLaser;
 
             std::array<std::unique_ptr<Enemy>, 4> _enemies;
-            std::array<std::unique_ptr<Asset>, 4> _enemyLasers;
+            std::list<std::shared_ptr<EnemyLaser>> _enemyLasers;
 
-            std::vector<std::unique_ptr<Asset>> _powerups;
+            std::list<std::unique_ptr<Powerup>> _powerups;
             std::vector<std::unique_ptr<Asset>> _walls;
 
             std::vector<KeyState> _actionKeys;
