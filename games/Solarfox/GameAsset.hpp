@@ -44,6 +44,7 @@ namespace arcade {
 
             void process() override;
             void shoot();
+            void switchSpeed();
 
         private:
             bool _isDead();
@@ -53,6 +54,7 @@ namespace arcade {
             void _moveLeft(double step, int lastDir);
             void _moveRight(double step, int lastDir);
 
+            bool _goFast;
             std::weak_ptr<Game::PlayerLaser> _laser;
     };
 

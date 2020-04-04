@@ -12,6 +12,7 @@ using namespace arcade;
 
 Game::Player::Player(Game &owner, ent_type::_t type, double x, double y, int orient)
     : Asset(owner, type, x, y, orient)
+    , _goFast(false)
 {
 }
 
@@ -24,8 +25,13 @@ void Game::Player::process()
 
 void Game::Player::shoot()
 {
-    if (_laser.expired())
+    if (!_goFast && _laser.expired())
         _laser = _owner.addPlayerLaser(posX, posY, (orientation_t)orientation);
+}
+
+void Game::Player::switchSpeed()
+{
+    _goFast = !_goFast;
 }
 
 bool Game::Player::_isDead()
@@ -54,6 +60,8 @@ void Game::Player::_move()
         _mainClock.second = 0;
         _mainClock.first->reset();
     }
+    if (_goFast)
+        step *= P_SPEED_MULT;
     (this->*moves.at(orientation))(step, lastDir);
     if (lastDir != orientation)
         lastDir = orientation;

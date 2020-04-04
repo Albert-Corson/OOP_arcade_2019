@@ -41,6 +41,7 @@ Game::Game(ICore &core)
         { Key::LEFT, &Game::_setPlayerDirLeft },
         { Key::RIGHT, &Game::_setPlayerDirRight },
         { Key::SPACE, &Game::_playerShoot },
+        { Key::S, &Game::_playerSwitchSpeed },
         { Key::P, &Game::_pause }
     };
     for (const auto &it : _keyActions)
@@ -66,8 +67,6 @@ void Game::launch()
             _showPause();
         _core.render();
     }
-    _paused = -1;
-    _updateScore();
     _running = true;
     _gameClock->reset();
     while (_running && _gameClock->getElapsedTime() < 2500) {
@@ -154,11 +153,6 @@ void Game::_initPowerups()
     }
 }
 
-void Game::_updateScore()
-{
-    setScore(((log(pow((_gameClock->getElapsedTime() - _playTime + 10) / 1000, 35)) * -1) + 15000) / _powerups.size());
-}
-
 void Game::_showPause() const
 {
     static const std::string pauseStr = "Game paused";
@@ -214,11 +208,13 @@ void Game::_processPowerups()
     auto end = _powerups.end();
 
     for (auto it = _powerups.begin(); it != end;) {
-        if ((*it)->collidesWith(*_player))
+        if ((*it)->collidesWith(*_player)) {
             it = _powerups.erase(it);
-        else if (_playerLaser != nullptr && (*it)->collidesWith(*_playerLaser)) {
+            addScore(1);
+        } else if (_playerLaser != nullptr && (*it)->collidesWith(*_playerLaser)) {
             it = _powerups.erase(it);
             _playerLaser = nullptr;
+            addScore(1);
         } else
             ++it;
     }
@@ -289,13 +285,15 @@ void Game::_playerShoot()
     _player->shoot();
 }
 
+void Game::_playerSwitchSpeed()
+{
+    _player->switchSpeed();
+}
+
 void Game::_pause()
 {
-    if (_paused != 0 && _paused != 1)
-        return;
     if (!_paused) {
         _playTime += _gameClock->getElapsedTime();
-        _updateScore();
     } else
         _gameClock->reset();
     for (const auto &it : _walls)

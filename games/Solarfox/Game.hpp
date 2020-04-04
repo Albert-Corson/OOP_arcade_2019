@@ -15,11 +15,12 @@
 #define E_SHOOT_TIMER E_MOVE_TIMER * 8.0
 #define E_DISABLED_TIMER 2000.0
 
-#define P_MOVE_TIMER 350.0
+#define P_MOVE_TIMER 200.0
+#define P_SPEED_MULT 3.0
 #define P_SHOOT_TIMER P_MOVE_TIMER * 3.5
 
-#define PL_MOVE_TIMER 125.0
-#define EL_MOVE_TIMER 75.0
+#define PL_MOVE_TIMER 80.0
+#define EL_MOVE_TIMER 50.0
 
 namespace arcade {
     class Game : public AGame {
@@ -29,8 +30,8 @@ namespace arcade {
 
             void launch() override final;
 
-            static constexpr unsigned boardSizeX = 35;
-            static constexpr unsigned boardSizeY = 20;
+            static constexpr unsigned boardSizeX = 70;
+            static constexpr unsigned boardSizeY = 45;
             static constexpr unsigned powerUpRatio = 15;
 
             class Asset;
@@ -121,7 +122,6 @@ namespace arcade {
             void _loadAssets();
             void _initWalls();
             void _initPowerups();
-            void _updateScore();
             void _showPause() const;
             void _showScore(int offsetY = 0) const;
             void _showGame() const;
@@ -136,6 +136,7 @@ namespace arcade {
             void _setPlayerDirLeft();
             void _setPlayerDirRight();
             void _playerShoot();
+            void _playerSwitchSpeed();
             void _pause();
 
             std::unique_ptr<IClock> _gameClock;
