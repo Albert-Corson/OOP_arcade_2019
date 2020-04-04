@@ -14,7 +14,7 @@ Game::Powerup::Powerup(Game &owner, ent_type::_t type, double x, double y, int o
 {
 }
 
-Game::Powerup::~Powerup()
+void Game::Powerup::playDeathSound()
 {
     _owner.getCore().playAudio(audio::POWERUP);
 }

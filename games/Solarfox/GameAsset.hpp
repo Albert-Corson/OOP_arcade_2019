@@ -87,7 +87,9 @@ namespace arcade {
     class Game::Powerup : public Game::Asset {
         public:
             Powerup(Game &owner, ent_type::_t type, double x = 0, double y = 0, int orient = NONE);
-            ~Powerup() override;
+            ~Powerup() override = default;
+
+            void playDeathSound();
     };
 
     class Game::PlayerLaser : public Game::Asset {

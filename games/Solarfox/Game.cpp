@@ -209,9 +209,11 @@ void Game::_processPowerups()
 
     for (auto it = _powerups.begin(); it != end;) {
         if ((*it)->collidesWith(*_player)) {
+            (*it)->playDeathSound();
             it = _powerups.erase(it);
             addScore(1);
         } else if (_playerLaser != nullptr && (*it)->collidesWith(*_playerLaser)) {
+            (*it)->playDeathSound();
             it = _powerups.erase(it);
             _playerLaser = nullptr;
             addScore(1);
