@@ -18,6 +18,7 @@ Core::GameStorage::GameStorage(const std::string &libPath, const std::string &li
     , loader(libLoader)
     , instance(nullptr)
 {
+    loadScoreboard();
 }
 
 Core::GameStorage::GameStorage(const Core::GameStorage &other)
@@ -46,12 +47,17 @@ void Core::GameStorage::loadScoreboard()
     if (!file)
         return;
     std::getline(file, line);
-    while (!file.eof()) {
+    for (std::getline(file, line); !file.eof(); std::getline(file, line)) {
         offset = 0;
-        while (line[offset] >= '0' && line[offset] <= '9')
+        score = 0;
+        while (line[offset] >= '0' && line[offset] <= '9') {
+            score *= 10;
+            score += line[offset] - 48;
             ++offset;
-        score = std::stoul(line);
+        }
         username = line.substr(offset + 1);
+        if (username == "")
+            continue;
         scoreboard[username] = score;
     }
 }
