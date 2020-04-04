@@ -200,13 +200,13 @@ void Core::render()
 void Core::getKeyboardEvents(std::vector<KeyState> &keys)
 {
     static std::unordered_map<Key, keyAction_t> actions = {
-        { Key::HYPHEN, &arcade::Core::_keyPrevGame }, // Previous game
-        { Key::EQUAL, &arcade::Core::_keyNextGame }, // Next game
-        { Key::PAGEDOWN, &arcade::Core::_keyPrevLib }, // Previous library
-        { Key::PAGEUP, &arcade::Core::_keyNextLib }, // Next library
-        { Key::R, &arcade::Core::_keyRestartGame }, // Restart game
-        { Key::HOME, &arcade::Core::_keyMenu }, // Go back to the menu
-        { Key::END, &arcade::Core::_keyExit } // Exit
+        { Key::F1, &arcade::Core::_keyPrevLib },        // Previous library
+        { Key::F2, &arcade::Core::_keyNextLib },        // Next library
+        { Key::F3, &arcade::Core::_keyPrevGame },       // Previous game
+        { Key::F4, &arcade::Core::_keyNextGame },       // Next game
+        { Key::F5, &arcade::Core::_keyRestartGame },    // Restart game
+        { Key::F6, &arcade::Core::_keyMenu },           // Go back to the menu
+        { Key::F7, &arcade::Core::_keyExit }            // Exit
     };
     static std::vector<KeyState> coreKeys;
 
