@@ -72,8 +72,11 @@ const std::vector<ICore::GameScoreboard> Core::getScoreboards() const
 {
     std::vector<ICore::GameScoreboard> scores;
 
-    for (const auto &it : _games)
+    for (const auto &it : _games) {
+        if (it->path == __menu__)
+            continue;
         scores.push_back(it->getSortedScoreboard());
+    }
     return (scores);
 }
 
