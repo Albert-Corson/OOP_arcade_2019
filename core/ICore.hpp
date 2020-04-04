@@ -7,10 +7,10 @@
 
 #pragma once
 
-#include "IClock.hpp"
-#include "deps/keys.hpp"
 #include <memory>
 #include <vector>
+#include "IClock.hpp"
+#include "deps/keys.hpp"
 
 namespace arcade {
     // The arcade core interface
@@ -68,6 +68,7 @@ namespace arcade {
             virtual const std::vector<ICore::LibInfo> getGamesList() const = 0;
             virtual const std::vector<GameScoreboard> getScoreboards() const = 0;
             virtual void setUserName(const std::string &name) = 0;
+            virtual const std::string &getUserName() const = 0;
             virtual void setLibGraph(const std::string &path) = 0;
             virtual void setGame(const std::string &path) = 0;
 

@@ -42,6 +42,7 @@ namespace arcade {
                 , _score(0)
                 , _running(false)
             {}
+
             ICore &_core;
             unsigned long _score;
             bool _running;

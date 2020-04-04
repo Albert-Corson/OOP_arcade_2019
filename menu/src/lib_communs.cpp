@@ -5,6 +5,7 @@
 ** lib_communs
 */
 
+#include "class/AScene.hpp"
 #include "GameMenu.hpp"
 
 std::string get_lib_name()

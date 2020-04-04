@@ -50,6 +50,7 @@ namespace arcade {
             const std::vector<LibInfo> getGamesList() const;
             const std::vector<GameScoreboard> getScoreboards() const;
             void setUserName(const std::string &name);
+            const std::string &getUserName() const;
             void setLibGraph(const std::string &path);
             void setGame(const std::string &path);
 

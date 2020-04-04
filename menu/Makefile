@@ -7,14 +7,16 @@
 
 CC	=	g++
 
-SRC	=	GameMenu.cpp	\
-		lib_communs.cpp
+SRC	=	src/GameMenu.cpp			\
+		src/lib_communs.cpp			\
+		src/class/scene/Prompt.cpp	\
+		src/class/scene/Menu.cpp
 
 OBJ	=	$(SRC:.cpp=.o)
 
 CXXFLAGS	=	$(COMMON_CXXFLAGS)
-CXXFLAGS	+=	-fPIC	\
-				-I../ -I../games/
+CXXFLAGS	+=	-fPIC
+CXXFLAGS	+=	-I../ -I../games/ -Iinclude/
 
 NAME	=	lib_arcade_menu.so
 

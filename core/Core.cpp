@@ -85,6 +85,11 @@ void Core::setUserName(const std::string &name)
     _userName = name;
 }
 
+const std::string &Core::getUserName() const
+{
+    return (_userName);
+}
+
 void Core::setLibGraph(const std::string &path)
 {
     std::string normalPath = std::filesystem::path(path).lexically_normal().c_str();
@@ -232,7 +237,7 @@ void Core::_loadLibGraph(const std::string &path)
     libNameGetter_t nameGetter = graphLib.getsym<libNameGetter_t>(arcade::libNameGetterFnName);
 
     if (!loader || !nameGetter)
-        throw Exception("_loadGame: " + normalPath + " isn't a valid game library");
+        throw Exception("_loadGame: " + normalPath + " isn't a valid graphical library");
     _libGraphs.push_back(std::make_shared<LibGraphStorage>(normalPath, nameGetter(), loader));
 }
 

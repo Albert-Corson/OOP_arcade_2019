@@ -7,9 +7,9 @@
 
 #pragma once
 
-#include "AGame.hpp"
 #include <unordered_map>
 #include <fstream>
+#include "AGame.hpp"
 
 namespace arcade {
     typedef struct
