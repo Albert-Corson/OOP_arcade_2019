@@ -68,7 +68,7 @@ void Game::Asset::pause()
 
 bool Game::Asset::collidesWith(Asset &other)
 {
-    if ((int)other.posX != (int)posX || (int)other.posY != (int)posY)
+    if (round(other.posX) != round(posX) || round(other.posY) != round(posY))
         return (false);
     return (true);
 }

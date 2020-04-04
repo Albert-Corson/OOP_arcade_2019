@@ -12,6 +12,7 @@
 #include <memory>
 #include <sstream>
 #include <clocale>
+#include <cmath>
 
 using namespace arcade;
 
@@ -85,7 +86,7 @@ void LibGraphNcurses::displayImage(int id, double posX, double posY)
 {
     try {
         Image &img = _images.at(id);
-        mvaddstr(posY, posX * 2, img.image.c_str());
+        mvaddstr(round(posY), round(posX) * 2, img.image.c_str());
     } catch (...) {
         throw Exception("displayImage: incorrect id:" + std::to_string(id));
     }
