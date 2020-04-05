@@ -8,8 +8,8 @@
 #pragma once
 
 #include "AGame.hpp"
+#include <time.h>
 #include <unordered_map>
-#include <fstream>
 
 namespace arcade {
     typedef struct
@@ -31,13 +31,11 @@ namespace arcade {
         private:
             void initAssets();
             void initMap();
-            void initSnake(const char id);
+            void initSnake();
 
-            void resetGame();
-            void sceneGame(std::unique_ptr<IClock> &cl, double &idx, int &map);
+            void sceneGame(std::unique_ptr<IClock> &cl, double &idx);
 
-            void changeMap(int &map, double &idx);
-            void processKeys(int &map, double &idx);
+            void processKeys(double &idx);
             void pause(Key key = Key::UNKNOWN);
 
             void gameMotor();
@@ -51,12 +49,12 @@ namespace arcade {
             void moveSnake(const int x, const int y, const Key key);
             void moveTail(void);
             void eatFruit(void);
-            void checkFruit(void);
+            void newFruit(void);
 
             bool canMove();
             void displayAssets(double idx);
             Key snakeDirection(size_t i);
-            void displayKeys(const int x, const int map);
+            void displayKeys(const int x);
 
             int _gameState;
             std::vector<KeyState> _actionKeys;
@@ -64,6 +62,5 @@ namespace arcade {
             std::vector<pos_t> _map;
             std::vector<pos_t> _snake;
             Key _lastKey;
-            int _currentMap;
     };
 }

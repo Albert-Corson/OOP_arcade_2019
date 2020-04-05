@@ -14,7 +14,6 @@ Game::Game(ICore &core)
     : AGame(core)
     , _gameState(1)
     , _lastKey(LEFT)
-    , _currentMap(1)
 {
     _keyActions = {
         {Key::DOWN, &Game::moveDown},
@@ -23,18 +22,16 @@ Game::Game(ICore &core)
         {Key::LEFT, &Game::moveLeft},
         {Key::SPACE, &Game::pause},
     };
-    _actionKeys.push_back(KeyState(Key::ENTER));
     for (const auto &it : _keyActions)
         _actionKeys.push_back(KeyState(it.first));
     initMap();
-    initSnake('3');
+    initSnake();
     initAssets();
 }
 
 void Game::initAssets()
 {
     _core.loadResourceImage(1, "games/Nibbler/assets/limit.png", "games/Nibbler/assets/limit");
-    _core.loadResourceImage(2, "games/Nibbler/assets/wall.png", "games/Nibbler/assets/wall");
     _core.loadResourceImage(3, "games/Nibbler/assets/head.png", "games/Nibbler/assets/head");
     _core.loadResourceImage(4, "games/Nibbler/assets/body.png", "games/Nibbler/assets/body");
     _core.loadResourceImage(5, "games/Nibbler/assets/tail.png", "games/Nibbler/assets/tail");
@@ -44,121 +41,66 @@ void Game::initAssets()
 
 void Game::initMap()
 {
-    int x = 0;
-    int y = 0;
-    std::ifstream file("games/Nibbler/assets/map" + std::to_string(_currentMap));
-    char a;
-
-    while (file.get(a)) {
-        if (a == '\n') {
-            x = 0;
-            y += 1;
-        }
-        else {
-            _map.push_back({x, y, a});
-            x += 1;
+    for (int y = 0; y < 40; y += 1) {
+        for (int x = 0; x < 60; x += 1) {
+            if (y == 0 || x == 0 || y == 39 || x == 59)
+                _map.push_back({x, y, '1'});
+            else
+                _map.push_back({x, y, '0'});
         }
     }
 }
 
-void Game::initSnake(const char id)
+void Game::initSnake()
 {
-    for (auto &it : _map) {
-        if (it.val == id) {
-            _snake.push_back(it);
-            it.val = '0';
-        }
-    }
-    if (id < '5')
-        initSnake(id + 1);
-}
-
-void Game::resetGame()
-{
-    _map.clear();
-    _snake.clear();
-    setScore(0);
-    initMap();
-    initSnake('3');
-    _lastKey = LEFT;
-    _gameState = -1;
+    _snake.push_back({21, 21, '3'});
+    _snake.push_back({22, 21, '4'});
+    _snake.push_back({23, 21, '4'});
+    _snake.push_back({24, 21, '5'});
+    newFruit();
 }
 
 void Game::launch()
 {
     std::unique_ptr<IClock> cl = _core.createClock();
     double idx = 0.00;
-    int map = _currentMap;
-    unsigned long bestScore = 0;
 
+    srand(time(NULL));
     _running = true;
     _gameState = -1;
-    bestScore = 0;
-    while (_running) {
-        sceneGame(cl, idx, map);
-        if (_gameState == 0 && bestScore < getScore())
-            bestScore = getScore();
-    }
-    setScore(bestScore);
+    while (_running)
+        sceneGame(cl, idx);
     this->stop();
 }
 
-void Game::sceneGame(std::unique_ptr<IClock> &cl, double &idx, int &map)
+void Game::sceneGame(std::unique_ptr<IClock> &cl, double &idx)
 {
     int x = _map.back().x + 2;
-    std::vector<std::string> state = {"PAUSE", "YOU WIN", "RUN", "YOU LOSE"};
+    std::vector<std::string> state = {"PAUSE", "YOU LOSE", "RUN"};
 
     if (_gameState == 1)
-        idx = cl->getElapsedTime() / 100.00;
-    if (cl->getElapsedTime() > 100) {
+        idx = cl->getElapsedTime() / 100.00 * 2;
+    if (cl->getElapsedTime() > 50) {
         _core.getKeyboardEvents(_actionKeys);
-        processKeys(map, idx);
-        if (_gameState == 1) {
-            addScore(1);
+        processKeys(idx);
+        if (_gameState == 1)
             idx = 0.00;
-        }
-        if (!_actionKeys[1].is_pressed)
+        if (!_actionKeys[0].is_pressed)
             cl->reset();
     }
     _core.clear();
     displayAssets(idx);
-    displayKeys(x, map);
+    displayKeys(x);
     _core.displayText(0, x, 1, state[_gameState + 1] + "\tSCORE :  " + std::to_string(getScore()));
     _core.render();
 }
 
-void Game::changeMap(int &map, double &idx)
+void Game::processKeys(double &idx)
 {
-    if (_actionKeys[0].is_pressed && map != _currentMap) {
-        _currentMap = map;
-        resetGame();
-        idx = 0;
-        return;
-    }
-    if (_actionKeys[2].is_pressed && !_actionKeys[3].is_pressed) {
-        map -= 1;
-        if (map < 1)
-            map = 3;
-    }
-    else if (_actionKeys[3].is_pressed && !_actionKeys[2].is_pressed) {
-        map += 1;
-        if (map > 3)
-            map = 1;
-    }
-}
-
-void Game::processKeys(int &map, double &idx)
-{
-    if (_actionKeys[1].is_pressed) {
+    if (_actionKeys[0].is_pressed)
         pause();
-        return;
-    }
-    if (_gameState == 1) {
+    else if (_gameState == 1)
         gameMotor();
-        map = _currentMap;
-    }
-    else
-        changeMap(map, idx);
 }
 
 void Game::pause(Key key)
@@ -174,7 +116,6 @@ void Game::gameMotor()
     if (move != UNKNOWN) {
         (this->*_keyActions[move])(move);
     }
-    checkFruit();
 }
 
 Key Game::onlyOneKey()
@@ -182,7 +123,7 @@ Key Game::onlyOneKey()
     int count = 0;
     Key keyPress;
 
-    for (size_t i = 2; i < _actionKeys.size(); i++) {
+    for (size_t i = 1; i < _actionKeys.size(); i++) {
         if (_actionKeys[i].is_pressed) {
             keyPress = _actionKeys[i].key;
             count++;
@@ -238,22 +179,16 @@ void Game::moveSnake(const int x, const int y, const Key key)
     char m = getMap()[i].val;
     bool inTail = (_map[i].x == _snake[1].x && _map[i].y == _snake[1].y);
 
-    if (_lastKey != UNKNOWN && key != _lastKey && (m == '2' || inTail))
+    if (_lastKey != UNKNOWN && key != _lastKey && inTail)
         return (this->*_keyActions[_lastKey])(_lastKey);
-    if (m != '2') {
-        _lastKey = key;
-        moveTail();
-        _snake[0].x += x;
-        _snake[0].y += y;
-        if (m == '6')
-            eatFruit();
-    }
-    else
-        _lastKey = UNKNOWN;
-    if (m == '1' || m == '4' || m == '5') {
-        _gameState = 2;
-        setScore(0);
-    }
+    _lastKey = key;
+    moveTail();
+    _snake[0].x += x;
+    _snake[0].y += y;
+    if (m == '6')
+        eatFruit();
+    if (m == '1' || m == '4' || m == '5')
+        _gameState = 0;
 }
 
 void Game::moveTail(void)
@@ -271,15 +206,17 @@ void Game::eatFruit(void)
     _map[getPos(_snake[0].x, _snake[0].y)].val = '0';
     _snake.push_back(_snake[i]);
     _snake[i].val = '4';
+    addScore(1);
+    newFruit();
 }
 
-void Game::checkFruit(void)
+void Game::newFruit(void)
 {
-    for (size_t i = 0; i < _map.size(); i++) {
-        if (_map[i].val == '6')
-            return;
-    }
-    _gameState = 0;
+    size_t i = 0;
+
+    while (getMap()[i].val != '0')
+        i = rand() % _map.size();
+    _map[i].val = '6';
 }
 
 bool Game::canMove()
@@ -344,35 +281,28 @@ Key Game::snakeDirection(size_t i)
     return Key::UNKNOWN;
 }
 
-void Game::displayKeys(const int x, const int map)
+void Game::displayKeys(const int x)
 {
     _core.displayText(0, x, 3, "ACTIONS");
     _core.displayText(0, x + 6, 3, "| RUN");
-    _core.displayText(0, x + 18, 3, "| PAUSE");
-    _core.displayText(0, x, 4, "----------------------------------------------");
+    _core.displayText(0, x, 4, "-------------------------------");
     _core.displayText(0, x, 5, "'space'");
     _core.displayText(0, x + 6, 5, "| pause");
-    _core.displayText(0, x + 18, 5, "| run");
     _core.displayText(0, x, 6, "'arrows'");
     _core.displayText(0, x + 6, 6, "| change direction");
-    _core.displayText(0, x + 18, 6, "| change map");
-    _core.displayText(0, x, 7, "'enter'");
-    _core.displayText(0, x + 6, 7, "| nothing");
-    _core.displayText(0, x + 18, 7, "| valid new map");
-    _core.displayText(0, x, 8, "----------------------------------------------");
-    _core.displayText(0, x, 9, "'F1'");
-    _core.displayText(0, x + 6, 9, "| Previous library");
-    _core.displayText(0, x, 10, "'F2'");
-    _core.displayText(0, x + 6, 10, "| Next library");
-    _core.displayText(0, x, 11, "'F3'");
-    _core.displayText(0, x + 6, 11, "| Previous game");
-    _core.displayText(0, x, 12, "'F4'");
-    _core.displayText(0, x + 6, 12, "| Next game");
-    _core.displayText(0, x, 13, "'F5'");
-    _core.displayText(0, x + 6, 13, "| Restart game");
-    _core.displayText(0, x, 14, "'F6'");
-    _core.displayText(0, x + 6, 14, "| Back to menu");
-    _core.displayText(0, x, 15, "'F7'");
-    _core.displayText(0, x + 6, 15, "| Exit");
-    _core.displayText(0, x, 17, "<   map" + std::to_string(map) + "  >");
+    _core.displayText(0, x, 7, "-------------------------------");
+    _core.displayText(0, x, 8, "'F1'");
+    _core.displayText(0, x + 6, 8, "| Previous library");
+    _core.displayText(0, x, 9, "'F2'");
+    _core.displayText(0, x + 6, 9, "| Next library");
+    _core.displayText(0, x, 10, "'F3'");
+    _core.displayText(0, x + 6, 10, "| Previous game");
+    _core.displayText(0, x, 11, "'F4'");
+    _core.displayText(0, x + 6, 11, "| Next game");
+    _core.displayText(0, x, 12, "'F5'");
+    _core.displayText(0, x + 6, 12, "| Restart game");
+    _core.displayText(0, x, 13, "'F6'");
+    _core.displayText(0, x + 6, 13, "| Back to menu");
+    _core.displayText(0, x, 14, "'F7'");
+    _core.displayText(0, x + 6, 14, "| Exit");
 }
