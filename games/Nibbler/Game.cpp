@@ -14,6 +14,7 @@ Game::Game(ICore &core)
     : AGame(core)
     , _gameState(1)
     , _lastKey(LEFT)
+    , _currentMap(1)
 {
     _keyActions = {
         {Key::DOWN, &Game::moveDown},
@@ -22,6 +23,7 @@ Game::Game(ICore &core)
         {Key::LEFT, &Game::moveLeft},
         {Key::SPACE, &Game::pause},
     };
+    _actionKeys.push_back(KeyState(Key::ENTER));
     for (const auto &it : _keyActions)
         _actionKeys.push_back(KeyState(it.first));
     initMap();
@@ -44,7 +46,7 @@ void Game::initMap(void)
 {
     int x = 0;
     int y = 0;
-    std::ifstream file("games/Nibbler/assets/map2");
+    std::ifstream file("games/Nibbler/assets/map" + std::to_string(_currentMap));
     char a;
 
     while (file.get(a)) {
@@ -71,62 +73,97 @@ void Game::initSnake(const char id)
         initSnake(id + 1);
 }
 
+void Game::resetGame()
+{
+    _map.clear();
+    _snake.clear();
+    setScore(0);
+    initMap();
+    initSnake('3');
+    _lastKey = LEFT;
+    _gameState = -1;
+}
+
 void Game::launch()
 {
     std::unique_ptr<IClock> cl = _core.createClock();
     double idx = 0.00;
+    int map = _currentMap;
+    unsigned long bestScore = 0;
 
     _running = true;
+    _gameState = -1;
+    bestScore = 0;
     while (_running) {
-        if (_gameState == 1)
-            sceneGame(cl);
-        else
-            scenePause();
+        sceneGame(cl, idx, map);
+        if (_gameState == 0 && bestScore < getScore())
+            bestScore = getScore();
     }
+    setScore(bestScore);
     this->stop();
 }
 
-void Game::scenePause()
+void Game::sceneGame(std::unique_ptr<IClock> &cl, double &idx, int &map)
 {
-    _core.getKeyboardEvents(_actionKeys);
-    processKeys();
-}
-
-void Game::sceneGame(std::unique_ptr<IClock> &cl)
-{
-    double idx = 0.00;
     int x = _map.back().x + 2;
     std::vector<std::string> state = {"PAUSE", "YOU WIN", "RUN", "YOU LOSE"};
 
-    idx = cl->getElapsedTime() / 100.00;
+    if (_gameState == 1)
+        idx = cl->getElapsedTime() / 100.00;
     if (cl->getElapsedTime() > 100) {
-        addScore(1);
         _core.getKeyboardEvents(_actionKeys);
-        processKeys();
+        processKeys(map, idx);
         if (_gameState == 1) {
-            cl->reset();
+            addScore(1);
             idx = 0.00;
         }
+        if (!_actionKeys[1].is_pressed)
+            cl->reset();
     }
     _core.clear();
     displayAssets(idx);
-    _core.displayText(0, x, 1, state[_gameState + 1]);
-    _core.displayText(0, x, 2, "SCORE :  " + std::to_string(getScore()));
+    displayKeys(x, map);
+    _core.displayText(0, x, 1, state[_gameState + 1] + "\tSCORE :  " + std::to_string(getScore()));
     _core.render();
 }
 
-void Game::processKeys()
+void Game::changeMap(int &map, double &idx)
 {
-    int i = 0;
+    if (_actionKeys[0].is_pressed && map != _currentMap) {
+        _currentMap = map;
+        resetGame();
+        idx = 0;
+        return;
+    }
+    if (_actionKeys[2].is_pressed && !_actionKeys[3].is_pressed) {
+        map -= 1;
+        if (map < 1)
+            map = 3;
+    }
+    else if (_actionKeys[3].is_pressed && !_actionKeys[2].is_pressed) {
+        map += 1;
+        if (map > 3)
+            map = 1;
+    }
+}
 
-    if (_actionKeys[i].is_pressed)
+void Game::processKeys(int &map, double &idx)
+{
+    if (_actionKeys[1].is_pressed) {
         pause();
-    else if (_gameState == 1)
+        return;
+    }
+    if (_gameState == 1) {
         gameMotor();
+        map = _currentMap;
+    }
+    else
+        changeMap(map, idx);
 }
 
 void Game::pause(Key key)
 {
+    if (_gameState == 1 || _gameState == -1)
     _gameState = -_gameState;
 }
 
@@ -145,7 +182,7 @@ Key Game::onlyOneKey()
     int count = 0;
     Key keyPress;
 
-    for (size_t i = 1; i < _actionKeys.size(); i++) {
+    for (size_t i = 2; i < _actionKeys.size(); i++) {
         if (_actionKeys[i].is_pressed) {
             keyPress = _actionKeys[i].key;
             count++;
@@ -162,7 +199,7 @@ int Game::getPos(int x, int y)
         if (_map[i].x == x && _map[i].y == y)
             return i;
     }
-    return -1;
+    return 0;
 }
 
 std::vector<pos_t> Game::getMap()
@@ -305,4 +342,37 @@ Key Game::snakeDirection(size_t i)
     if (_snake[i].y < _snake[i-1].y)
         return Key::DOWN;
     return Key::UNKNOWN;
+}
+
+void Game::displayKeys(const int x, const int map)
+{
+    _core.displayText(0, x, 3, "ACTIONS");
+    _core.displayText(0, x + 6, 3, "|\tRUN");
+    _core.displayText(0, x + 20, 3, "|\tPAUSE");
+    _core.displayText(0, x, 4, "-----------------------------------------");
+    _core.displayText(0, x, 5, "'space'");
+    _core.displayText(0, x + 6, 5, "|\tpause");
+    _core.displayText(0, x + 20, 5, "|\trun");
+    _core.displayText(0, x, 6, "'arrows'");
+    _core.displayText(0, x + 6, 6, "|\tchange direction");
+    _core.displayText(0, x + 20, 6, "|\tchange map");
+    _core.displayText(0, x, 7, "'enter'");
+    _core.displayText(0, x + 6, 7, "|\tnothing");
+    _core.displayText(0, x + 20, 7, "|\tvalid new map");
+    _core.displayText(0, x, 8, "-----------------------------------------");
+    _core.displayText(0, x, 9, "'F1'");
+    _core.displayText(0, x + 6, 9, "|\tPrevious library");
+    _core.displayText(0, x, 10, "'F2'");
+    _core.displayText(0, x + 6, 10, "|\tNext library");
+    _core.displayText(0, x, 11, "'F3'");
+    _core.displayText(0, x + 6, 11, "|\tPrevious game");
+    _core.displayText(0, x, 12, "'F4'");
+    _core.displayText(0, x + 6, 12, "|\tNext game");
+    _core.displayText(0, x, 13, "'F5'");
+    _core.displayText(0, x + 6, 13, "|\tRestart game");
+    _core.displayText(0, x, 14, "'F6'");
+    _core.displayText(0, x + 6, 14, "|\tBack to menu");
+    _core.displayText(0, x, 15, "'F7'");
+    _core.displayText(0, x + 6, 15, "|\tExit");
+    _core.displayText(0, x, 17, "<   map" + std::to_string(map) + "  >");
 }

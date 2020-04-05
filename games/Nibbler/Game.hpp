@@ -29,17 +29,16 @@ namespace arcade {
             void launch() override final;
 
         private:
-            void processKeys();
+            void processKeys(int &map, double &idx);
             void pause(Key key = Key::UNKNOWN);
-
+            void resetGame();
+            void changeMap(int &map, double &idx);
             void initAssets();
+            void displayKeys(const int x, const int map);
             void displayAssets(double idx);
             Key snakeDirection(size_t i);
             bool canMove();
-
-            void sceneGame(std::unique_ptr<IClock> &cl);
-            void scenePause();
-
+            void sceneGame(std::unique_ptr<IClock> &cl, double &idx, int &map);
             void gameMotor();
             Key onlyOneKey();
             void initMap(void);
@@ -61,5 +60,6 @@ namespace arcade {
             std::vector<pos_t> _map;
             std::vector<pos_t> _snake;
             Key _lastKey;
+            int _currentMap;
     };
 }
