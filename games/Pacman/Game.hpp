@@ -10,6 +10,7 @@
 #include "AGame.hpp"
 #include <unordered_map>
 #include <fstream>
+#include <time.h>
 
 namespace arcade {
     typedef struct
@@ -17,11 +18,13 @@ namespace arcade {
         int x;
         int y;
         char val;
+        Key lastMove;
+        double gap;
     }pos_t;
 
     class Game : public AGame {
         public:
-            typedef void (Game::*keyAction_t)(Key);
+            typedef void (Game::*keyAction_t)(Key, int);
 
             Game(ICore &core);
             ~Game() override = default;
@@ -34,35 +37,38 @@ namespace arcade {
             void initPacman();
 
             void resetGame();
-            void sceneGame(std::unique_ptr<IClock> &cl, double &idx, int &map);
+            void sceneGame(std::unique_ptr<IClock> &cl, int &map);
 
-            void changeMap(int &map, double &idx);
-            void processKeys(int &map, double &idx);
-            void pause(Key key = Key::UNKNOWN);
+            void changeMap(int &map);
+            void processKeys(int &map);
+            void pause(Key key = Key::UNKNOWN, int i = 0);
 
             void gameMotor();
+            std::vector<Key> possibleDir(int i);
+            Key dirEnemies(const std::vector<Key> &dirs, int id);
+            Key originMove(int id);
             Key onlyOneKey();
             int getPos(int x, int y);
             std::vector<pos_t> getMap();
-            void moveDown(Key key = Key::UNKNOWN);
-            void moveUp(Key key = Key::UNKNOWN);
-            void moveRight(Key key = Key::UNKNOWN);
-            void moveLeft(Key key = Key::UNKNOWN);
-            void movePacman(const int x, const int y, const Key key);
-            void teleportation();
+            void moveDown(Key key = Key::UNKNOWN, int i = 0);
+            void moveUp(Key key = Key::UNKNOWN, int i = 0);
+            void moveRight(Key key = Key::UNKNOWN, int i = 0);
+            void moveLeft(Key key = Key::UNKNOWN, int i = 0);
+            void movePlayers(const int x, const int y, const Key key, int i);
+            void moveEnemies(const int x, const int y, const Key key, int i);
+            void teleportation(int i);
             void eatFruit(void);
             void checkFruit(void);
 
-            bool canMove();
-            void displayAssets(double idx);
+            bool canMove(const size_t i, const Key dir);
+            void displayAssets();
             void displayKeys(const int x, const int map);
 
             int _gameState;
             std::vector<KeyState> _actionKeys;
             std::unordered_map<Key, keyAction_t> _keyActions;
             std::vector<pos_t> _map;
-            pos_t _pacman;
-            Key _lastKey;
+            std::vector<pos_t> _players;
             int _currentMap;
     };
 }
