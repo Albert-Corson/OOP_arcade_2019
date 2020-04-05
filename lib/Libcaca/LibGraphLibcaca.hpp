@@ -9,7 +9,7 @@
 
 #include "ALibGraph.hpp"
 #include "init_graph_lib.hpp"
-#include <caca++.h>
+#include <caca.h>
 #include <unordered_map>
 
 namespace arcade {

@@ -9,7 +9,7 @@
 
 #include "deps/keys.hpp"
 #include <unordered_map>
-#include <caca++.h>
+#include <caca.h>
 
 using namespace arcade;
 
