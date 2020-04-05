@@ -32,14 +32,6 @@ namespace arcade {
             void resetResource() override final;
 
         private:
-            struct Image {
-                Image(const std::string &img = "");
-                Image(const Image &other);
-                void operator=(const Image &other);
-                
-                std::string image;
-            };
-
-            std::unordered_map<int, Image> _images;
+            std::unordered_map<int, std::string> _images;
     };
 }

@@ -55,16 +55,6 @@ const std::unordered_map<int, Key> NCURSES_KEYMAP = {
     { '8', Key::NUM8 },
     { '9', Key::NUM9 },
 
-    // { -1, Key::ESCAPE },
-    // { -1, Key::LCONTROL },
-    // { -1, Key::LSHIFT },
-    // { -1, Key::LALT },
-    // { -1, Key::LSYSTEM },
-    // { -1, Key::RSHIFT },
-    // { -1, Key::RALT },
-    // { -1, Key::RSYSTEM },
-    // { -1, Key::MENU },
-
     { '[', Key::LBRACKET },
     { ']', Key::RBRACKET },
     { ';', Key::SEMICOLON },
@@ -88,11 +78,6 @@ const std::unordered_map<int, Key> NCURSES_KEYMAP = {
     { KEY_HOME, Key::HOME },
     { KEY_IC, Key::INSERT },
     { KEY_DC, Key::DELETE },
-
-    // { -1, Key::ADD },
-    // { -1, Key::SUBTRACT },
-    // { -1, Key::MULTIPLY },
-    // { -1, Key::DIVIDE },
 
     { KEY_LEFT, Key::LEFT },
     { KEY_RIGHT, Key::RIGHT },
