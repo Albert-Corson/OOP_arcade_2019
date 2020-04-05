@@ -7,6 +7,7 @@
 
 GAMESDIR	=	Nibbler		\
 				Snake		\
+				Pacman		\
 				Solarfox
 
 all:

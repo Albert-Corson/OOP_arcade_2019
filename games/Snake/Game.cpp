@@ -31,12 +31,12 @@ Game::Game(ICore &core)
 
 void Game::initAssets()
 {
-    _core.loadResourceImage(1, "games/Nibbler/assets/limit.png", "games/Nibbler/assets/limit");
-    _core.loadResourceImage(3, "games/Nibbler/assets/head.png", "games/Nibbler/assets/head");
-    _core.loadResourceImage(4, "games/Nibbler/assets/body.png", "games/Nibbler/assets/body");
-    _core.loadResourceImage(5, "games/Nibbler/assets/tail.png", "games/Nibbler/assets/tail");
-    _core.loadResourceImage(6, "games/Nibbler/assets/fruit.png", "games/Nibbler/assets/fruit");
-    _core.loadResourceFont(0, "games/Nibbler/assets/font.ttf");
+    _core.loadResourceImage(1, "games/Snake/assets/limit.png", "games/Snake/assets/limit");
+    _core.loadResourceImage(3, "games/Snake/assets/head.png", "games/Snake/assets/head");
+    _core.loadResourceImage(4, "games/Snake/assets/body.png", "games/Snake/assets/body");
+    _core.loadResourceImage(5, "games/Snake/assets/tail.png", "games/Snake/assets/tail");
+    _core.loadResourceImage(6, "games/Snake/assets/fruit.png", "games/Snake/assets/fruit");
+    _core.loadResourceFont(0, "games/Snake/assets/font.ttf");
 }
 
 void Game::initMap()
