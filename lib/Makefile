@@ -7,7 +7,6 @@
 
 LIBSDIR	=	SFML	\
 			SDL2	\
-			Libcaca	\
 			Ncurses
 
 MAKE	= make --no-print-directory
