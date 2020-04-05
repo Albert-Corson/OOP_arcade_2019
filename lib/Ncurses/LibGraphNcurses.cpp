@@ -16,21 +16,6 @@
 
 using namespace arcade;
 
-LibGraphNcurses::Image::Image(const std::string &img)
-    : image(img)
-{
-}
-
-LibGraphNcurses::Image::Image(const Image &other)
-{
-    *this = other;
-}
-
-void LibGraphNcurses::Image::operator=(const Image &other)
-{
-    image = other.image;
-}
-
 LibGraphNcurses::LibGraphNcurses()
 {
     setlocale(LC_ALL, "");
@@ -85,8 +70,7 @@ void LibGraphNcurses::displayImage(int id, int posX, int posY)
 void LibGraphNcurses::displayImage(int id, double posX, double posY)
 {
     try {
-        Image &img = _images.at(id);
-        mvaddstr(round(posY), round(posX) * 2, img.image.c_str());
+        displayText(0, round(posX), round(posY), _images.at(id));
     } catch (...) {
         throw Exception("displayImage: incorrect id:" + std::to_string(id));
     }
@@ -94,11 +78,7 @@ void LibGraphNcurses::displayImage(int id, double posX, double posY)
 
 void LibGraphNcurses::displayText(int fontID, int posX, int posY, std::string const &text)
 {
-    int x = getcurx(stdscr);
-    int y = getcury(stdscr);
-
     mvaddstr(posY, posX * 2, text.c_str());
-    move(y, x);
 }
 
 void LibGraphNcurses::clear()
@@ -119,7 +99,7 @@ void LibGraphNcurses::loadResourceImage(int id, std::string const &filepathGraph
     if (!file.good())
         throw LibGraphNcurses::Exception("loadResourceImage: couldn't load file: " + filepathAscii);
     buffer << file.rdbuf();
-    _images[id] = Image(buffer.str());
+    _images[id] = buffer.str();
 }
 
 void LibGraphNcurses::resetResource()

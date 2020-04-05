@@ -8,15 +8,14 @@
 #pragma once
 
 #include "deps/keys.hpp"
-#include <ncurses.h>
 #include <unordered_map>
+#include <caca++.h>
 
 using namespace arcade;
 
 #define NO_KEY -1
 
-const std::unordered_map<int, Key> NCURSES_KEYMAP = {
-    { 0, Key::UNKNOWN },
+const std::unordered_map<int, Key> LIBCACA_KEYMAP = {
     { 'a', Key::A },
     { 'b', Key::B },
     { 'c', Key::C },
@@ -55,6 +54,8 @@ const std::unordered_map<int, Key> NCURSES_KEYMAP = {
     { '8', Key::NUM8 },
     { '9', Key::NUM9 },
 
+    { caca_key::CACA_KEY_ESCAPE , Key::ESCAPE },
+
     { '[', Key::LBRACKET },
     { ']', Key::RBRACKET },
     { ';', Key::SEMICOLON },
@@ -70,19 +71,26 @@ const std::unordered_map<int, Key> NCURSES_KEYMAP = {
 
     { '\r', Key::ENTER },
     { '\n', Key::ENTER },
-    { KEY_BACKSPACE, Key::BACKSPACE },
-    { '\t', Key::TAB },
-    { KEY_PPAGE, Key::PAGEUP },
-    { KEY_NPAGE, Key::PAGEDOWN },
-    { KEY_END, Key::END },
-    { KEY_HOME, Key::HOME },
-    { KEY_IC, Key::INSERT },
-    { KEY_DC, Key::DELETE },
+    { CACA_KEY_RETURN, Key::ENTER },
+    { CACA_KEY_BACKSPACE, Key::BACKSPACE },
+    { CACA_KEY_TAB, Key::TAB },
+    { CACA_KEY_PAGEUP, Key::PAGEUP },
+    { CACA_KEY_PAGEDOWN, Key::PAGEDOWN },
+    { CACA_KEY_END, Key::END },
+    { CACA_KEY_HOME, Key::HOME },
+    { CACA_KEY_INSERT, Key::INSERT },
+    { CACA_KEY_DELETE, Key::DELETE },
 
-    { KEY_LEFT, Key::LEFT },
-    { KEY_RIGHT, Key::RIGHT },
-    { KEY_UP, Key::UP },
-    { KEY_DOWN, Key::DOWN },
+    { '+', Key::ADD },
+    { '-', Key::SUBTRACT },
+    { '*', Key::MULTIPLY },
+    { '/', Key::DIVIDE },
+
+    { CACA_KEY_LEFT, Key::LEFT },
+    { CACA_KEY_RIGHT, Key::RIGHT },
+    { CACA_KEY_UP, Key::UP },
+    { CACA_KEY_DOWN, Key::DOWN },
+
     { '0', Key::NUMPAD0 },
     { '1', Key::NUMPAD1 },
     { '2', Key::NUMPAD2 },
@@ -93,19 +101,19 @@ const std::unordered_map<int, Key> NCURSES_KEYMAP = {
     { '7', Key::NUMPAD7 },
     { '8', Key::NUMPAD8 },
     { '9', Key::NUMPAD9 },
-    { KEY_F(1), Key::F1 },
-    { KEY_F(2), Key::F2 },
-    { KEY_F(3), Key::F3 },
-    { KEY_F(4), Key::F4 },
-    { KEY_F(5), Key::F5 },
-    { KEY_F(6), Key::F6 },
-    { KEY_F(7), Key::F7 },
-    { KEY_F(8), Key::F8 },
-    { KEY_F(9), Key::F9 },
-    { KEY_F(10), Key::F10 },
-    { KEY_F(11), Key::F11 },
-    { KEY_F(12), Key::F12 },
-    { KEY_F(13), Key::F13 },
-    { KEY_F(14), Key::F14 },
-    { KEY_F(15), Key::F15 },
+    { CACA_KEY_F1 , Key::F1 },
+    { CACA_KEY_F2 , Key::F2 },
+    { CACA_KEY_F3 , Key::F3 },
+    { CACA_KEY_F4 , Key::F4 },
+    { CACA_KEY_F5 , Key::F5 },
+    { CACA_KEY_F6 , Key::F6 },
+    { CACA_KEY_F7 , Key::F7 },
+    { CACA_KEY_F8 , Key::F8 },
+    { CACA_KEY_F9 , Key::F9 },
+    { CACA_KEY_F10 , Key::F10 },
+    { CACA_KEY_F11 , Key::F11 },
+    { CACA_KEY_F12 , Key::F12 },
+    { CACA_KEY_F13 , Key::F13 },
+    { CACA_KEY_F14 , Key::F14 },
+    { CACA_KEY_F15 , Key::F15 },
 };
