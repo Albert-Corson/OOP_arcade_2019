@@ -13,7 +13,6 @@ using namespace arcade;
 Game::Game(ICore &core)
     : AGame(core)
     , _gameState(1)
-    , _lastKey(LEFT)
     , _currentMap(1)
 {
     _keyActions = {
@@ -53,7 +52,7 @@ void Game::initMap()
             y += 1;
         }
         else {
-            _map.push_back({x, y, a});
+            _map.push_back({x, y, a, UNKNOWN, 0.00});
             x += 1;
         }
     }
@@ -63,7 +62,13 @@ void Game::initPacman()
 {
     for (auto &it : _map) {
         if (it.val == '3') {
-            _pacman = it;
+            _players.push_back(it);
+            it.val = '0';
+        }
+    }
+    for (auto &it : _map) {
+        if (it.val == '1') {
+            _players.push_back(it);
             it.val = '0';
         }
     }
@@ -72,25 +77,25 @@ void Game::initPacman()
 void Game::resetGame()
 {
     _map.clear();
+    _players.clear();
     setScore(0);
     initMap();
     initPacman();
-    _lastKey = LEFT;
     _gameState = -1;
 }
 
 void Game::launch()
 {
     std::unique_ptr<IClock> cl = _core.createClock();
-    double idx = 0.00;
     int map = _currentMap;
     unsigned long bestScore = 0;
 
+    srand(time(NULL));
     _running = true;
     _gameState = -1;
     bestScore = 0;
     while (_running) {
-        sceneGame(cl, idx, map);
+        sceneGame(cl, map);
         if (_gameState == 0 && bestScore < getScore())
             bestScore = getScore();
     }
@@ -98,34 +103,35 @@ void Game::launch()
     this->stop();
 }
 
-void Game::sceneGame(std::unique_ptr<IClock> &cl, double &idx, int &map)
+void Game::sceneGame(std::unique_ptr<IClock> &cl, int &map)
 {
     int x = _map.back().x + 2;
     std::vector<std::string> state = {"PAUSE", "YOU WIN", "RUN", "YOU LOSE"};
 
-    if (_gameState == 1)
-        idx = cl->getElapsedTime() / 100.00;
-    if (cl->getElapsedTime() > 100) {
+    if (_gameState == 1) {
+        for (auto &it : _players)
+            it.gap = cl->getElapsedTime() / 100.00;
+    } if (cl->getElapsedTime() > 100) {
         _core.getKeyboardEvents(_actionKeys);
-        processKeys(map, idx);
-        if (_gameState == 1)
-            idx = 0.00;
-        if (!_actionKeys[1].is_pressed)
+        processKeys(map);
+        if (_gameState == 1) {
+            for (auto &it : _players)
+                it.gap = 0.00;
+        } if (!_actionKeys[1].is_pressed)
             cl->reset();
     }
     _core.clear();
-    displayAssets(idx);
+    displayAssets();
     displayKeys(x, map);
     _core.displayText(0, x, 1, state[_gameState + 1] + "\tSCORE :  " + std::to_string(getScore()));
     _core.render();
 }
 
-void Game::changeMap(int &map, double &idx)
+void Game::changeMap(int &map)
 {
     if (_actionKeys[0].is_pressed && map != _currentMap) {
         _currentMap = map;
         resetGame();
-        idx = 0;
         return;
     }
     if (_actionKeys[2].is_pressed && !_actionKeys[3].is_pressed) {
@@ -140,7 +146,7 @@ void Game::changeMap(int &map, double &idx)
     }
 }
 
-void Game::processKeys(int &map, double &idx)
+void Game::processKeys(int &map)
 {
     if (_actionKeys[1].is_pressed) {
         pause();
@@ -151,10 +157,10 @@ void Game::processKeys(int &map, double &idx)
         map = _currentMap;
     }
     else
-        changeMap(map, idx);
+        changeMap(map);
 }
 
-void Game::pause(Key key)
+void Game::pause(Key key, int i)
 {
     if (_gameState == 1 || _gameState == -1)
         _gameState = -_gameState;
@@ -162,12 +168,59 @@ void Game::pause(Key key)
 
 void Game::gameMotor()
 {
-    Key move = onlyOneKey();
+    Key move = UNKNOWN;
 
-    if (move != UNKNOWN) {
-        (this->*_keyActions[move])(move);
+    for (size_t i = 0; i < _players.size(); i += 1) {
+        if (i == 0)
+            move = onlyOneKey();
+        else
+            move = dirEnemies(possibleDir(i), i);
+        if (move != UNKNOWN) {
+            (this->*_keyActions[move])(move, i);
+        }
     }
     checkFruit();
+}
+
+std::vector<Key> Game::possibleDir(int i)
+{
+    std::vector<Key> dirs;
+
+    if (canMove(i, RIGHT) && originMove(i) != RIGHT)
+        dirs.push_back(RIGHT);
+    if (canMove(i, LEFT) && originMove(i) != LEFT)
+        dirs.push_back(LEFT);
+    if (canMove(i, UP) && originMove(i) != UP)
+        dirs.push_back(UP);
+    if (canMove(i, DOWN) && originMove(i) != DOWN)
+        dirs.push_back(DOWN);
+    if (dirs.size() == 0)
+        dirs.push_back(UNKNOWN);
+    return dirs;
+}
+
+Key Game::originMove(int id)
+{
+    switch (_players[id].lastMove)
+    {
+    case RIGHT: return LEFT;
+    case LEFT: return RIGHT;
+    case UP: return DOWN;
+    case DOWN: return UP;
+    default: return UNKNOWN;
+    }
+}
+
+Key Game::dirEnemies(const std::vector<Key> &dirs, int id)
+{
+    int i;
+
+    if (dirs.size() == 1 && dirs[0] == UNKNOWN)
+        return originMove(id);
+    else if (dirs.size() == 1)
+        return dirs[0];
+    i = rand() % dirs.size();
+    return dirs[i];
 }
 
 Key Game::onlyOneKey()
@@ -183,7 +236,7 @@ Key Game::onlyOneKey()
     }
     if (count == 1)
         return keyPress;
-    return _lastKey;
+    return _players[0].lastMove;
 }
 
 int Game::getPos(int x, int y)
@@ -199,72 +252,96 @@ std::vector<pos_t> Game::getMap()
 {
     std::vector<pos_t> tmp = _map;
 
-    tmp[getPos(_pacman.x, _pacman.y)].val = _pacman.val;
+    for (size_t i = 0; i < _players.size(); i++) {
+        tmp[getPos(_players[i].x, _players[i].y)].val = _players[i].val;
+    }
     return tmp;
 }
 
-void Game::moveDown(Key key)
+void Game::moveDown(Key key, int i)
 {
-    movePacman(0, 1, key);
+    movePlayers(0, 1, key, i);
 }
 
-void Game::moveUp(Key key)
+void Game::moveUp(Key key, int i)
 {
-    movePacman(0, -1, key);
+    movePlayers(0, -1, key, i);
 }
 
-void Game::moveRight(Key key)
+void Game::moveRight(Key key, int i)
 {
-    movePacman(1, 0, key);
+    movePlayers(1, 0, key, i);
 }
 
-void Game::moveLeft(Key key)
+void Game::moveLeft(Key key, int i)
 {
-    movePacman(-1, 0, key);
+    movePlayers(-1, 0, key, i);
 }
 
-void Game::movePacman(const int x, const int y, const Key key)
+void Game::movePlayers(const int x, const int y, const Key key, int i)
 {
-    int i = getPos(_pacman.x + x, _pacman.y + y);
-    char m = getMap()[i].val;
+    char m = getMap()[getPos(_players[0].x + x, _players[0].y + y)].val;
 
-    if (_lastKey != UNKNOWN && key != _lastKey && m == '2')
-        return (this->*_keyActions[_lastKey])(_lastKey);
+    if (i != 0)
+        return (moveEnemies(x, y, key, i));
+    if (_players[0].lastMove != UNKNOWN && key != _players[0].lastMove && m == '2')
+        return (this->*_keyActions[_players[0].lastMove])(_players[0].lastMove, 0);
     if (m != '2') {
-        _lastKey = key;
-        _pacman.x += x;
-        _pacman.y += y;
-        if (_pacman.x == 0)
-            _pacman.x = _map.back().x - 1;
-        if (_pacman.x == _map.back().x)
-            _pacman.x = 1;
-        teleportation();
+        _players[0].lastMove = key;
+        _players[0].x += x;
+        _players[0].y += y;
+        teleportation(0);
         if (m == '6')
             eatFruit();
     }
     else
-        _lastKey = UNKNOWN;
+        _players[0].lastMove = UNKNOWN;
     if (m == '1') {
         _gameState = 2;
         setScore(0);
     }
 }
 
-void Game::teleportation()
+void Game::moveEnemies(const int x, const int y, const Key key, int i)
 {
-    if (_pacman.x == 0)
-        _pacman.x = _map.back().x - 1;
-    if (_pacman.x == _map.back().x)
-        _pacman.x = 1;
-    if (_pacman.y == 0)
-        _pacman.y = _map.back().y - 1;
-    if (_pacman.y == _map.back().y)
-        _pacman.y = 1;
+    char m = getMap()[getPos(_players[i].x + x, _players[i].y + y)].val;
+    Key move;
+
+    if (m != '2' && m != '1') {
+        _players[i].lastMove = key;
+        _players[i].x += x;
+        _players[i].y += y;
+        if (_players[i].x == 0)
+            _players[i].x = _map.back().x - 1;
+        if (_players[i].x == _map.back().x)
+            _players[i].x = 1;
+        teleportation(i);
+    }
+    else {
+        move = dirEnemies(possibleDir(i), i);
+        (this->*_keyActions[move])(move, i);
+    }
+    if (m == '3') {
+        _gameState = 2;
+        setScore(0);
+    }
+}
+
+void Game::teleportation(int i)
+{
+    if (_players[i].x == 0)
+        _players[i].x = _map.back().x - 1;
+    if (_players[i].x == _map.back().x)
+        _players[i].x = 1;
+    if (_players[i].y == 0)
+        _players[i].y = _map.back().y - 1;
+    if (_players[i].y == _map.back().y)
+        _players[i].y = 1;
 }
 
 void Game::eatFruit(void)
 {
-    _map[getPos(_pacman.x, _pacman.y)].val = '0';
+    _map[getPos(_players[0].x, _players[0].y)].val = '0';
     addScore(1);
 }
 
@@ -277,48 +354,54 @@ void Game::checkFruit(void)
     _gameState = 0;
 }
 
-bool Game::canMove()
+bool Game::canMove(const size_t i, const Key dir)
 {
-    char r = _map[getPos(_pacman.x + 1, _pacman.y)].val;
-    char l = _map[getPos(_pacman.x - 1, _pacman.y)].val;
-    char u = _map[getPos(_pacman.x, _pacman.y - 1)].val;
-    char d = _map[getPos(_pacman.x, _pacman.y + 1)].val;
+    std::vector<pos_t> map = getMap();
+    char r = map[getPos(_players[i].x + 1, _players[i].y)].val;
+    char l = map[getPos(_players[i].x - 1, _players[i].y)].val;
+    char u = map[getPos(_players[i].x, _players[i].y - 1)].val;
+    char d = map[getPos(_players[i].x, _players[i].y + 1)].val;
 
-    if (_lastKey == UNKNOWN)
+    if (dir == UNKNOWN)
         return true;
-    else if ((_lastKey == Key::RIGHT && r != '0' && r != '6') ||
-        (_lastKey == Key::LEFT && l != '0' && l != '6') ||
-        (_lastKey == Key::UP && u != '0' && u != '6') ||
-        (_lastKey == Key::DOWN && d != '0' && d != '6'))
+    else if ((dir == Key::RIGHT && r != '0' && r != '6' && r != '3') ||
+        (dir == Key::LEFT && l != '0' && l != '6' && l != '3') ||
+        (dir == Key::UP && u != '0' && u != '6' && u != '3') ||
+        (dir == Key::DOWN && d != '0' && d != '6' && d != '3'))
         return false;
     return true;
 }
 
-void Game::displayAssets(double idx)
+void Game::displayAssets()
 {
+    double idx;
+
     for (auto &it : _map) {
         if (it.val != '0')
             _core.displayImage(atoi(&it.val), it.x, it.y);
     }
-    if (_lastKey == UNKNOWN || !canMove())
-        idx = 0;
-    switch (_lastKey)
-    {
-    case Key::LEFT:
-        _core.displayImage(atoi(&_pacman.val), _pacman.x - idx, (double)_pacman.y);
-        break;
-    case Key::RIGHT:
-        _core.displayImage(atoi(&_pacman.val), _pacman.x + idx, (double)_pacman.y);
-        break;
-    case Key::UP:
-        _core.displayImage(atoi(&_pacman.val), (double)_pacman.x, _pacman.y - idx);
-        break;
-    case Key::DOWN:
-        _core.displayImage(atoi(&_pacman.val), (double)_pacman.x, _pacman.y + idx);
-        break;
-    default:
-        _core.displayImage(atoi(&_pacman.val), _pacman.x, _pacman.y);
-        break;
+    for (int i = _players.size() - 1; i >= 0; i -= 1) {
+        idx = _players[i].gap;
+        if (_players[i].lastMove == UNKNOWN || !canMove(i, _players[i].lastMove))
+            idx = 0;
+        switch (_players[i].lastMove)
+        {
+        case Key::LEFT:
+            _core.displayImage(atoi(&_players[i].val), _players[i].x - idx, (double)_players[i].y);
+            break;
+        case Key::RIGHT:
+            _core.displayImage(atoi(&_players[i].val), _players[i].x + idx, (double)_players[i].y);
+            break;
+        case Key::UP:
+            _core.displayImage(atoi(&_players[i].val), (double)_players[i].x, _players[i].y - idx);
+            break;
+        case Key::DOWN:
+            _core.displayImage(atoi(&_players[i].val), (double)_players[i].x, _players[i].y + idx);
+            break;
+        default:
+            _core.displayImage(atoi(&_players[i].val), _players[i].x, _players[i].y);
+            break;
+        }
     }
 }
 
