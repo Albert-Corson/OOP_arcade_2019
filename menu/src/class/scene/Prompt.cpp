@@ -65,8 +65,10 @@ void Prompt::pollEvents()
 
 void Prompt::_confirm()
 {
-    _core.setUserName(_username);
-    _game.setScene(GameMenu::S_MENU);
+    if (_username.empty() == false) {
+        _core.setUserName(_username);
+        _game.setScene(GameMenu::S_MENU);
+    }
 }
 
 void Prompt::_type(const Key key)

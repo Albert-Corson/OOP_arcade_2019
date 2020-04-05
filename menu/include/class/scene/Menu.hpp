@@ -19,6 +19,7 @@ namespace arcade {
             void pollEvents() final;
 
         private:
+            void _drawHelp();
             void _drawNav();
             void _drawTab();
             void _drawScoreboard();

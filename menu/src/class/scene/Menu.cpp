@@ -100,6 +100,27 @@ void Menu::_keySelect()
     }
 }
 
+void Menu::_drawHelp()
+{
+    size_t posx = 25;
+
+    _core.displayText(0, posx, 0, "ACTIONS");
+    _core.displayText(0, posx, 2, "'F1'");
+    _core.displayText(0, posx + 6, 2, "| Previous library");
+    _core.displayText(0, posx, 3, "'F2'");
+    _core.displayText(0, posx + 6, 3, "| Next library");
+    _core.displayText(0, posx, 4, "'F3'");
+    _core.displayText(0, posx + 6, 4, "| Previous game");
+    _core.displayText(0, posx, 5, "'F4'");
+    _core.displayText(0, posx + 6, 5, "| Next game");
+    _core.displayText(0, posx, 6, "'F5'");
+    _core.displayText(0, posx + 6, 6, "| Restart game");
+    _core.displayText(0, posx, 7, "'F6'");
+    _core.displayText(0, posx + 6, 7, "| Back to menu");
+    _core.displayText(0, posx, 8, "'F7'");
+    _core.displayText(0, posx + 6, 8, "| Exit");
+}
+
 void Menu::_drawNav()
 {
     size_t posx = 0;
@@ -156,6 +177,7 @@ void Menu::draw()
     if (_currTab == 2 && _scoreboardIsOpen) { // Scoreboard
         this->_drawScoreboard();
     } else {
+        this->_drawHelp();
         this->_drawNav();
         this->_drawTab();
     }

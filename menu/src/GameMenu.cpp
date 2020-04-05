@@ -52,8 +52,8 @@ void GameMenu::launch()
         elapsed = clock->getElapsedTime();
         if (elapsed >= 1000 / 30) {
             clock->reset();
-            _core.clear();
             _scenes[_currScene]->pollEvents();
+            _core.clear();
             _scenes[_currScene]->draw();
             _core.render();
         }

@@ -16,6 +16,15 @@ void print_usage(const char *bin)
     std::cerr << std::endl;
     std::cerr << "DESCRIPTION" << std::endl;
     std::cerr << "\tpath\tpath to graphical library to use by default" << std::endl;
+    std::cerr << std::endl;
+    std::cerr << "CONTROLS" << std::endl;
+    std::cerr << "\tF1\tPrevious library" << std::endl;
+    std::cerr << "\tF2\tNext library" << std::endl;
+    std::cerr << "\tF3\tPrevious game" << std::endl;
+    std::cerr << "\tF4\tNext game" << std::endl;
+    std::cerr << "\tF5\tRestart game" << std::endl;
+    std::cerr << "\tF6\tBack to menu" << std::endl;
+    std::cerr << "\tF7\tExit" << std::endl;
 }
 
 int main(int argc, const char *argv[])
